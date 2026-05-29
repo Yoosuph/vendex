@@ -26,7 +26,7 @@ export default function VendorStorefront() {
 
   return (
     <>
-      <nav className="w-full bg-white shadow-sm sticky top-16 z-40">
+      <nav className="w-full bg-surface-container-lowest shadow-sm sticky top-16 z-40">
         <div className="max-w-container-max mx-auto px-gutter flex gap-lg">
           <Button variant="outline">Products</Button>
           <Button variant="ghost">About</Button>
@@ -40,7 +40,7 @@ export default function VendorStorefront() {
             <div className="flex justify-between items-center mb-md">
               <h2 className="font-headline-md text-headline-md">All Products ({vendorProducts.length})</h2>
               <div className="flex gap-sm">
-                <select className="bg-white border-outline-variant rounded-lg text-body-sm px-md py-xs focus:border-primary focus:ring-primary">
+                <select className="bg-surface-container-lowest border-outline-variant rounded-lg text-body-sm px-md py-xs focus:border-primary focus:ring-primary">
                   <option>Newest First</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
@@ -57,7 +57,7 @@ export default function VendorStorefront() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
                 {vendorProducts.map(product => (
-                  <div key={product.id} className="bg-white rounded-xl overflow-hidden product-card-shadow flex flex-col group">
+                  <div key={product.id} className="bg-surface-container-lowest rounded-xl overflow-hidden product-card-shadow flex flex-col group">
                     <div className="relative aspect-square overflow-hidden bg-surface-container">
                       <img
                         alt={product.name}
@@ -72,7 +72,7 @@ export default function VendorStorefront() {
                       <p className="text-meta text-on-surface-variant mb-xs">{product.category}</p>
                       <h3 className="font-label-md text-on-surface mb-xs group-hover:text-primary transition-colors">{product.name}</h3>
                       <div className="flex items-center gap-xs mb-md">
-                        <span className="material-symbols-outlined text-[14px] text-primary" data-icon="star" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                        <span className="material-symbols-outlined text-body-sm text-primary filled" data-icon="star">star</span>
                         <span className="text-meta font-bold">{product.rating || '4.0'}</span>
                         <span className="text-meta text-on-surface-variant">({product.reviewsCount || 0})</span>
                       </div>

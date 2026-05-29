@@ -64,9 +64,9 @@ export default function AdminBuyers() {
               <p className="font-body-md text-body-md text-on-surface-variant mt-1">Review and manage your marketplace ecosystem buyers.</p>
             </div>
             <div className="flex gap-sm">
-              <Button variant="secondary"><span className="material-symbols-outlined text-[18px]">filter_list</span>
+              <Button variant="secondary"><span className="material-symbols-outlined text-body-lg">filter_list</span>
                 Filter</Button>
-              <Button variant="secondary"><span className="material-symbols-outlined text-[18px]">file_download</span>
+              <Button variant="secondary"><span className="material-symbols-outlined text-body-lg">file_download</span>
                 Export</Button>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function AdminBuyers() {
                         <td className="px-md py-4 font-body-sm text-body-sm text-on-surface">{b.orderCount}</td>
                         <td className="px-md py-4 font-body-sm text-body-sm font-bold text-on-surface">${b.totalSpent.toFixed(2)}</td>
                         <td className="px-md py-4">
-                          <span className={`px-2 py-1 rounded-full text-[12px] font-bold ${
+                          <span className={`px-2 py-1 rounded-full text-meta font-bold ${
                             b.status === 'suspended' ? 'bg-error-container text-error' :
                             b.status === 'flagged' ? 'bg-surface-variant text-on-surface-variant' :
                             'bg-[#2d7a4f1a] text-[#2d7a4f]'
@@ -212,7 +212,7 @@ export default function AdminBuyers() {
             </div>
 
             <div className="p-md border-t border-outline-variant bg-surface-container-lowest">
-              <Button variant="danger" onClick={() => handleSuspend(selectedBuyer)} icon={<span className="material-symbols-outlined text-[20px]">block</span>} fullWidth>
+              <Button variant="danger" onClick={() => handleSuspend(selectedBuyer)} icon={<span className="material-symbols-outlined text-body-lg">block</span>} fullWidth>
                 Suspend Account
               </Button>
             </div>

@@ -184,7 +184,7 @@ export default function Header({ onMenuToggle, isPortal }) {
             className="relative"
           >
             {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest z-10">
+              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary text-white text-meta font-bold rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest z-10">
                 {cartCount}
               </span>
             )}
@@ -207,7 +207,7 @@ export default function Header({ onMenuToggle, isPortal }) {
                   <div className="px-4 py-3 border-b border-outline-variant">
                     <p className="font-semibold text-on-surface text-body-sm truncate">{user.name}</p>
                     <p className="text-meta text-secondary truncate">{user.email}</p>
-                    <span className="inline-block mt-1.5 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">{user.role}</span>
+                    <span className="inline-block mt-1.5 text-meta font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">{user.role}</span>
                   </div>
                   {user.role === 'buyer' && (
                     <Link className="flex items-center gap-3 px-4 py-2.5 text-body-sm text-on-surface-variant hover:bg-surface-container-low transition-colors" to="/buyer" onClick={() => setShowProfileMenu(false)}>
@@ -226,7 +226,7 @@ export default function Header({ onMenuToggle, isPortal }) {
                   )}
                   <div className="border-t border-outline-variant my-1"></div>
                   <div className="px-4 py-1.5">
-                    <p className="text-[10px] font-bold text-secondary uppercase tracking-wider mb-1">Switch Role</p>
+                    <p className="text-meta font-bold text-secondary uppercase tracking-wider mb-1">Switch Role</p>
                     <div className="flex gap-1">
                       <Button variant={user.role === 'buyer' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('buyer')} className="flex-1">Buyer</Button>
                       <Button variant={user.role === 'vendor' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('vendor')} className="flex-1">Vendor</Button>
@@ -291,7 +291,7 @@ export default function Header({ onMenuToggle, isPortal }) {
 
             {/* Drawer content */}
             <div className="flex-1 overflow-y-auto py-4 px-3">
-              <p className="px-3 text-[10px] font-bold text-secondary uppercase tracking-widest mb-3">Navigation</p>
+              <p className="px-3 text-meta font-bold text-secondary uppercase tracking-widest mb-3">Navigation</p>
               <Link to="/" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
                 <span className="material-symbols-outlined text-secondary text-xl">home</span> Home
               </Link>
@@ -307,14 +307,14 @@ export default function Header({ onMenuToggle, isPortal }) {
               <Link to="/cart" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
                 <span className="material-symbols-outlined text-secondary text-xl">shopping_cart</span> Cart
                 {cartCount > 0 && (
-                  <span className="ml-auto bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full">{cartCount}</span>
+                  <span className="ml-auto bg-primary text-white text-meta font-bold px-2 py-0.5 rounded-full">{cartCount}</span>
                 )}
               </Link>
 
               {user && (
                 <>
                   <div className="border-t border-outline-variant my-3"></div>
-                  <p className="px-3 text-[10px] font-bold text-secondary uppercase tracking-widest mb-3">Account</p>
+                  <p className="px-3 text-meta font-bold text-secondary uppercase tracking-widest mb-3">Account</p>
                   <Link to={`/${user.role}`} className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
                     <span className="material-symbols-outlined text-secondary text-xl">dashboard</span> Dashboard
                   </Link>
@@ -328,7 +328,7 @@ export default function Header({ onMenuToggle, isPortal }) {
               )}
 
               <div className="border-t border-outline-variant my-3"></div>
-              <p className="px-3 text-[10px] font-bold text-secondary uppercase tracking-widest mb-3">Preferences</p>
+              <p className="px-3 text-meta font-bold text-secondary uppercase tracking-widest mb-3">Preferences</p>
               <div className="flex items-center justify-between px-3 py-3">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-secondary text-xl">dark_mode</span>

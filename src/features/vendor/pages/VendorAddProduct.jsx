@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 import useForm from '@/shared/hooks/useForm';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 
@@ -51,18 +52,18 @@ export default function VendorAddProduct() {
       <div className="mb-lg">
         <div className="flex items-center gap-base text-secondary mb-base">
           <span className="font-label-sm text-label-sm">Inventory</span>
-          <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+          <span className="material-symbols-outlined text-body-md">chevron_right</span>
           <span className="font-label-sm text-label-sm text-primary">New Product</span>
         </div>
         <h1 className="font-headline-lg text-headline-lg">Add New Product</h1>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden border border-surface-container-high">
+      <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden border border-surface-container-high">
         <form className="p-lg" onSubmit={handleSubmit}>
           <div className="mb-lg">
             <label className="font-label-md text-label-md block mb-xs">Product Imagery</label>
             <div className="border-2 border-dashed border-primary-container bg-primary-fixed/10 rounded-xl p-xl flex flex-col items-center justify-center cursor-pointer hover:bg-primary-fixed/20 transition-all group">
-              <span className="material-symbols-outlined text-[48px] text-primary mb-sm group-hover:scale-110 transition-transform" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_upload</span>
+              <span className="material-symbols-outlined text-5xl text-primary mb-sm group-hover:scale-110 transition-transform filled">cloud_upload</span>
               <div className="text-center">
                 <p className="font-body-md text-body-md text-on-surface font-bold">Provide Image URL below</p>
                 <p className="font-label-sm text-label-sm text-secondary">Paste a product image URL. Supports JPG, PNG, WEBP.</p>
@@ -89,7 +90,7 @@ export default function VendorAddProduct() {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md block" htmlFor="category">Category</label>
                 <select
-                  className={`w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%235f5e5e%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_12px_center] bg-no-repeat ${touched.category && errors.category ? 'border-error' : 'border-surface-variant'}`}
+                  className={`w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface appearance-none ${touched.category && errors.category ? 'border-error' : 'border-surface-variant'}`}
                   id="category"
                   name="category"
                   value={values.category}

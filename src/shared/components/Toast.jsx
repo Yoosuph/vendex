@@ -4,31 +4,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 const typeConfig = {
   success: {
     icon: 'check_circle',
-    bg: 'bg-green-50 border-green-200',
-    text: 'text-green-800',
-    iconColor: 'text-green-500',
-    progressBg: 'bg-green-500',
+    bg: 'bg-success-container border-success/30',
+    text: 'text-success',
+    iconColor: 'text-success',
+    progressBg: 'bg-success',
   },
   error: {
     icon: 'error',
-    bg: 'bg-red-50 border-red-200',
-    text: 'text-red-800',
-    iconColor: 'text-red-500',
-    progressBg: 'bg-red-500',
+    bg: 'bg-error-container border-error/30',
+    text: 'text-error',
+    iconColor: 'text-error',
+    progressBg: 'bg-error',
   },
   warning: {
     icon: 'warning',
-    bg: 'bg-amber-50 border-amber-200',
-    text: 'text-amber-800',
-    iconColor: 'text-amber-500',
-    progressBg: 'bg-amber-500',
+    bg: 'bg-warning-container border-warning/30',
+    text: 'text-warning',
+    iconColor: 'text-warning',
+    progressBg: 'bg-warning',
   },
   info: {
     icon: 'info',
-    bg: 'bg-blue-50 border-blue-200',
-    text: 'text-blue-800',
-    iconColor: 'text-blue-500',
-    progressBg: 'bg-blue-500',
+    bg: 'bg-info-container border-info/30',
+    text: 'text-info',
+    iconColor: 'text-info',
+    progressBg: 'bg-info',
   },
 };
 
@@ -62,7 +62,7 @@ function ToastItem({ toast, onClose }) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 80, scale: 0.95 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className={`${config.bg} border rounded-xl shadow-modal min-w-[300px] max-w-[400px] overflow-hidden`}
+      className={`${config.bg} border rounded-xl shadow-modal min-w-80 max-w-sm overflow-hidden`}
     >
       <div className="flex items-start gap-3 p-4">
         <span className={`material-symbols-outlined text-xl ${config.iconColor} mt-0.5`}>

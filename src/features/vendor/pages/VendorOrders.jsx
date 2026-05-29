@@ -39,9 +39,9 @@ export default function VendorOrders() {
             <p className="text-on-surface-variant font-body-md text-body-md mt-base">Manage vendor fulfillments and track shipping status.</p>
           </div>
           <div className="flex gap-sm">
-            <Button variant="primary"><span className="material-symbols-outlined text-[20px]">filter_list</span>
+            <Button variant="primary"><span className="material-symbols-outlined text-body-lg">filter_list</span>
               Filters</Button>
-            <Button variant="primary-container"><span className="material-symbols-outlined text-[20px]">download</span>
+            <Button variant="primary-container"><span className="material-symbols-outlined text-body-lg">download</span>
               Export CSV</Button>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default function VendorOrders() {
             description="Orders containing your products will appear here."
           />
         ) : (
-          <div className="bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-outline-variant overflow-hidden">
+          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead className="bg-surface-container-low border-b border-outline-variant">
                 <tr>

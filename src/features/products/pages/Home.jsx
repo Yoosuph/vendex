@@ -6,6 +6,7 @@ import Button from '@/shared/components/Button';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import { motion } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 export default function Home() {
   const { products } = useContext(MarketplaceContext);
@@ -79,7 +80,7 @@ export default function Home() {
   return (
     <>
       {successMessage && (
-        <div className="fixed top-20 right-4 z-50 bg-green-600 text-white px-md py-sm rounded-xl shadow-lg flex items-center gap-xs animate-bounce">
+        <div className="fixed top-20 right-4 z-50 bg-success text-white px-md py-sm rounded-xl shadow-lg flex items-center gap-xs animate-bounce">
           <span className="material-symbols-outlined">check_circle</span>
           <span>{successMessage}</span>
         </div>
@@ -122,7 +123,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="text-white font-display-lg text-[44px] md:text-[64px] leading-[1.05] mb-6 tracking-tight"
+                className="text-white font-display-lg text-display-lg-mobile md:text-display-lg leading-[1.05] mb-6 tracking-tight"
               >
                 Curated Excellence,{' '}
                 <span className="text-primary-container">Delivered.</span>
@@ -133,7 +134,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-white/70 font-body-lg text-body-lg md:text-[20px] mb-10 max-w-lg leading-relaxed"
+                className="text-white/70 font-body-lg text-body-lg mb-10 max-w-lg leading-relaxed"
               >
                 Discover premium products from the world's most trusted brands. Quality without compromise, curated for those who expect more.
               </motion.p>
@@ -146,7 +147,7 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-3 max-w-xl mb-10"
               >
                 <div className="flex-1 relative group">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-[22px] group-focus-within:text-white/80 transition-colors">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-headline-md group-focus-within:text-white/80 transition-colors">
                     search
                   </span>
                   <input
@@ -204,7 +205,7 @@ export default function Home() {
                   <span className="material-symbols-outlined text-white/80">inventory_2</span>
                 </div>
                 <div>
-                  <p className="text-white font-headline-md text-[20px]">{products.length}+</p>
+                  <p className="text-white font-headline-md text-body-lg">{products.length}+</p>
                   <p className="text-white/50 font-body-sm text-body-sm">Premium Products</p>
                 </div>
               </div>
@@ -213,7 +214,7 @@ export default function Home() {
                   <span className="material-symbols-outlined text-white/80">storefront</span>
                 </div>
                 <div>
-                  <p className="text-white font-headline-md text-[20px]">{stores.length}+</p>
+                  <p className="text-white font-headline-md text-body-lg">{stores.length}+</p>
                   <p className="text-white/50 font-body-sm text-body-sm">Verified Vendors</p>
                 </div>
               </div>
@@ -222,7 +223,7 @@ export default function Home() {
                   <span className="material-symbols-outlined text-white/80">verified</span>
                 </div>
                 <div>
-                  <p className="text-white font-headline-md text-[20px]">100%</p>
+                  <p className="text-white font-headline-md text-body-lg">100%</p>
                   <p className="text-white/50 font-body-sm text-body-sm">Verified Quality</p>
                 </div>
               </div>
@@ -237,11 +238,12 @@ export default function Home() {
               <button
                 key={cat}
                 onClick={() => navigate(idx === 0 ? '/search' : `/search?category=${encodeURIComponent(cat)}`)}
-                className={`whitespace-nowrap px-6 py-2 rounded-full font-label-md text-label-md transition-all border border-outline-variant/20 shadow-sm ${
+                className={cn(
+                  'whitespace-nowrap px-6 py-2 rounded-full font-label-md text-label-md transition-all border border-outline-variant/20 shadow-sm',
                   idx === 0
                     ? 'bg-primary-container text-white'
-                    : 'bg-white text-on-surface-variant hover:bg-surface-container-high'
-                }`}
+                    : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high'
+                )}
               >
                 {cat}
               </button>
@@ -265,13 +267,13 @@ export default function Home() {
               </div>
               <div className="flex gap-gutter overflow-x-auto hide-scrollbar pb-gutter">
                 {stores.map((store) => (
-                  <div key={store.name} className="flex-shrink-0 w-72 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all p-6 text-center group">
+                  <div key={store.name} className="flex-shrink-0 w-72 bg-surface-container-lowest rounded-xl shadow-card hover:shadow-card-hover transition-all p-6 text-center group">
                     <div className="w-20 h-20 mx-auto bg-surface-container-low rounded-full mb-4 overflow-hidden border-2 border-outline-variant/10 group-hover:border-primary transition-colors">
                       <img alt={store.name} className="w-full h-full object-cover" src={store.avatar} />
                     </div>
                     <h3 className="font-headline-md text-headline-md text-on-surface mb-1">{store.name}</h3>
                     <div className="flex items-center justify-center gap-1 mb-6">
-                      <span className="material-symbols-outlined text-primary text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                      <span className="material-symbols-outlined icon-filled text-primary text-body-md">star</span>
                       <span className="text-body-sm font-bold text-on-surface">{store.rating}</span>
                       <span className="text-body-sm text-on-surface-variant">({store.reviews})</span>
                     </div>
@@ -303,43 +305,44 @@ export default function Home() {
                 {trendingProducts.map((product) => {
                   const isWished = wishlist.some(item => item.id === product.id);
                   return (
-                    <div key={product.id} className="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-md transition-all duration-200">
+                    <div key={product.id} className="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:border-outline hover:shadow-md transition-all duration-200">
                       {/* Image */}
-                      <Link to={`/product/${product.id}`} className="block relative bg-gray-50 overflow-hidden" style={{ aspectRatio: '1/1' }}>
+                      <Link to={`/product/${product.id}`} className="block relative bg-surface-container-low overflow-hidden aspect-square">
                         <img
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           src={product.image}
                         />
                         {product.stock === 0 && (
-                          <span className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-medium px-2 py-0.5 rounded-full">Sold Out</span>
+                          <span className="absolute top-2 left-2 bg-black/60 text-white text-meta font-medium px-2 py-0.5 rounded-full">Sold Out</span>
                         )}
                       </Link>
                       {/* Content */}
                       <div className="p-2.5 md:p-3">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider truncate">{product.vendor}</p>
+                        <p className="text-meta font-semibold text-on-surface-variant uppercase tracking-wider truncate">{product.vendor}</p>
                         <Link to={`/product/${product.id}`}>
-                          <h3 className="text-[13px] font-semibold text-gray-900 mt-0.5 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                          <h3 className="text-body-sm font-semibold text-on-surface mt-0.5 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
                             {product.name}
                           </h3>
                         </Link>
                         <div className="flex items-center gap-0.5 mt-1">
-                          <span className="material-symbols-outlined text-[12px] text-amber-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                          <span className="text-[11px] font-medium text-gray-500">{product.rating?.toFixed(1) || '5.0'}</span>
-                          <span className="text-[10px] text-gray-300 ml-0.5">({product.reviewsCount || 0})</span>
+                          <span className="material-symbols-outlined icon-filled text-meta text-warning">star</span>
+                          <span className="text-meta font-medium text-on-surface-variant">{product.rating?.toFixed(1) || '5.0'}</span>
+                          <span className="text-meta text-on-surface-variant ml-0.5">({product.reviewsCount || 0})</span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-[14px] font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                          <span className="text-body-sm font-bold text-on-surface">${product.price.toFixed(2)}</span>
                           <button
                             onClick={(e) => { e.preventDefault(); handleAddToCart(product); }}
                             disabled={product.stock === 0}
-                            className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                            className={cn(
+                              'w-7 h-7 rounded-full flex items-center justify-center transition-all',
                               product.stock === 0
-                                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                                ? 'bg-surface-container-low text-on-surface-variant cursor-not-allowed'
                                 : 'bg-primary text-white hover:bg-primary-container shadow-sm active:scale-90'
-                            }`}
+                            )}
                           >
-                            <span className="material-symbols-outlined text-[15px]">add</span>
+                            <span className="material-symbols-outlined text-body-sm">add</span>
                           </button>
                         </div>
                       </div>

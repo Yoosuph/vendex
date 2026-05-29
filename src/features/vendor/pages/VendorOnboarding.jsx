@@ -90,11 +90,11 @@ export default function VendorOnboarding() {
   if (submitting) return <LoadingSpinner text="Submitting application..." />;
 
   return (
-    <main className="w-full max-w-[800px] bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+    <main className="w-full max-w-[800px] bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
       <div className="px-xl pt-xl pb-lg border-b border-outline-variant">
         <div className="flex justify-between relative mb-xs">
-          <div className="absolute top-[18px] left-0 w-full h-[2px] bg-surface-container-high z-0"></div>
-          <div className="absolute top-[18px] left-0 h-[2px] bg-primary-container z-0" style={{ width: progressWidth }}></div>
+          <div className="absolute top-[18px] left-0 w-full h-0.5 bg-surface-container-high z-0"></div>
+          <div className="absolute top-[18px] left-0 h-0.5 bg-primary-container z-0" style={{ width: progressWidth }}></div>
           {[1, 2, 3, 4].map(s => (
             <div key={s} className="relative z-10 flex flex-col items-center group cursor-pointer" onClick={() => s < step && setStep(s)}>
               <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ring-4 ring-surface-container-lowest ${s <= step ? 'bg-primary-container text-on-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
@@ -190,12 +190,12 @@ export default function VendorOnboarding() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               <div className="border-2 border-dashed border-primary-container rounded-xl p-lg flex flex-col items-center justify-center bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer group">
-                <span className="material-symbols-outlined text-primary text-[48px] mb-sm group-hover:scale-110 transition-transform">cloud_upload</span>
+                <span className="material-symbols-outlined text-primary text-5xl mb-sm group-hover:scale-110 transition-transform">cloud_upload</span>
                 <p className="font-label-md text-label-md text-primary text-center">Upload Front of ID</p>
                 <p className="font-meta text-meta text-secondary mt-base">PNG, JPG up to 10MB</p>
               </div>
               <div className="border-2 border-dashed border-primary-container rounded-xl p-lg flex flex-col items-center justify-center bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer group">
-                <span className="material-symbols-outlined text-primary text-[48px] mb-sm group-hover:scale-110 transition-transform">cloud_upload</span>
+                <span className="material-symbols-outlined text-primary text-5xl mb-sm group-hover:scale-110 transition-transform">cloud_upload</span>
                 <p className="font-label-md text-label-md text-primary text-center">Upload Back of ID</p>
                 <p className="font-meta text-meta text-secondary mt-base">PNG, JPG up to 10MB</p>
               </div>

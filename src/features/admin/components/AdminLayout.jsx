@@ -28,7 +28,7 @@ export default function AdminLayout({ children }) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 z-50 w-64 lg:hidden bg-white shadow-xl"
+              className="fixed top-0 left-0 bottom-0 z-50 w-64 lg:hidden bg-surface-container-lowest shadow-xl"
             >
               <div className="relative h-full flex flex-col">
                 <button

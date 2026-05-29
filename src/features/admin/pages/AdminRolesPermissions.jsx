@@ -157,7 +157,7 @@ export default function AdminRolesPermissions() {
                 <div className="flex items-center gap-xs mb-1">
                   <h3 className="font-label-md font-bold text-on-surface">{role.name}</h3>
                   {selectedRoleId === role.id && (
-                    <span className="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold rounded uppercase tracking-wider">Active</span>
+                    <span className="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-meta font-bold rounded uppercase tracking-wider">Active</span>
                   )}
                 </div>
                 <p className="font-meta text-on-surface-variant leading-relaxed">{role.description}</p>

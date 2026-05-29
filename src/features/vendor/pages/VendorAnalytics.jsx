@@ -96,8 +96,8 @@ export default function VendorAnalytics() {
               <div>
                 <p className="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Gross Sales</p>
                 <h4 className="font-headline-lg text-headline-lg text-on-surface">${totalSales.toFixed(2)}</h4>
-                <span className="font-label-sm text-label-sm text-[#2D7A4F] bg-[#2D7A4F]/10 px-xs py-0.5 rounded-full inline-flex items-center gap-0.5 mt-xs">
-                  <span className="material-symbols-outlined text-[14px]">trending_up</span> From {orderCount} orders
+                <span className="font-label-sm text-label-sm text-success bg-success-container/30 px-xs py-0.5 rounded-full inline-flex items-center gap-0.5 mt-xs">
+                  <span className="material-symbols-outlined text-body-sm">trending_up</span> From {orderCount} orders
                 </span>
               </div>
               <div className="flex items-center gap-sm">

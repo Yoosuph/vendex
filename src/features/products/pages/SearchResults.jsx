@@ -227,7 +227,7 @@ export default function SearchResults() {
                         className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => toggleWishlist(product)}
                       >
-                        <span className={`material-symbols-outlined text-[20px] ${isWished ? 'text-primary' : 'text-on-surface-variant'}`} style={{ fontVariationSettings: isWished ? "'FILL' 1" : "'FILL' 0" }}>
+                        <span className={`material-symbols-outlined text-body-lg ${isWished ? 'text-primary' : 'text-on-surface-variant'}`} style={{ fontVariationSettings: isWished ? "'FILL' 1" : "'FILL' 0" }}>
                           favorite
                         </span>
                       </button>

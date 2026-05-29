@@ -58,12 +58,12 @@ export default function VendorPayouts() {
       <main className="max-w-container-max mx-auto px-gutter py-xl">
         <nav className="flex items-center gap-xs mb-md text-on-surface-variant font-label-sm">
           <span>Finance</span>
-          <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+          <span className="material-symbols-outlined text-body-sm">chevron_right</span>
           <span className="text-primary">Vendor Payouts</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-xl">
-          <div className="lg:col-span-2 bg-surface-container-lowest p-lg rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-surface-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+          <div className="lg:col-span-2 bg-surface-container-lowest p-lg rounded-xl shadow-card border border-surface-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
             <div>
               <h2 className="font-label-md text-label-md text-on-surface-variant mb-base">Available Balance</h2>
               <div className="font-display-lg text-display-lg text-on-surface">${availableBalance.toFixed(2)}</div>
@@ -73,7 +73,7 @@ export default function VendorPayouts() {
               Withdraw Funds
             </Button>
           </div>
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-surface-variant flex flex-col justify-between">
+          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-card border border-surface-variant flex flex-col justify-between">
             <div>
               <h2 className="font-label-md text-label-md text-on-surface-variant mb-base">Pending Clearance</h2>
               <div className="font-headline-lg text-headline-lg text-on-surface">${pendingClearance.toFixed(2)}</div>
@@ -87,13 +87,13 @@ export default function VendorPayouts() {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-surface-variant overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-surface-variant overflow-hidden">
           <div className="px-lg py-md border-b border-outline-variant flex items-center justify-between">
             <h3 className="font-headline-md text-headline-md">Payout History</h3>
             <div className="flex gap-sm">
-              <Button variant="primary"><span className="material-symbols-outlined text-[20px]">filter_list</span>
+              <Button variant="primary"><span className="material-symbols-outlined text-body-lg">filter_list</span>
                 Filter</Button>
-              <Button variant="primary"><span className="material-symbols-outlined text-[20px]">download</span>
+              <Button variant="primary"><span className="material-symbols-outlined text-body-lg">download</span>
                 Export</Button>
             </div>
           </div>
@@ -120,8 +120,8 @@ export default function VendorPayouts() {
                       <td className="px-lg py-md text-secondary">{payout.destination}</td>
                       <td className="px-lg py-md font-bold text-on-surface">${(payout.amount || 0).toFixed(2)}</td>
                       <td className="px-lg py-md">
-                        <span className={`inline-flex items-center px-xs py-[2px] rounded-full text-xs font-bold uppercase tracking-wider ${payout.status === 'Completed' ? 'bg-green-100 text-[#2D7A4F]' : 'bg-[#c0152a1a] text-[#C0152A]'}`}>
-                          <span className={`w-1 h-1 rounded-full mr-xs ${payout.status === 'Completed' ? 'bg-[#2D7A4F]' : 'bg-[#C0152A]'}`}></span>
+                        <span className={`inline-flex items-center px-xs py-0.5 rounded-full text-meta font-bold uppercase tracking-wider ${payout.status === 'Completed' ? 'bg-success-container text-success' : 'bg-error-container text-error'}`}>
+                          <span className={`w-1 h-1 rounded-full mr-xs ${payout.status === 'Completed' ? 'bg-success' : 'bg-error'}`}></span>
                           {payout.status}
                         </span>
                       </td>

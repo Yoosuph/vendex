@@ -2,13 +2,14 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '@/shared/context/AuthContext';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function Sidebar({ brandLabel, brandSubtitle, sections }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   return (
-    <aside className="w-64 bg-surface-container-lowest border-r border-outline-variant shadow-sm flex flex-col py-md sticky top-0 h-screen">
+    <aside className="w-64 bg-white/80 backdrop-blur-xl rounded-2xl border border-outline-variant shadow-lg flex flex-col py-md sticky top-[62px] self-start z-40 h-[calc(100vh-94px)] m-4">
       {/* Brand header */}
       <div className="px-md mb-lg">
         <h1
@@ -26,7 +27,7 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections }) {
       <nav className="flex-1 flex flex-col gap-base overflow-y-auto hide-scrollbar px-2">
         {sections.map((section) => (
           <div key={section.title} className="mb-4">
-            <p className="px-3 text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">
+            <p className="px-3 text-meta font-bold text-secondary uppercase tracking-widest mb-1">
               {section.title}
             </p>
             <div className="flex flex-col gap-[2px]">
@@ -37,7 +38,7 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections }) {
                       key={item.name}
                       className="flex items-center px-3 py-2 rounded-lg text-body-sm text-secondary opacity-50 cursor-not-allowed transition-all duration-150"
                     >
-                      <span className="material-symbols-outlined mr-sm text-[20px]">{item.icon}</span>
+                      <span className="material-symbols-outlined mr-sm text-body-lg">{item.icon}</span>
                       <span>{item.name}</span>
                     </div>
                   );
@@ -48,14 +49,15 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections }) {
                     to={item.path}
                     end={item.end}
                     className={({ isActive }) =>
-                      `flex items-center px-3 py-2 rounded-lg text-body-sm transition-all duration-150 active:scale-95 ${
+                      cn(
+                        'flex items-center px-3 py-2 rounded-lg text-body-sm transition-all duration-150 active:scale-95',
                         isActive
                           ? 'text-primary font-bold border-r-4 border-primary bg-primary-container/10'
                           : 'text-secondary hover:bg-surface-container hover:text-on-surface'
-                      }`
+                      )
                     }
                   >
-                    <span className="material-symbols-outlined mr-sm text-[20px]">{item.icon}</span>
+                    <span className="material-symbols-outlined mr-sm text-body-lg">{item.icon}</span>
                     <span>{item.name}</span>
                   </NavLink>
                 );
@@ -88,7 +90,7 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections }) {
           variant="primary"
           fullWidth
           onClick={() => { logout(); navigate('/login'); }}
-          icon={<span className="material-symbols-outlined text-[18px]">logout</span>}
+          icon={<span className="material-symbols-outlined text-body-lg">logout</span>}
         >
           Sign Out
         </Button>

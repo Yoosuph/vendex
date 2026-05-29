@@ -6,6 +6,7 @@ import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function VendorProducts() {
   const { products, deleteProduct, loading } = useContext(MarketplaceContext);
@@ -38,35 +39,35 @@ export default function VendorProducts() {
             <h1 className="font-headline-lg text-headline-lg text-on-surface">Product Inventory</h1>
             <p className="font-body-md text-body-md text-secondary">Manage your catalog, stock levels and visibility across Vendex.</p>
           </div>
-          <Link to="/vendor/add-product" className="bg-[#C0152A] hover:bg-[#96101F] text-white px-md py-xs rounded-lg flex items-center justify-center gap-xs transition-all shadow-sm active:scale-[0.98]">
-            <span className="material-symbols-outlined text-[20px]">add</span>
+          <Link to="/vendor/add-product" className="bg-primary hover:bg-primary-container text-on-primary px-md py-xs rounded-lg flex items-center justify-center gap-xs transition-all shadow-sm active:scale-[0.98]">
+            <span className="material-symbols-outlined text-body-lg">add</span>
             <span className="font-label-md text-label-md uppercase tracking-wide">Add New Product</span>
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-xl">
-          <div className="bg-white p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-outline-variant/30">
+          <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-outline-variant/30">
             <span className="text-secondary font-label-md text-label-md">Total Products</span>
             <div className="flex items-end justify-between mt-xs">
               <span className="font-headline-md text-headline-md">{totalProducts}</span>
-              <span className="text-green-600 font-label-sm text-label-sm flex items-center">Active</span>
+              <span className="text-success font-label-sm text-label-sm flex items-center">Active</span>
             </div>
           </div>
-          <div className="bg-white p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-outline-variant/30">
+          <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-outline-variant/30">
             <span className="text-secondary font-label-md text-label-md">Active Listings</span>
             <div className="flex items-end justify-between mt-xs">
               <span className="font-headline-md text-headline-md">{activeProducts}</span>
               <span className="material-symbols-outlined text-primary">check_circle</span>
             </div>
           </div>
-          <div className="bg-white p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-outline-variant/30">
+          <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-outline-variant/30">
             <span className="text-secondary font-label-md text-label-md">Low Stock</span>
             <div className="flex items-end justify-between mt-xs">
               <span className="font-headline-md text-headline-md">{lowStock}</span>
               <span className="text-primary font-label-sm text-label-sm">{lowStock > 0 ? 'Requires Action' : 'OK'}</span>
             </div>
           </div>
-          <div className="bg-white p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-outline-variant/30">
+          <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-outline-variant/30">
             <span className="text-secondary font-label-md text-label-md">Drafts</span>
             <div className="flex items-end justify-between mt-xs">
               <span className="font-headline-md text-headline-md">0</span>
@@ -84,7 +85,7 @@ export default function VendorProducts() {
             onAction={() => navigate('/vendor/add-product')}
           />
         ) : (
-          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-outline-variant/30 overflow-hidden">
+          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant/30 overflow-hidden">
             <div className="px-md py-sm border-b border-outline-variant/30 flex items-center justify-between">
               <div className="flex items-center gap-md">
                 <Button variant="outline">All Items</Button>
@@ -108,8 +109,8 @@ export default function VendorProducts() {
                 <tbody className="divide-y divide-outline-variant/30">
                   {vendorProducts.map(product => {
                     const statusBadge = product.stock > 0
-                      ? { label: 'Active', className: 'bg-green-100 text-green-800' }
-                      : { label: 'Out of Stock', className: 'bg-red-100 text-red-800' };
+                      ? { label: 'Active', className: 'bg-success-container text-success' }
+                      : { label: 'Out of Stock', className: 'bg-error-container text-error' };
                     return (
                       <tr key={product.id} className="hover:bg-surface-container-lowest transition-colors group">
                         <td className="px-md py-sm">
@@ -125,12 +126,12 @@ export default function VendorProducts() {
                         <td className="px-md py-sm font-body-sm text-body-sm text-on-surface text-right">{product.stock}</td>
                         <td className="px-md py-sm font-label-md text-label-md text-on-surface text-right">${(product.price || 0).toFixed(2)}</td>
                         <td className="px-md py-sm">
-                          <span className={`${statusBadge.className} px-xs py-0.5 rounded-full font-label-sm text-label-sm`}>{statusBadge.label}</span>
+                          <span className={cn('px-xs py-0.5 rounded-full font-label-sm text-label-sm', statusBadge.className)}>{statusBadge.label}</span>
                         </td>
                         <td className="px-md py-sm text-right">
                           <div className="flex items-center justify-end gap-xs">
-                            <Button variant="primary"><span className="material-symbols-outlined text-[18px]">edit</span></Button>
-                            <Button variant="primary" onClick={() => handleDelete(product.id, product.name)}><span className="material-symbols-outlined text-[18px]">delete</span></Button>
+                            <Button variant="primary"><span className="material-symbols-outlined text-body-lg">edit</span></Button>
+                            <Button variant="primary" onClick={() => handleDelete(product.id, product.name)}><span className="material-symbols-outlined text-body-lg">delete</span></Button>
                           </div>
                         </td>
                       </tr>

@@ -163,7 +163,7 @@ export default function AdminVendors() {
                               className="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"
                               onClick={() => setExpandedVendor(expandedVendor === v.id ? null : v.id)}
                             >
-                              <span className="material-symbols-outlined text-[20px]">
+                              <span className="material-symbols-outlined text-body-lg">
                                 {expandedVendor === v.id ? 'expand_less' : 'visibility'}
                               </span>
                             </button>

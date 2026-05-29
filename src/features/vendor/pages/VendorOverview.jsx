@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
+import { cn } from '@/utils/cn';
 
 export default function VendorOverview() {
   const { products, orders, loading } = useContext(MarketplaceContext);
@@ -73,9 +74,9 @@ export default function VendorOverview() {
             <h3 className="font-headline-md text-headline-md text-on-surface">4.9</h3>
             <div className="flex items-center gap-[2px] mt-xs">
               {[1, 2, 3, 4].map(i => (
-                <span key={i} className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                <span key={i} className="material-symbols-outlined text-primary filled">star</span>
               ))}
-              <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>star_half</span>
+              <span className="material-symbols-outlined text-primary filled">star_half</span>
             </div>
             <p className="text-secondary font-meta text-meta mt-xs">Based on 1,240 reviews</p>
           </div>
@@ -105,22 +106,25 @@ export default function VendorOverview() {
                     const ship = order.shippingDetails || {};
                     const initials = (ship.firstName?.[0] || '') + (ship.lastName?.[0] || '');
                     const statusBadges = {
-                      'Processing': 'bg-emerald-100 text-emerald-800',
-                      'Pending': 'bg-amber-100 text-amber-800',
-                      'Shipped': 'bg-blue-100 text-blue-800',
-                      'Delivered': 'bg-green-100 text-green-800',
+                      'Processing': 'bg-success-container text-success',
+                      'Pending': 'bg-warning-container text-warning',
+                      'Shipped': 'bg-info-container text-info',
+                      'Delivered': 'bg-success-container text-success',
                     };
                     return (
                       <tr key={order.id} className="hover:bg-surface-container-low transition-colors">
                         <td className="px-gutter py-sm font-label-sm text-label-sm text-on-surface">#{order.id}</td>
                         <td className="px-gutter py-sm">
                           <div className="flex items-center gap-xs">
-                            <div className="w-6 h-6 rounded-full bg-tertiary-container/10 flex items-center justify-center font-bold text-[10px] text-primary">{initials || '?'}</div>
+                            <div className="w-6 h-6 rounded-full bg-tertiary-container/10 flex items-center justify-center font-bold text-meta text-primary">{initials || '?'}</div>
                             <span className="font-body-sm text-body-sm">{ship.firstName && ship.lastName ? `${ship.firstName} ${ship.lastName}` : 'Customer'}</span>
                           </div>
                         </td>
                         <td className="px-gutter py-sm">
-                          <span className={`px-xs py-[2px] rounded-full text-[11px] font-bold uppercase tracking-wider ${statusBadges[order.status] || 'bg-gray-100 text-gray-800'}`}>
+                          <span className={cn(
+                            'px-xs py-0.5 rounded-full text-meta font-bold uppercase tracking-wider',
+                            statusBadges[order.status] || 'bg-surface-container text-on-surface'
+                          )}>
                             {order.status}
                           </span>
                         </td>

@@ -13,7 +13,7 @@ export default function ApplicationSubmitted() {
           <div className="absolute top-0 left-0 w-full h-1 bg-primary-container"></div>
 
           <div className="mb-lg inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary-fixed">
-            <span className="material-symbols-outlined text-[64px] text-primary-container micro-bounce" data-icon="verified" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+            <span className="material-symbols-outlined text-6xl text-primary-container micro-bounce filled" data-icon="verified">verified</span>
           </div>
 
           <h1 className="font-headline-lg text-headline-lg text-on-surface mb-sm">Store submitted for review</h1>

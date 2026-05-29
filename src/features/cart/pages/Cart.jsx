@@ -43,7 +43,7 @@ export default function Cart() {
  </div>
  <div className="flex-1 min-w-0">
  <span className="text-primary font-label-sm text-label-sm block mb-[2px]">{item.vendor}</span>
- <h3 className="font-headline-md text-headline-md text-[18px] text-on-surface truncate mb-1">
+ <h3 className="font-headline-md text-headline-md text-body-lg text-on-surface truncate mb-1">
  {item.name}
  </h3>
  <p className="font-bold text-on-surface-variant text-body-sm">${item.price.toFixed(2)}</p>
@@ -70,7 +70,7 @@ export default function Cart() {
  className="p-2 text-secondary hover:text-error hover:bg-error-container/10 rounded-full transition-all"
  onClick={() => removeFromCart(item.id)}
  >
- <span className="material-symbols-outlined text-[20px]">delete</span>
+ <span className="material-symbols-outlined text-body-lg">delete</span>
  </button>
  </div>
  </div>

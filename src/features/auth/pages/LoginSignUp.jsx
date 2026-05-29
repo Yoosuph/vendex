@@ -78,7 +78,7 @@ export default function LoginSignUp() {
  {/* Branding Content */}
  <div className="relative z-10">
  <Link to="/" className="flex items-center gap-xs">
- <span className="material-symbols-outlined text-white text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>shopping_bag</span>
+ <span className="material-symbols-outlined text-white text-headline-lg" style={{ fontVariationSettings: "'FILL' 1" }}>shopping_bag</span>
  <h1 className="font-headline-md text-headline-md text-white tracking-tight">Vendex</h1>
  </Link>
  </div>
@@ -241,7 +241,7 @@ export default function LoginSignUp() {
  variant="secondary"
  type="button"
  size="sm"
- icon={<span className="material-symbols-outlined text-[20px] text-primary">person</span>}
+ icon={<span className="material-symbols-outlined text-body-lg text-primary">person</span>}
  onClick={() => handleSocialLogin('buyer')}
  className="flex-col py-2 text-meta font-label-md"
  >
@@ -251,7 +251,7 @@ export default function LoginSignUp() {
  variant="secondary"
  type="button"
  size="sm"
- icon={<span className="material-symbols-outlined text-[20px] text-primary">store</span>}
+ icon={<span className="material-symbols-outlined text-body-lg text-primary">store</span>}
  onClick={() => handleSocialLogin('vendor')}
  className="flex-col py-2 text-meta font-label-md"
  >
@@ -261,7 +261,7 @@ export default function LoginSignUp() {
  variant="secondary"
  type="button"
  size="sm"
- icon={<span className="material-symbols-outlined text-[20px] text-primary">admin_panel_settings</span>}
+ icon={<span className="material-symbols-outlined text-body-lg text-primary">admin_panel_settings</span>}
  onClick={() => handleSocialLogin('admin')}
  className="flex-col py-2 text-meta font-label-md"
  >

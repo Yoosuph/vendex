@@ -81,8 +81,8 @@ export default function AdminCategories() {
                       <span className="flex-1 text-body-md">{cat.name}</span>
                       <span className="text-meta text-on-surface-variant">{cat.productCount}</span>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost"><span className="material-symbols-outlined text-[16px]">edit</span></Button>
-                        <Button variant="danger" onClick={() => handleDeleteCategory(cat)} icon={<span className="material-symbols-outlined text-[16px]">delete</span>} />
+                        <Button variant="ghost"><span className="material-symbols-outlined text-body-md">edit</span></Button>
+                        <Button variant="danger" onClick={() => handleDeleteCategory(cat)} icon={<span className="material-symbols-outlined text-body-md">delete</span>} />
                       </div>
                     </div>
                   ))}

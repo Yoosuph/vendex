@@ -164,7 +164,7 @@ export default function ProductDetail() {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
-                      className="material-symbols-outlined text-[18px]"
+                      className="material-symbols-outlined text-body-lg"
                       style={{ fontVariationSettings: star <= ratingRounded ? "'FILL' 1" : "'FILL' 0" }}
                     >
                       {star <= ratingRounded ? 'star' : 'star_outline'}
@@ -176,7 +176,7 @@ export default function ProductDetail() {
             </div>
 
             <div className="flex items-end gap-md">
-              <span className="text-primary font-bold text-[40px] leading-none">${product.price.toFixed(2)}</span>
+              <span className="text-primary font-bold text-headline-lg leading-none">${product.price.toFixed(2)}</span>
             </div>
 
             {/* Stock status */}
@@ -200,11 +200,11 @@ export default function ProductDetail() {
                 <div className="h-px bg-outline-variant my-1"></div>
                 <div className="grid grid-cols-2 gap-md">
                   <div className="flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-[20px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+                    <span className="material-symbols-outlined text-body-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                     <span className="text-label-md font-bold text-on-surface-variant">Safe Payment</span>
                   </div>
                   <div className="flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-[20px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                    <span className="material-symbols-outlined text-body-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                     <span className="text-label-md font-bold text-on-surface-variant">Fast Delivery</span>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export default function ProductDetail() {
                             {[1, 2, 3, 4, 5].map((star) => (
                               <span
                                 key={star}
-                                className="material-symbols-outlined text-[16px]"
+                                className="material-symbols-outlined text-body-md"
                                 style={{ fontVariationSettings: star <= (review.score || 0) ? "'FILL' 1" : "'FILL' 0" }}
                               >
                                 {star <= (review.score || 0) ? 'star' : 'star_outline'}

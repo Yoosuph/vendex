@@ -231,7 +231,7 @@ export default function AdminProducts() {
                           </div>
                           <div className="flex text-primary">
                             {Array.from({ length: r.rating || 5 }).map((_, j) => (
-                              <span key={j} className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                              <span key={j} className="material-symbols-outlined text-body-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                             ))}
                           </div>
                         </div>

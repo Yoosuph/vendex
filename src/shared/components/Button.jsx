@@ -5,10 +5,10 @@ import { cn } from '@/utils/cn';
 
 const variantStyles = {
   primary: 'bg-primary text-on-primary hover:bg-primary-container shadow-sm',
-  'primary-container': 'bg-primary-container text-white hover:bg-primary shadow-md',
-  secondary: 'bg-surface-container-lowest text-on-surface border border-outline-variant hover:bg-surface-container-low',
-  outline: 'border border-primary text-primary hover:bg-error-container/30',
-  ghost: 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low',
+  'primary-container': 'bg-primary-container text-on-primary hover:bg-primary shadow-md',
+  secondary: 'bg-inverse-surface text-inverse-on-surface border border-outline-variant hover:bg-inverse-surface/90',
+  outline: 'bg-primary text-on-primary border border-primary hover:bg-primary-container shadow-sm',
+  ghost: 'text-on-surface-variant hover:bg-surface-container-low',
   danger: 'bg-error text-on-error hover:bg-on-error-container shadow-sm',
 };
 

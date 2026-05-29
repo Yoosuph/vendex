@@ -128,10 +128,10 @@ export default function AdminReviewsDisputes() {
                         <td className="px-md py-md">
                           <div className="flex text-primary">
                             {Array.from({ length: r.rating || 5 }).map((_, j) => (
-                              <span key={j} className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                              <span key={j} className="material-symbols-outlined text-body-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                             ))}
                             {Array.from({ length: 5 - (r.rating || 5) }).map((_, j) => (
-                              <span key={`e${j}`} className="material-symbols-outlined text-[18px]">star</span>
+                              <span key={`e${j}`} className="material-symbols-outlined text-body-lg">star</span>
                             ))}
                           </div>
                         </td>
@@ -240,13 +240,13 @@ export default function AdminReviewsDisputes() {
                     <p className="text-meta text-on-surface-variant italic">This dispute has already been resolved.</p>
                   ) : (
                     <div className="space-y-sm">
-                      <Button variant="outline" fullWidth onClick={() => handleArbitration('Buyer')} icon={<span className="material-symbols-outlined text-[20px]">person</span>}>
+                      <Button variant="outline" fullWidth onClick={() => handleArbitration('Buyer')} icon={<span className="material-symbols-outlined text-body-lg">person</span>}>
                         Side with Buyer
                       </Button>
-                      <Button variant="outline" fullWidth onClick={() => handleArbitration('Vendor')} icon={<span className="material-symbols-outlined text-[20px]">storefront</span>}>
+                      <Button variant="outline" fullWidth onClick={() => handleArbitration('Vendor')} icon={<span className="material-symbols-outlined text-body-lg">storefront</span>}>
                         Side with Vendor
                       </Button>
-                      <Button variant="primary-container" fullWidth onClick={() => handleArbitration('Refund')} icon={<span className="material-symbols-outlined text-[20px]">gavel</span>}>
+                      <Button variant="primary-container" fullWidth onClick={() => handleArbitration('Refund')} icon={<span className="material-symbols-outlined text-body-lg">gavel</span>}>
                         Execute Refund
                       </Button>
                     </div>

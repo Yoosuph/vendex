@@ -10,7 +10,7 @@ export default function BuyerLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar */}
-      <div className="hidden lg:block shrink-0">
+      <div className="hidden lg:block">
         <BuyerSidebar />
       </div>
 

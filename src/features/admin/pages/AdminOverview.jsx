@@ -5,6 +5,7 @@ import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
+import { cn } from '@/utils/cn';
 
 export default function AdminOverview() {
   const { products, orders, users, loading } = useContext(MarketplaceContext);
@@ -73,52 +74,52 @@ export default function AdminOverview() {
 
       {/* Stats cards */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md mb-xl">
-        <div className="bg-surface-container-lowest p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-transparent hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all">
+        <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-transparent hover:shadow-md transition-all">
           <div className="flex justify-between items-start mb-xs">
             <span className="text-secondary font-label-md text-label-md uppercase tracking-wider">Total Revenue</span>
-            <span className="bg-primary/10 text-primary px-xs py-[2px] rounded text-meta font-bold">{orders.length > 0 ? '+Active' : 'N/A'}</span>
+            <span className="bg-primary/10 text-primary px-xs py-0.5 rounded text-meta font-bold">{orders.length > 0 ? '+Active' : 'N/A'}</span>
           </div>
           <div className="flex items-end justify-between">
-            <h2 className="font-display-lg text-[28px] font-black text-primary">{formatCurrency(totalRevenue)}</h2>
+            <h2 className="font-display-lg text-headline-md font-black text-primary">{formatCurrency(totalRevenue)}</h2>
             <svg className="w-20 h-10" viewBox="0 0 100 40">
               <path className="sparkline" d={sparklinePath} stroke="#c0152a" fill="none" strokeWidth="2" />
             </svg>
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-transparent hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all">
+        <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-transparent hover:shadow-md transition-all">
           <div className="flex justify-between items-start mb-xs">
             <span className="text-secondary font-label-md text-label-md uppercase tracking-wider">Total Orders</span>
             <span className="material-symbols-outlined text-secondary">shopping_cart</span>
           </div>
-          <h2 className="font-display-lg text-[28px] font-black text-on-surface">{totalOrders.toLocaleString()}</h2>
+          <h2 className="font-display-lg text-headline-md font-black text-on-surface">{totalOrders.toLocaleString()}</h2>
           <p className="text-meta text-secondary mt-base font-medium">{orderStatuses.processing} pending fulfillment</p>
         </div>
 
-        <div className="bg-surface-container-lowest p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-transparent hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all">
+        <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-transparent hover:shadow-md transition-all">
           <div className="flex justify-between items-start mb-xs">
             <span className="text-secondary font-label-md text-label-md uppercase tracking-wider">Active Vendors</span>
             <span className="material-symbols-outlined text-secondary">storefront</span>
           </div>
-          <h2 className="font-display-lg text-[28px] font-black text-on-surface">{totalVendors.toLocaleString()}</h2>
+          <h2 className="font-display-lg text-headline-md font-black text-on-surface">{totalVendors.toLocaleString()}</h2>
           <div className="w-full bg-surface-container h-1 rounded-full mt-sm overflow-hidden">
             <div className="bg-primary h-full" style={{ width: `${totalVendors > 0 ? (vendors.filter(v => v.status === 'approved').length / totalVendors * 100) : 0}%` }}></div>
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-transparent hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all">
+        <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-transparent hover:shadow-md transition-all">
           <div className="flex justify-between items-start mb-xs">
             <span className="text-secondary font-label-md text-label-md uppercase tracking-wider">Registered Buyers</span>
             <span className="material-symbols-outlined text-secondary">group</span>
           </div>
-          <h2 className="font-display-lg text-[28px] font-black text-on-surface">{totalBuyers.toLocaleString()}</h2>
-          <p className="text-meta text-[#2D7A4F] mt-base font-bold">↑ Active community</p>
+          <h2 className="font-display-lg text-headline-md font-black text-on-surface">{totalBuyers.toLocaleString()}</h2>
+          <p className="text-meta text-success mt-base font-bold">↑ Active community</p>
         </div>
       </section>
 
       {/* Revenue Growth & Order Fulfillment */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-md mb-xl">
-        <div className="lg:col-span-8 bg-surface-container-lowest p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="lg:col-span-8 bg-surface-container-lowest p-md rounded-xl shadow-card">
           <div className="flex justify-between items-center mb-md">
             <h3 className="font-headline-md text-headline-md font-bold">Revenue Growth</h3>
             <select className="bg-surface border border-outline-variant rounded-lg font-label-md px-sm py-1 focus:ring-primary">
@@ -151,7 +152,7 @@ export default function AdminOverview() {
           </div>
         </div>
 
-        <div className="lg:col-span-4 bg-surface-container-lowest p-md rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+        <div className="lg:col-span-4 bg-surface-container-lowest p-md rounded-xl shadow-card">
           <h3 className="font-headline-md text-headline-md font-bold mb-md">Order Fulfillment</h3>
           <div className="flex flex-col items-center">
             <svg className="donut" height="160" viewBox="0 0 42 42" width="160">
@@ -180,10 +181,10 @@ export default function AdminOverview() {
               </g>
             </svg>
             <div className="grid grid-cols-2 gap-sm w-full mt-md">
-              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-[#2D7A4F]"></div><span className="text-meta font-label-md">Delivered ({orderStatuses.delivered})</span></div>
-              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-[#c0152a]"></div><span className="text-meta font-label-md">Cancelled ({orderStatuses.cancelled})</span></div>
-              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-[#F5A623]"></div><span className="text-meta font-label-md">Processing ({orderStatuses.processing})</span></div>
-              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-[#e3e3de]"></div><span className="text-meta font-label-md">On Hold ({orderStatuses.onHold})</span></div>
+              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-success"></div><span className="text-meta font-label-md">Delivered ({orderStatuses.delivered})</span></div>
+              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-error"></div><span className="text-meta font-label-md">Cancelled ({orderStatuses.cancelled})</span></div>
+              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-warning"></div><span className="text-meta font-label-md">Processing ({orderStatuses.processing})</span></div>
+              <div className="flex items-center gap-xs"><div className="w-3 h-3 rounded-full bg-outline-variant"></div><span className="text-meta font-label-md">On Hold ({orderStatuses.onHold})</span></div>
             </div>
           </div>
         </div>
@@ -191,7 +192,7 @@ export default function AdminOverview() {
 
       {/* New Vendors + Recent Orders */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-md mb-lg">
-        <div className="bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
           <div className="p-md border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-headline-md text-headline-md font-bold">New Vendors</h3>
             <Link to="/admin/vendors" className="text-primary font-label-md text-label-md hover:underline">View All</Link>
@@ -229,7 +230,7 @@ export default function AdminOverview() {
           )}
         </div>
 
-        <div className="bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
           <div className="p-md border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-headline-md text-headline-md font-bold">Recent Orders</h3>
             <Link to="/admin" className="text-primary font-label-md text-label-md hover:underline">View All</Link>
@@ -254,13 +255,14 @@ export default function AdminOverview() {
                       <td className="px-md py-sm font-body-sm text-body-sm">{o.buyerName || o.customerName || 'N/A'}</td>
                       <td className="px-md py-sm font-body-sm text-body-sm">${Number(o.total || 0).toFixed(2)}</td>
                       <td className="px-md py-sm">
-                        <span className={`px-xs py-1 text-meta rounded font-bold ${
+                        <span className={cn(
+                          'px-xs py-1 text-meta rounded font-bold',
                           (o.status || '').toLowerCase().includes('shipped') || (o.status || '').toLowerCase().includes('deliver')
-                            ? 'bg-[#2D7A4F]/10 text-[#2D7A4F]'
+                            ? 'bg-success-container text-success'
                             : (o.status || '').toLowerCase().includes('cancel')
-                            ? 'bg-error/10 text-error'
-                            : 'bg-primary/10 text-primary'
-                        }`}>{o.status || 'Pending'}</span>
+                            ? 'bg-error-container text-error'
+                            : 'bg-primary-container text-primary'
+                        )}>{o.status || 'Pending'}</span>
                       </td>
                     </tr>
                   ))}

@@ -82,7 +82,7 @@ export default function AdminPayoutsCommissions() {
             <p className="text-on-surface-variant text-body-lg">Manage multi-vendor disbursements and commission structures.</p>
           </div>
           <div className="flex gap-sm">
-            <Button variant="outline" icon={<span className="material-symbols-outlined text-[18px]">file_download</span>}>Export CSV</Button>
+            <Button variant="outline" icon={<span className="material-symbols-outlined text-body-lg">file_download</span>}>Export CSV</Button>
           </div>
         </div>
 
@@ -91,7 +91,7 @@ export default function AdminPayoutsCommissions() {
             <div className="flex justify-between items-start">
               <span className="text-label-md font-label-md text-secondary uppercase">Disbursed</span>
               <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined text-[18px]">verified</span>
+                <span className="material-symbols-outlined text-body-lg">verified</span>
               </div>
             </div>
             <div className="text-headline-lg font-headline-lg text-on-surface">{formatCurrency(totalDisbursed)}</div>
@@ -101,7 +101,7 @@ export default function AdminPayoutsCommissions() {
             <div className="flex justify-between items-start">
               <span className="text-label-md font-label-md text-secondary uppercase">Pending Payouts</span>
               <div className="h-8 w-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-700">
-                <span className="material-symbols-outlined text-[18px]">hourglass_empty</span>
+                <span className="material-symbols-outlined text-body-lg">hourglass_empty</span>
               </div>
             </div>
             <div className="text-headline-lg font-headline-lg text-on-surface">{formatCurrency(pendingAmount)}</div>
@@ -111,7 +111,7 @@ export default function AdminPayoutsCommissions() {
             <div className="flex justify-between items-start">
               <span className="text-label-md font-label-md text-secondary uppercase">Total Commissions</span>
               <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
-                <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                <span className="material-symbols-outlined text-body-lg">account_balance_wallet</span>
               </div>
             </div>
             <div className="text-headline-lg font-headline-lg text-on-surface text-primary">{formatCurrency(totalCommissions)}</div>
@@ -152,7 +152,7 @@ export default function AdminPayoutsCommissions() {
                       <td className="p-sm text-error text-body-sm">-${p.fee.toFixed(2)}</td>
                       <td className="p-sm font-bold text-body-sm">${p.net.toFixed(2)}</td>
                       <td className="p-sm">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${p.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>{p.status}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-meta font-bold uppercase ${p.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>{p.status}</span>
                       </td>
                     </tr>
                   ))}

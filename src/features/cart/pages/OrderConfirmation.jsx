@@ -66,7 +66,7 @@ export default function OrderConfirmation() {
               <div key={vendor} className="bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden border border-outline-variant/30">
                 <div className="bg-surface-container-low px-md py-sm border-b border-outline-variant/20 flex justify-between items-center">
                   <div className="flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-primary text-[20px]">storefront</span>
+                    <span className="material-symbols-outlined text-primary text-body-lg">storefront</span>
                     <span className="font-label-md text-label-md font-bold">{vendor}</span>
                   </div>
                   <span className="font-label-sm text-label-sm text-secondary">{items.length} Item{items.length !== 1 ? 's' : ''}</span>
