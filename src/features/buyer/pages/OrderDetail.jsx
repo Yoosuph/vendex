@@ -1,20 +1,21 @@
 import React, { useContext, useMemo } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import ErrorState from '@/shared/components/ErrorState';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 const statusBadge = (status) => {
   const map = {
-    Delivered: 'bg-emerald-50 text-emerald-700',
-    Shipped: 'bg-blue-50 text-blue-700',
-    Processing: 'bg-amber-50 text-amber-700',
-    'In Transit': 'bg-indigo-50 text-indigo-700',
-    Cancelled: 'bg-red-50 text-red-500',
-    Pending: 'bg-gray-100 text-gray-600',
+    Delivered: 'bg-success-container text-success',
+    Shipped: 'bg-info-container text-info',
+    Processing: 'bg-warning-container text-warning',
+    'In Transit': 'bg-info-container text-info',
+    Cancelled: 'bg-error-container text-error',
+    Pending: 'bg-surface-container text-on-surface-variant',
   };
-  return map[status] || 'bg-gray-100 text-gray-600';
+  return map[status] || 'bg-surface-container text-on-surface-variant';
 };
 
 export default function OrderDetail() {
@@ -28,7 +29,7 @@ export default function OrderDetail() {
 
   if (!order) {
     return (
-      <div className="p-8">
+      <div className="p-xl">
         <ErrorState message="Order not found." onRetry={() => navigate('/buyer/orders')} />
       </div>
     );
@@ -37,74 +38,75 @@ export default function OrderDetail() {
   const items = order.items || [];
   const subtotal = items.reduce((sum, i) => sum + (i.price || 0) * (i.quantity || 1), 0);
   const tax = subtotal * 0.08;
-  const shipping = 0;
-  const total = Number(order.total) || subtotal + tax + shipping;
+  const total = Number(order.total) || subtotal + tax;
   const ship = order.shippingDetails || {};
   const steps = ['Processing', 'Shipped', 'Delivered'];
   const currentStep = steps.indexOf(order.status);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" onClick={() => navigate('/buyer/orders')} icon={<span className="material-symbols-outlined text-[20px]">arrow_back</span>} />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md">
+        <div className="flex items-center gap-sm">
+          <Button variant="ghost" onClick={() => navigate('/buyer/orders')} icon={<span className="material-symbols-outlined text-xl">arrow_back</span>} />
           <div>
-            <h1 className="text-[22px] font-bold text-gray-900">Order #{order.id}</h1>
-            <p className="text-[13px] text-gray-500 mt-0.5">{order.date || '—'} · {items.length} item{items.length !== 1 ? 's' : ''}</p>
+            <h1 className="text-headline-md font-bold text-on-surface">Order #{order.id}</h1>
+            <p className="text-body-sm text-on-surface-variant mt-base">{order.date || '—'} · {items.length} item{items.length !== 1 ? 's' : ''}</p>
           </div>
         </div>
-        <span className={`inline-block px-3 py-1.5 rounded-full text-[12px] font-semibold ${statusBadge(order.status)}`}>
+        <span className={cn('inline-block px-sm py-sm rounded-full text-label-sm font-semibold', statusBadge(order.status))}>
           {order.status || 'Pending'}
         </span>
       </div>
 
       {/* Progress tracker */}
-      <div className="bg-white rounded-xl border border-gray-100 p-6">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           {steps.map((step, i) => (
             <div key={step} className="flex items-center flex-1 last:flex-none">
-              <div className="flex flex-col items-center gap-2">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[18px] transition-colors ${
-                  i <= currentStep ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'
-                }`}>
-                  <span className="material-symbols-outlined text-[20px]">
+              <div className="flex flex-col items-center gap-sm">
+                <div className={cn('w-10 h-10 rounded-full flex items-center justify-center transition-colors',
+                  i <= currentStep ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant',
+                )}>
+                  <span className="material-symbols-outlined text-xl">
                     {i < currentStep ? 'check' : i === currentStep ? 'hourglass_top' : 'radio_button_unchecked'}
                   </span>
                 </div>
-                <span className={`text-[12px] font-medium ${i <= currentStep ? 'text-gray-900' : 'text-gray-400'}`}>{step}</span>
+                <span className={cn('text-meta font-medium', i <= currentStep ? 'text-on-surface' : 'text-on-surface-variant')}>{step}</span>
               </div>
               {i < steps.length - 1 && (
-                <div className={`flex-1 h-[2px] mx-2 mt-[-20px] rounded-full transition-colors ${i < currentStep ? 'bg-primary' : 'bg-gray-200'}`} />
+                <div className={cn('flex-1 h-0.5 mx-sm mt-[-20px] rounded-full transition-colors',
+                  i < currentStep ? 'bg-primary' : 'bg-surface-container-high',
+                )} />
               )}
             </div>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-xl">
         {/* Items */}
-        <div className="lg:col-span-2 space-y-3">
-          <h2 className="text-[15px] font-semibold text-gray-900">Items</h2>
+        <div className="lg:col-span-2 space-y-sm">
+          <h2 className="text-body-md font-semibold text-on-surface">Items</h2>
           {items.map((item, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 flex gap-4">
-              <div className="w-20 h-20 rounded-lg bg-gray-50 overflow-hidden shrink-0">
+            <div key={i} className="bg-surface-container-lowest rounded-xl border border-outline-variant p-md flex gap-md">
+              <div className="w-20 h-20 rounded-lg bg-surface-container overflow-hidden shrink-0">
                 {item.image ? (
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-200">
-                    <span className="material-symbols-outlined text-[32px]">inventory_2</span>
+                  <div className="w-full h-full flex items-center justify-center text-outline-variant">
+                    <span className="material-symbols-outlined text-3xl">inventory_2</span>
                   </div>
                 )}
               </div>
               <div className="flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-[14px] font-semibold text-gray-900">{item.name}</h3>
-                  <p className="text-[12px] text-gray-400">{item.vendor || 'Unknown Vendor'}</p>
+                  <h3 className="text-body-sm font-semibold text-on-surface">{item.name}</h3>
+                  <p className="text-meta text-on-surface-variant">{item.vendor || 'Unknown Vendor'}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] text-gray-500">Qty: {item.quantity || 1}</span>
-                  <span className="text-[16px] font-bold text-gray-900">${(item.price || 0).toFixed(2)}</span>
+                  <span className="text-body-sm text-on-surface-variant">Qty: {item.quantity || 1}</span>
+                  <span className="text-body-lg font-bold text-on-surface">${(item.price || 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -112,50 +114,44 @@ export default function OrderDetail() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Shipping */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
-            <h3 className="text-[13px] font-semibold text-gray-900 uppercase tracking-wider mb-3">Shipping Address</h3>
-            <p className="text-[14px] font-medium text-gray-700">
+        <div className="space-y-md">
+          <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-md">
+            <h3 className="text-label-md font-semibold text-on-surface uppercase tracking-wider mb-sm">Shipping Address</h3>
+            <p className="text-body-sm font-medium text-on-surface">
               {ship.firstName && ship.lastName ? `${ship.firstName} ${ship.lastName}` : 'Customer'}
             </p>
-            <p className="text-[13px] text-gray-500 mt-1">{ship.address || '—'}</p>
-            <p className="text-[13px] text-gray-500">
-              {ship.city && ship.zip ? `${ship.city}, ${ship.zip}` : ''}
-            </p>
+            <p className="text-body-sm text-on-surface-variant mt-xs">{ship.address || '—'}</p>
+            <p className="text-body-sm text-on-surface-variant">{ship.city && ship.zip ? `${ship.city}, ${ship.zip}` : ''}</p>
           </div>
 
-          {/* Payment */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
-            <h3 className="text-[13px] font-semibold text-gray-900 uppercase tracking-wider mb-3">Payment</h3>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-7 bg-gray-800 rounded flex items-center justify-center text-[9px] text-white font-bold">VISA</div>
+          <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-md">
+            <h3 className="text-label-md font-semibold text-on-surface uppercase tracking-wider mb-sm">Payment</h3>
+            <div className="flex items-center gap-sm">
+              <div className="w-10 h-7 bg-inverse-surface rounded flex items-center justify-center text-meta text-white font-bold">VISA</div>
               <div>
-                <p className="text-[13px] text-gray-700">•••• 4421</p>
-                <p className="text-[11px] text-gray-400">{order.paymentMethod || 'Card'}</p>
+                <p className="text-body-sm text-on-surface">•••• 4421</p>
+                <p className="text-meta text-on-surface-variant">{order.paymentMethod || 'Card'}</p>
               </div>
             </div>
           </div>
 
-          {/* Summary */}
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h3 className="text-[13px] font-semibold text-gray-900 uppercase tracking-wider mb-4">Order Summary</h3>
-            <div className="space-y-2 text-[14px]">
-              <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-gray-600"><span>Shipping</span><span className="text-emerald-600 font-medium">Free</span></div>
-              <div className="flex justify-between text-gray-600"><span>Tax (8%)</span><span>${tax.toFixed(2)}</span></div>
-              <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-gray-900 text-[16px]">
+          <div className="bg-surface-container-low rounded-xl p-md">
+            <h3 className="text-label-md font-semibold text-on-surface uppercase tracking-wider mb-md">Order Summary</h3>
+            <div className="space-y-sm text-body-sm">
+              <div className="flex justify-between text-on-surface-variant"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between text-on-surface-variant"><span>Shipping</span><span className="text-success font-medium">Free</span></div>
+              <div className="flex justify-between text-on-surface-variant"><span>Tax (8%)</span><span>${tax.toFixed(2)}</span></div>
+              <div className="border-t border-outline-variant pt-sm mt-sm flex justify-between font-bold text-on-surface text-body-md">
                 <span>Total</span><span>${total.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="space-y-2">
+          <div className="space-y-sm">
             {order.status === 'Delivered' && (
-              <Button variant="outline" fullWidth icon={<span className="material-symbols-outlined text-[18px]">rate_review</span>}>Write a Review</Button>
+              <Button variant="outline" fullWidth icon={<span className="material-symbols-outlined text-lg">rate_review</span>}>Write a Review</Button>
             )}
-            <Button variant="ghost" fullWidth icon={<span className="material-symbols-outlined text-[18px]">help_outline</span>}>Need Help?</Button>
+            <Button variant="ghost" fullWidth icon={<span className="material-symbols-outlined text-lg">help_outline</span>}>Need Help?</Button>
           </div>
         </div>
       </div>

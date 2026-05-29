@@ -53,7 +53,7 @@ export default function ProductCard({
     >
       <Link
         to={`/product/${product.id}`}
-        className={`block bg-white border border-outline-variant/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden ${cfg.card}`}
+        className={`block bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden ${cfg.card}`}
       >
         {/* Image */}
         <div className={`relative ${cfg.imageWrapper} rounded-lg overflow-hidden bg-surface-container-low`}>
@@ -85,11 +85,7 @@ export default function ProductCard({
               aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
             >
               <span
-                className="material-symbols-outlined text-xl"
-                style={{
-                  fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
-                  color: isWishlisted ? '#97001b' : '#5b403e',
-                }}
+                className={`material-symbols-outlined text-xl ${isWished ? 'text-primary' : 'text-on-surface-variant'}`}
               >
                 favorite
               </span>

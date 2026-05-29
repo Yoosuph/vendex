@@ -12,11 +12,11 @@ export default function Wishlist() {
   if (loading) return <LoadingSpinner text="Loading wishlist..." />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md">
         <div>
-          <h1 className="text-[22px] font-bold text-gray-900">Wishlist</h1>
-          <p className="text-[14px] text-gray-500 mt-0.5">{wishlist.length} saved item{wishlist.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-headline-md font-bold text-on-surface">Wishlist</h1>
+          <p className="text-body-sm text-on-surface-variant mt-base">{wishlist.length} saved item{wishlist.length !== 1 ? 's' : ''}</p>
         </div>
         {wishlist.length > 0 && (
           <Button variant="outline" size="sm" to="/search">Browse More</Button>
@@ -32,41 +32,37 @@ export default function Wishlist() {
           onAction={() => navigate('/search')}
         />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-md">
           {wishlist.map(product => (
-            <div key={product.id} className="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-sm transition-all">
-              {/* Image */}
-              <div className="relative aspect-square bg-gray-50 overflow-hidden">
+            <div key={product.id} className="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:border-outline hover:shadow-sm transition-all">
+              <div className="relative aspect-square bg-surface-container overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400 cursor-pointer"
                   onClick={() => navigate(`/product/${product.id}`)}
-                  style={{ cursor: 'pointer' }}
                 />
                 <button
                   onClick={() => toggleWishlist(product)}
-                  className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm text-red-500 hover:bg-white transition-all active:scale-90"
+                  className="absolute top-sm right-sm w-8 h-8 bg-surface-container-lowest rounded-full flex items-center justify-center shadow-sm text-error hover:bg-surface-container-lowest transition-all active:scale-90"
                 >
-                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                  <span className="material-symbols-outlined text-lg">favorite</span>
                 </button>
               </div>
-
-              {/* Content */}
-              <div className="p-3">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider truncate">
+              <div className="p-sm">
+                <p className="text-meta font-semibold text-on-surface-variant uppercase tracking-wider truncate">
                   {product.vendor || product.brand || 'Unknown'}
                 </p>
-                <h3 className="text-[13px] font-semibold text-gray-900 mt-0.5 line-clamp-2 leading-snug">
+                <h3 className="text-body-sm font-semibold text-on-surface mt-xs line-clamp-2 leading-snug">
                   {product.name}
                 </h3>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-[15px] font-bold text-gray-900">${(product.price || 0).toFixed(2)}</span>
+                <div className="flex items-center justify-between mt-sm">
+                  <span className="text-body-lg font-bold text-on-surface">${(product.price || 0).toFixed(2)}</span>
                   <button
                     onClick={() => addToCart(product)}
-                    className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-container shadow-sm active:scale-90 transition-all"
+                    className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container shadow-sm active:scale-90 transition-all"
                   >
-                    <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+                    <span className="material-symbols-outlined text-lg">add_shopping_cart</span>
                   </button>
                 </div>
               </div>

@@ -54,7 +54,7 @@ export default function DataTable({
   // Render
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-card p-6">
+      <div className="bg-surface-container-lowest rounded-xl shadow-card p-6">
         <LoadingSpinner text="Loading table data..." size="md" />
       </div>
     );
@@ -62,7 +62,7 @@ export default function DataTable({
 
   if (!data.length) {
     return (
-      <div className="bg-white rounded-xl shadow-card p-12 flex flex-col items-center justify-center">
+      <div className="bg-surface-container-lowest rounded-xl shadow-card p-12 flex flex-col items-center justify-center">
         <span className="material-symbols-outlined text-4xl text-on-surface/20 mb-3">table</span>
         <p className="text-body-md text-secondary">{emptyMessage}</p>
       </div>
@@ -70,7 +70,7 @@ export default function DataTable({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-card overflow-hidden">
+    <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
       {/* Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
@@ -90,8 +90,7 @@ export default function DataTable({
                     <span>{col.label}</span>
                     {col.sortable !== false && (
                       <span
-                        className="material-symbols-outlined text-sm"
-                        style={{ fontSize: '16px' }}
+                        className="material-symbols-outlined text-base"
                       >
                         {getSortIcon(col.key)}
                       </span>
@@ -139,7 +138,7 @@ export default function DataTable({
         <div className="flex items-center gap-2 text-body-sm text-secondary">
           <span>Rows per page:</span>
           <select
-            className="bg-white border border-outline-variant/50 rounded-lg px-2 py-1 text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="bg-surface-container-lowest border border-outline-variant/50 rounded-lg px-2 py-1 text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(Number(e.target.value));

@@ -6,6 +6,7 @@ import { CartContext } from "@/shared/context/CartContext";
 import { MarketplaceContext } from "@/shared/context/MarketplaceContext";
 import ThemeToggle from './ThemeToggle';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function Header({ onMenuToggle, isPortal }) {
   const { user, login, logout, switchRole } = useContext(AuthContext);
@@ -47,50 +48,40 @@ export default function Header({ onMenuToggle, isPortal }) {
   };
 
   return (
-    <header className={`w-full sticky top-0 z-50 transition-all duration-500 ${
-      scrolled ? 'pt-3' : 'pt-0'
-    }`}>
+    <header className={cn('w-full sticky top-0 z-50 transition-all duration-500', scrolled ? 'pt-3' : 'pt-0')}>
       {/* Top utility bar */}
       {!isPortal && (
-        <div className={`hidden lg:block bg-gray-50 transition-all duration-500 overflow-hidden ${
-          scrolled ? 'h-0 opacity-0' : 'h-8 opacity-100 border-b border-gray-100'
-        }`}>
-          <div className="max-w-[1280px] mx-auto px-6 flex items-center justify-between h-8">
-            <span className="text-[11px] text-gray-400 font-medium tracking-wide">Premium Multi-Vendor Marketplace</span>
-            <div className="flex items-center gap-4 text-[11px] text-gray-400">
-              <span className="cursor-pointer hover:text-gray-600 transition-colors">Help Center</span>
-              <span className="cursor-pointer hover:text-gray-600 transition-colors">Track Order</span>
-              <span className="cursor-pointer hover:text-gray-600 transition-colors">USD ($)</span>
+        <div className={cn('hidden lg:block bg-surface-container-low transition-all duration-500 overflow-hidden', scrolled ? 'h-0 opacity-0' : 'h-8 opacity-100 border-b border-outline-variant')}>
+          <div className="max-w-container-max mx-auto px-6 flex items-center justify-between h-8">
+            <span className="text-meta text-secondary font-medium tracking-wide">Premium Multi-Vendor Marketplace</span>
+            <div className="flex items-center gap-4 text-meta text-secondary">
+              <span className="cursor-pointer hover:text-on-surface-variant transition-colors">Help Center</span>
+              <span className="cursor-pointer hover:text-on-surface-variant transition-colors">Track Order</span>
+              <span className="cursor-pointer hover:text-on-surface-variant transition-colors">USD ($)</span>
             </div>
           </div>
         </div>
       )}
 
       {/* Main navbar */}
-      <nav className={`flex items-center justify-between transition-[max-width,border-radius,padding,border-color,background-color,box-shadow] duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] backdrop-blur-xl bg-white/80 ${
+      <nav className={cn('flex items-center justify-between transition-[max-width,border-radius,padding,border-color,background-color,box-shadow] duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] backdrop-blur-xl bg-surface-container-lowest/80',
         scrolled
-          ? 'max-w-[900px] mx-3 sm:mx-auto rounded-2xl border border-gray-200/60 shadow-xl shadow-gray-200/50 px-4 md:px-5 h-[56px]'
-          : 'max-w-full rounded-none border-x-transparent border-b border-gray-100 shadow-sm px-4 md:px-8 h-[60px] md:h-[68px]'
-      }`}>
+          ? 'max-w-4xl mx-3 sm:mx-auto rounded-2xl border border-outline-variant/60 shadow-xl shadow-black/5 px-4 md:px-5 h-14'
+          : 'max-w-full rounded-none border-x-transparent border-b border-outline-variant shadow-sm px-4 md:px-8 h-16'
+      )}>
         {/* Left: Logo + nav links */}
         <div className="flex items-center gap-3 md:gap-8">
           {/* Mobile hamburger */}
           {!isPortal && (
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors -ml-1"
+              className="lg:hidden relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container transition-colors -ml-1"
               aria-label="Toggle menu"
             >
-              <div className="w-5 h-[14px] relative flex flex-col justify-between">
-                <span className={`block h-[2px] w-full bg-gray-700 rounded-full transition-all duration-300 origin-center ${
-                  mobileMenuOpen ? 'rotate-45 translate-y-[6px]' : ''
-                }`}></span>
-                <span className={`block h-[2px] w-full bg-gray-700 rounded-full transition-all duration-300 ${
-                  mobileMenuOpen ? 'opacity-0 scale-x-0' : ''
-                }`}></span>
-                <span className={`block h-[2px] w-full bg-gray-700 rounded-full transition-all duration-300 origin-center ${
-                  mobileMenuOpen ? '-rotate-45 -translate-y-[6px]' : ''
-                }`}></span>
+              <div className="w-5 h-3.5 relative flex flex-col justify-between">
+                <span className={cn('block h-0.5 w-full bg-on-surface rounded-full transition-all duration-300 origin-center', mobileMenuOpen ? 'rotate-45 translate-y-[6px]' : '')}></span>
+                <span className={cn('block h-0.5 w-full bg-on-surface rounded-full transition-all duration-300', mobileMenuOpen ? 'opacity-0 scale-x-0' : '')}></span>
+                <span className={cn('block h-0.5 w-full bg-on-surface rounded-full transition-all duration-300 origin-center', mobileMenuOpen ? '-rotate-45 -translate-y-[6px]' : '')}></span>
               </div>
             </button>
           )}
@@ -98,7 +89,7 @@ export default function Header({ onMenuToggle, isPortal }) {
             <Button
               variant="ghost"
               onClick={onMenuToggle}
-              icon={<span className="material-symbols-outlined text-gray-700 text-2xl">menu</span>}
+              icon={<span className="material-symbols-outlined text-on-surface text-2xl">menu</span>}
               className="lg:hidden -ml-1"
             />
           )}
@@ -106,14 +97,14 @@ export default function Header({ onMenuToggle, isPortal }) {
             <div className="w-7 h-7 md:w-8 md:h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xs md:text-sm">V</span>
             </div>
-            <span className="font-bold text-lg md:text-xl text-gray-900 tracking-tight">Vendex</span>
+            <span className="font-bold text-lg md:text-xl text-on-surface tracking-tight">Vendex</span>
           </Link>
           {!isPortal && (
             <div className="hidden lg:flex items-center gap-6">
-              <Link to="/" className="text-[14px] font-medium text-gray-700 hover:text-primary transition-colors">Home</Link>
-              <Link to="/search" className="text-[14px] font-medium text-gray-500 hover:text-primary transition-colors">Explore</Link>
-              <Link to="/search?category=Luxury%20Goods" className="text-[14px] font-medium text-gray-500 hover:text-primary transition-colors">Categories</Link>
-              <Link to="/vendor/storefront" className="text-[14px] font-medium text-gray-500 hover:text-primary transition-colors">Stores</Link>
+              <Link to="/" className="text-body-sm font-medium text-on-surface hover:text-primary transition-colors">Home</Link>
+              <Link to="/search" className="text-body-sm font-medium text-secondary hover:text-primary transition-colors">Explore</Link>
+              <Link to="/search?category=Luxury%20Goods" className="text-body-sm font-medium text-secondary hover:text-primary transition-colors">Categories</Link>
+              <Link to="/vendor/storefront" className="text-body-sm font-medium text-secondary hover:text-primary transition-colors">Stores</Link>
             </div>
           )}
         </div>
@@ -123,8 +114,8 @@ export default function Header({ onMenuToggle, isPortal }) {
           {/* Search */}
           <div className="relative">
             {searchOpen ? (
-              <div className="fixed inset-x-4 top-[72px] md:absolute md:inset-auto md:right-0 md:top-1/2 md:-translate-y-1/2 flex items-center gap-2 bg-white border border-gray-200 rounded-xl shadow-xl py-2.5 pl-4 pr-2 md:w-[320px] animate-in fade-in slide-in-from-top-2 md:slide-in-from-right-2 duration-200 z-50">
-                <span className="material-symbols-outlined text-gray-400 text-[20px] shrink-0">search</span>
+              <div className="fixed inset-x-4 top-[72px] md:absolute md:inset-auto md:right-0 md:top-1/2 md:-translate-y-1/2 flex items-center gap-2 bg-surface-container-lowest border border-outline rounded-xl shadow-xl py-2.5 pl-4 pr-2 md:w-80 animate-in fade-in slide-in-from-top-2 md:slide-in-from-right-2 duration-200 z-50">
+                <span className="material-symbols-outlined text-secondary text-xl shrink-0">search</span>
                 <input
                   autoFocus
                   type="text"
@@ -132,19 +123,19 @@ export default function Header({ onMenuToggle, isPortal }) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
-                  className="flex-1 text-[14px] text-gray-700 outline-none placeholder-gray-400 bg-transparent min-w-0"
+                  className="flex-1 text-body-sm text-on-surface outline-none placeholder:text-secondary bg-transparent min-w-0"
                 />
                 <Button
                   variant="ghost"
                   onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
-                  icon={<span className="material-symbols-outlined text-gray-400 text-[18px]">close</span>}
+                  icon={<span className="material-symbols-outlined text-secondary text-lg">close</span>}
                 />
               </div>
             ) : (
               <Button
                 variant="ghost"
                 onClick={() => setSearchOpen(true)}
-                icon={<span className="material-symbols-outlined text-gray-500 text-[22px]">search</span>}
+                icon={<span className="material-symbols-outlined text-secondary text-2xl">search</span>}
               />
             )}
           </div>
@@ -158,28 +149,28 @@ export default function Header({ onMenuToggle, isPortal }) {
             <Button
               variant="ghost"
               onClick={() => setShowNotifications(!showNotifications)}
-              icon={<span className="material-symbols-outlined text-gray-500 text-[22px]">notifications</span>}
+              icon={<span className="material-symbols-outlined text-secondary text-2xl">notifications</span>}
               className="relative"
             >
               {auditLogs && auditLogs.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error rounded-full ring-2 ring-white z-10"></span>
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error rounded-full ring-2 ring-surface-container-lowest z-10"></span>
               )}
             </Button>
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-[300px] max-w-[calc(100vw-32px)] bg-white border border-gray-100 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <p className="font-semibold text-gray-900 text-[14px]">Notifications</p>
-                  <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{auditLogs?.length || 0} new</span>
+              <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-32px)] bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="px-5 py-3 border-b border-outline-variant flex items-center justify-between">
+                  <p className="font-semibold text-on-surface text-body-sm">Notifications</p>
+                  <span className="text-meta text-secondary bg-surface-container px-2 py-0.5 rounded-full">{auditLogs?.length || 0} new</span>
                 </div>
                 {auditLogs && auditLogs.length > 0 ? (
                   auditLogs.slice(0, 3).map(log => (
-                    <div key={log.id} className="px-5 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors cursor-pointer">
-                      <p className="text-[13px] text-gray-700 font-medium truncate">{log.action}: {log.resource}</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">{log.timestamp} · {log.admin}</p>
+                    <div key={log.id} className="px-5 py-3 border-b border-outline-variant/50 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
+                      <p className="text-body-sm text-on-surface font-medium truncate">{log.action}: {log.resource}</p>
+                      <p className="text-meta text-secondary mt-0.5">{log.timestamp} · {log.admin}</p>
                     </div>
                   ))
                 ) : (
-                  <div className="px-5 py-6 text-[13px] text-gray-400 text-center">You're all caught up</div>
+                  <div className="px-5 py-6 text-body-sm text-secondary text-center">You're all caught up</div>
                 )}
               </div>
             )}
@@ -189,11 +180,11 @@ export default function Header({ onMenuToggle, isPortal }) {
           <Button
             variant="ghost"
             to="/cart"
-            icon={<span className="material-symbols-outlined text-gray-500 text-[22px]">shopping_cart</span>}
+            icon={<span className="material-symbols-outlined text-secondary text-2xl">shopping_cart</span>}
             className="relative"
           >
             {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white z-10">
+              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-surface-container-lowest z-10">
                 {cartCount}
               </span>
             )}
@@ -204,51 +195,51 @@ export default function Header({ onMenuToggle, isPortal }) {
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center gap-1.5 pl-1.5 pr-1 py-1 rounded-full hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
+                className="flex items-center gap-1.5 pl-1.5 pr-1 py-1 rounded-full hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant"
               >
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden ring-2 ring-gray-100">
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden ring-2 ring-outline-variant">
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 </div>
-                <span className="hidden sm:inline material-symbols-outlined text-gray-400 text-[16px]">expand_more</span>
+                <span className="hidden sm:inline material-symbols-outlined text-secondary text-base">expand_more</span>
               </button>
               {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-32px)] bg-white border border-gray-100 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="font-semibold text-gray-900 text-[14px] truncate">{user.name}</p>
-                    <p className="text-[12px] text-gray-400 truncate">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-32px)] bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="px-4 py-3 border-b border-outline-variant">
+                    <p className="font-semibold text-on-surface text-body-sm truncate">{user.name}</p>
+                    <p className="text-meta text-secondary truncate">{user.email}</p>
                     <span className="inline-block mt-1.5 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">{user.role}</span>
                   </div>
                   {user.role === 'buyer' && (
-                    <Link className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors" to="/buyer" onClick={() => setShowProfileMenu(false)}>
-                      <span className="material-symbols-outlined text-[18px] text-gray-400">dashboard</span> Buyer Dashboard
+                    <Link className="flex items-center gap-3 px-4 py-2.5 text-body-sm text-on-surface-variant hover:bg-surface-container-low transition-colors" to="/buyer" onClick={() => setShowProfileMenu(false)}>
+                      <span className="material-symbols-outlined text-lg text-secondary">dashboard</span> Buyer Dashboard
                     </Link>
                   )}
                   {user.role === 'vendor' && (
-                    <Link className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors" to="/vendor" onClick={() => setShowProfileMenu(false)}>
-                      <span className="material-symbols-outlined text-[18px] text-gray-400">dashboard</span> Vendor Dashboard
+                    <Link className="flex items-center gap-3 px-4 py-2.5 text-body-sm text-on-surface-variant hover:bg-surface-container-low transition-colors" to="/vendor" onClick={() => setShowProfileMenu(false)}>
+                      <span className="material-symbols-outlined text-lg text-secondary">dashboard</span> Vendor Dashboard
                     </Link>
                   )}
                   {user.role === 'admin' && (
-                    <Link className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors" to="/admin" onClick={() => setShowProfileMenu(false)}>
-                      <span className="material-symbols-outlined text-[18px] text-gray-400">admin_panel_settings</span> Admin Panel
+                    <Link className="flex items-center gap-3 px-4 py-2.5 text-body-sm text-on-surface-variant hover:bg-surface-container-low transition-colors" to="/admin" onClick={() => setShowProfileMenu(false)}>
+                      <span className="material-symbols-outlined text-lg text-secondary">admin_panel_settings</span> Admin Panel
                     </Link>
                   )}
-                  <div className="border-t border-gray-100 my-1"></div>
+                  <div className="border-t border-outline-variant my-1"></div>
                   <div className="px-4 py-1.5">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Switch Role</p>
+                    <p className="text-[10px] font-bold text-secondary uppercase tracking-wider mb-1">Switch Role</p>
                     <div className="flex gap-1">
                       <Button variant={user.role === 'buyer' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('buyer')} className="flex-1">Buyer</Button>
                       <Button variant={user.role === 'vendor' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('vendor')} className="flex-1">Vendor</Button>
                       <Button variant={user.role === 'admin' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('admin')} className="flex-1">Admin</Button>
                     </div>
                   </div>
-                  <div className="border-t border-gray-100 my-1"></div>
+                  <div className="border-t border-outline-variant my-1"></div>
                   <Button
                     variant="ghost"
                     fullWidth
                     onClick={() => { logout(); setShowProfileMenu(false); navigate('/login'); }}
-                    icon={<span className="material-symbols-outlined text-[18px]">logout</span>}
-                    className="justify-start text-red-500 hover:bg-red-50"
+                    icon={<span className="material-symbols-outlined text-lg">logout</span>}
+                    className="justify-start text-error hover:bg-error-container"
                   >
                     Sign Out
                   </Button>
@@ -258,7 +249,7 @@ export default function Header({ onMenuToggle, isPortal }) {
           ) : (
             <div className="flex items-center gap-1 md:gap-2">
               <Button variant="ghost" size="sm" to="/login" className="hidden sm:inline-flex">Sign In</Button>
-              <Button variant="primary" size="sm" to="/login" className="rounded-full text-[13px] px-4">Get Started</Button>
+              <Button variant="primary" size="sm" to="/login" className="rounded-full text-body-sm px-4">Get Started</Button>
             </div>
           )}
         </div>
@@ -281,40 +272,40 @@ export default function Header({ onMenuToggle, isPortal }) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="lg:hidden fixed top-0 left-0 bottom-0 w-[300px] max-w-[85vw] bg-white z-50 shadow-2xl flex flex-col"
+              className="lg:hidden fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-surface-container-lowest z-50 shadow-2xl flex flex-col"
             >
-            <div className="flex items-center justify-between px-5 h-[60px] border-b border-gray-100 shrink-0">
+            <div className="flex items-center justify-between px-5 h-16 border-b border-outline-variant shrink-0">
               <Link to="/" className="flex items-center gap-2" onClick={closeAll}>
                 <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-xs">V</span>
                 </div>
-                <span className="font-bold text-lg text-gray-900 tracking-tight">Vendex</span>
+                <span className="font-bold text-lg text-on-surface tracking-tight">Vendex</span>
               </Link>
               <button
                 onClick={closeAll}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors"
               >
-                <span className="material-symbols-outlined text-gray-500 text-[20px]">close</span>
+                <span className="material-symbols-outlined text-secondary text-xl">close</span>
               </button>
             </div>
 
             {/* Drawer content */}
             <div className="flex-1 overflow-y-auto py-4 px-3">
-              <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Navigation</p>
-              <Link to="/" className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                <span className="material-symbols-outlined text-gray-400 text-[20px]">home</span> Home
+              <p className="px-3 text-[10px] font-bold text-secondary uppercase tracking-widest mb-3">Navigation</p>
+              <Link to="/" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                <span className="material-symbols-outlined text-secondary text-xl">home</span> Home
               </Link>
-              <Link to="/search" className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                <span className="material-symbols-outlined text-gray-400 text-[20px]">explore</span> Explore
+              <Link to="/search" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                <span className="material-symbols-outlined text-secondary text-xl">explore</span> Explore
               </Link>
-              <Link to="/search?category=Luxury%20Goods" className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                <span className="material-symbols-outlined text-gray-400 text-[20px]">category</span> Categories
+              <Link to="/search?category=Luxury%20Goods" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                <span className="material-symbols-outlined text-secondary text-xl">category</span> Categories
               </Link>
-              <Link to="/vendor/storefront" className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                <span className="material-symbols-outlined text-gray-400 text-[20px]">storefront</span> Stores
+              <Link to="/vendor/storefront" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                <span className="material-symbols-outlined text-secondary text-xl">storefront</span> Stores
               </Link>
-              <Link to="/cart" className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                <span className="material-symbols-outlined text-gray-400 text-[20px]">shopping_cart</span> Cart
+              <Link to="/cart" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                <span className="material-symbols-outlined text-secondary text-xl">shopping_cart</span> Cart
                 {cartCount > 0 && (
                   <span className="ml-auto bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full">{cartCount}</span>
                 )}
@@ -322,40 +313,40 @@ export default function Header({ onMenuToggle, isPortal }) {
 
               {user && (
                 <>
-                  <div className="border-t border-gray-100 my-3"></div>
-                  <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Account</p>
-                  <Link to={`/${user.role}`} className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                    <span className="material-symbols-outlined text-gray-400 text-[20px]">dashboard</span> Dashboard
+                  <div className="border-t border-outline-variant my-3"></div>
+                  <p className="px-3 text-[10px] font-bold text-secondary uppercase tracking-widest mb-3">Account</p>
+                  <Link to={`/${user.role}`} className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                    <span className="material-symbols-outlined text-secondary text-xl">dashboard</span> Dashboard
                   </Link>
-                  <Link to="/buyer/orders" className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                    <span className="material-symbols-outlined text-gray-400 text-[20px]">receipt_long</span> Orders
+                  <Link to="/buyer/orders" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                    <span className="material-symbols-outlined text-secondary text-xl">receipt_long</span> Orders
                   </Link>
-                  <Link to="/buyer/wishlist" className="flex items-center gap-3 px-3 py-3 text-[15px] font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" onClick={closeAll}>
-                    <span className="material-symbols-outlined text-gray-400 text-[20px]">favorite</span> Wishlist
+                  <Link to="/buyer/wishlist" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+                    <span className="material-symbols-outlined text-secondary text-xl">favorite</span> Wishlist
                   </Link>
                 </>
               )}
 
-              <div className="border-t border-gray-100 my-3"></div>
-              <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Preferences</p>
+              <div className="border-t border-outline-variant my-3"></div>
+              <p className="px-3 text-[10px] font-bold text-secondary uppercase tracking-widest mb-3">Preferences</p>
               <div className="flex items-center justify-between px-3 py-3">
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-gray-400 text-[20px]">dark_mode</span>
-                  <span className="text-[15px] font-medium text-gray-700">Dark Mode</span>
+                  <span className="material-symbols-outlined text-secondary text-xl">dark_mode</span>
+                  <span className="text-body-md font-medium text-on-surface">Dark Mode</span>
                 </div>
                 <ThemeToggle />
               </div>
             </div>
 
             {/* Drawer footer */}
-            <div className="border-t border-gray-100 p-4 shrink-0">
+            <div className="border-t border-outline-variant p-4 shrink-0">
               {user ? (
                 <Button
                   variant="ghost"
                   fullWidth
                   onClick={() => { logout(); closeAll(); navigate('/login'); }}
-                  icon={<span className="material-symbols-outlined text-[18px]">logout</span>}
-                  className="justify-start text-red-500 hover:bg-red-50"
+                  icon={<span className="material-symbols-outlined text-lg">logout</span>}
+                  className="justify-start text-error hover:bg-error-container"
                 >
                   Sign Out
                 </Button>

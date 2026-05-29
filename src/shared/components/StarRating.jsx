@@ -38,10 +38,10 @@ export default function StarRating({
 
     if (type === 'full') {
       icon = 'star';
-      colorClass = 'text-amber-400';
+      colorClass = 'text-warning';
     } else if (type === 'half') {
       icon = 'star_half';
-      colorClass = 'text-amber-400';
+      colorClass = 'text-warning';
     } else {
       icon = 'star';
       colorClass = 'text-on-surface/20';
@@ -53,7 +53,6 @@ export default function StarRating({
         className={`material-symbols-outlined text-xl ${colorClass} ${
           interactive ? 'cursor-pointer transition-transform hover:scale-110' : ''
         }`}
-        style={interactive ? { fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" } : { fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
         onClick={() => handleClick(i)}
         onMouseEnter={() => handleMouseEnter(i)}
         onMouseLeave={handleMouseLeave}
