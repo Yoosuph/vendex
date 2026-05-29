@@ -200,11 +200,11 @@ export default function ProductDetail() {
                 <div className="h-px bg-outline-variant my-1"></div>
                 <div className="grid grid-cols-2 gap-md">
                   <div className="flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-body-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+                    <span className="material-symbols-outlined text-body-lg text-primary icon-filled">verified_user</span>
                     <span className="text-label-md font-bold text-on-surface-variant">Safe Payment</span>
                   </div>
                   <div className="flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-body-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                    <span className="material-symbols-outlined text-body-lg text-primary icon-filled">bolt</span>
                     <span className="text-label-md font-bold text-on-surface-variant">Fast Delivery</span>
                   </div>
                 </div>

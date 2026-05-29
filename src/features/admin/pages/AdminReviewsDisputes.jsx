@@ -76,7 +76,7 @@ export default function AdminReviewsDisputes() {
                 <p className="text-label-sm text-secondary uppercase tracking-wider mb-xs">Average Rating</p>
                 <div className="flex items-end gap-2">
                   <h3 className="text-display-lg font-black text-primary">{avgRating}</h3>
-                  <span className="material-symbols-outlined text-primary pb-2" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                  <span className="material-symbols-outlined text-primary pb-2 icon-filled">star</span>
                 </div>
                 <p className="text-meta text-on-surface-variant mt-2">{reviews.length} total reviews</p>
               </div>

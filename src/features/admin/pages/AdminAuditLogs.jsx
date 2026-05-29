@@ -65,7 +65,7 @@ export default function AdminAuditLogs() {
             <p className="font-body-md text-body-md text-on-surface-variant">Track all administrative actions across the Vendex ecosystem.</p>
           </div>
           <div className="flex flex-wrap items-center gap-sm">
-            <Button variant="outline"><span className="material-symbols-outlined" style={{ fontSize: '20px' }}>download</span>
+            <Button variant="outline"><span className="material-symbols-outlined text-body-lg">download</span>
               Export CSV</Button>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function AdminAuditLogs() {
                         </td>
                         <td className="px-md py-4">
                           <div className="flex items-center gap-xs">
-                            <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: '18px' }}>
+                            <span className="material-symbols-outlined text-on-surface-variant text-body-lg">
                               {isFailed ? 'dns' : 'inventory_2'}
                             </span>
                             <span className={`font-body-sm text-body-sm ${isFailed ? 'text-error font-bold' : ''}`}>

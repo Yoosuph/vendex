@@ -170,7 +170,7 @@ export default function AdminProducts() {
                       </td>
                       <td className="px-md py-4">
                         <div className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                          <span className="material-symbols-outlined text-primary text-sm icon-filled">star</span>
                           <span className="font-bold">{(p.rating || 5).toFixed(1)}</span>
                           <span className="text-on-surface-variant text-xs">({p.reviewsCount || 0})</span>
                         </div>

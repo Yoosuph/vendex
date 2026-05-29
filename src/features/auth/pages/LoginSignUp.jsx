@@ -78,7 +78,7 @@ export default function LoginSignUp() {
  {/* Branding Content */}
  <div className="relative z-10">
  <Link to="/" className="flex items-center gap-xs">
- <span className="material-symbols-outlined text-white text-headline-lg" style={{ fontVariationSettings: "'FILL' 1" }}>shopping_bag</span>
+ <span className="material-symbols-outlined text-white text-headline-lg icon-filled">shopping_bag</span>
  <h1 className="font-headline-md text-headline-md text-white tracking-tight">Vendex</h1>
  </Link>
  </div>
