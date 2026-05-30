@@ -76,7 +76,7 @@ export default function VendorAddProduct() {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md block" htmlFor="name">Product Name</label>
                 <input
-                  className={`w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all ${touched.name && errors.name ? 'border-error' : 'border-surface-variant'}`}
+                  className={cn('w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all', touched.name && errors.name ? 'border-error' : 'border-surface-variant')}
                   id="name"
                   name="name"
                   placeholder="e.g. Minimalist Ceramic Vase"
@@ -90,7 +90,7 @@ export default function VendorAddProduct() {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md block" htmlFor="category">Category</label>
                 <select
-                  className={`w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface appearance-none ${touched.category && errors.category ? 'border-error' : 'border-surface-variant'}`}
+                  className={cn('w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface appearance-none', touched.category && errors.category ? 'border-error' : 'border-surface-variant')}
                   id="category"
                   name="category"
                   value={values.category}
@@ -132,7 +132,7 @@ export default function VendorAddProduct() {
               <div className="space-y-xs">
                 <label className="font-label-md text-label-md block" htmlFor="image">Image URL</label>
                 <input
-                  className={`w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all ${touched.image && errors.image ? 'border-error' : 'border-surface-variant'}`}
+                  className={cn('w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all', touched.image && errors.image ? 'border-error' : 'border-surface-variant')}
                   id="image"
                   name="image"
                   placeholder="https://example.com/image.jpg"
@@ -152,7 +152,7 @@ export default function VendorAddProduct() {
                   <div className="space-y-xs">
                     <label className="font-label-sm text-label-sm block" htmlFor="price">Base Price ($)</label>
                     <input
-                      className={`w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all ${touched.price && errors.price ? 'border-error' : 'border-surface-variant'}`}
+                      className={cn('w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all', touched.price && errors.price ? 'border-error' : 'border-surface-variant')}
                       id="price"
                       name="price"
                       placeholder="0.00"
@@ -172,7 +172,7 @@ export default function VendorAddProduct() {
                   <div className="space-y-xs">
                     <label className="font-label-sm text-label-sm block" htmlFor="stock">Stock Quantity</label>
                     <input
-                      className={`w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all ${touched.stock && errors.stock ? 'border-error' : 'border-surface-variant'}`}
+                      className={cn('w-full px-sm py-xs bg-surface-container-lowest border rounded-lg font-body-md text-body-md text-on-surface transition-all', touched.stock && errors.stock ? 'border-error' : 'border-surface-variant')}
                       id="stock"
                       name="stock"
                       placeholder="0"

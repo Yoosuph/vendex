@@ -4,6 +4,7 @@ import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 const STORAGE_KEY = 'vendex_banners';
 
@@ -119,7 +120,7 @@ export default function AdminBannersPromotions() {
                     </div>
                     <p className="font-body-sm text-on-surface-variant line-clamp-2">{banner.url || 'No target URL'}</p>
                     <div className="mt-md flex justify-between items-center border-t border-outline-variant pt-sm">
-                      <span className={`font-label-sm ${banner.active ? 'text-secondary' : 'text-error'}`}>
+                      <span className={cn('font-label-sm', banner.active ? 'text-secondary' : 'text-error')}>
                         {banner.active ? (banner.endDate ? `Active until ${banner.endDate}` : 'Active') : 'Paused'}
                       </span>
                       <div className="flex gap-2">

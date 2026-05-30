@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 const typeConfig = {
   success: {
@@ -62,16 +63,16 @@ function ToastItem({ toast, onClose }) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 80, scale: 0.95 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className={`${config.bg} border rounded-xl shadow-modal min-w-80 max-w-sm overflow-hidden`}
+      className={cn(config.bg, 'border rounded-xl shadow-modal min-w-80 max-w-sm overflow-hidden')}
     >
       <div className="flex items-start gap-3 p-4">
-        <span className={`material-symbols-outlined text-xl ${config.iconColor} mt-0.5`}>
+        <span className={cn('material-symbols-outlined text-xl', config.iconColor, 'mt-0.5')}>
           {config.icon}
         </span>
-        <p className={`${config.text} text-body-sm flex-1`}>{message}</p>
+        <p className={cn(config.text, 'text-body-sm flex-1')}>{message}</p>
         <button
           onClick={() => onClose(id)}
-          className={`${config.text}/60 hover:${config.text} transition-colors`}
+          className={cn(`${config.text}/60`, `hover:${config.text}`, 'transition-colors')}
           aria-label="Close"
         >
           <span className="material-symbols-outlined text-lg">close</span>
@@ -81,7 +82,7 @@ function ToastItem({ toast, onClose }) {
       {/* Progress bar */}
       <div className="h-1 w-full bg-black/5">
         <motion.div
-          className={`h-full ${config.progressBg}`}
+          className={cn('h-full', config.progressBg)}
           initial={{ width: '100%' }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.05, ease: 'linear' }}

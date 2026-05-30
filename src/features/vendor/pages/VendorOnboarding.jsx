@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function VendorOnboarding() {
   const { signup } = useContext(AuthContext);
@@ -97,10 +98,10 @@ export default function VendorOnboarding() {
           <div className="absolute top-[18px] left-0 h-0.5 bg-primary-container z-0" style={{ width: progressWidth }}></div>
           {[1, 2, 3, 4].map(s => (
             <div key={s} className="relative z-10 flex flex-col items-center group cursor-pointer" onClick={() => s < step && setStep(s)}>
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ring-4 ring-surface-container-lowest ${s <= step ? 'bg-primary-container text-on-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
+              <div className={cn('w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ring-4 ring-surface-container-lowest', s <= step ? 'bg-primary-container text-on-primary' : 'bg-surface-container-high text-on-surface-variant')}>
                 <span className="font-label-md text-label-md">{s}</span>
               </div>
-              <span className={`mt-xs font-label-md text-label-md ${s <= step ? 'text-primary' : 'text-secondary'}`}>{stepLabels[s - 1]}</span>
+              <span className={cn('mt-xs font-label-md text-label-md', s <= step ? 'text-primary' : 'text-secondary')}>{stepLabels[s - 1]}</span>
             </div>
           ))}
         </div>
@@ -117,22 +118,22 @@ export default function VendorOnboarding() {
             <div className="space-y-md">
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface">Your Name</label>
-                <input className={`w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all ${errors.name ? 'border-error' : 'border-outline-variant'}`} placeholder="e.g. John Doe" type="text" value={formData.name} onChange={handleDirectChange('name')} />
+                <input className={cn('w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all', errors.name ? 'border-error' : 'border-outline-variant')} placeholder="e.g. John Doe" type="text" value={formData.name} onChange={handleDirectChange('name')} />
                 {errors.name && <p className="text-error font-meta">{errors.name}</p>}
               </div>
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface">Email</label>
-                <input className={`w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all ${errors.email ? 'border-error' : 'border-outline-variant'}`} placeholder="you@example.com" type="email" value={formData.email} onChange={handleDirectChange('email')} />
+                <input className={cn('w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all', errors.email ? 'border-error' : 'border-outline-variant')} placeholder="you@example.com" type="email" value={formData.email} onChange={handleDirectChange('email')} />
                 {errors.email && <p className="text-error font-meta">{errors.email}</p>}
               </div>
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface">Password</label>
-                <input className={`w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all ${errors.password ? 'border-error' : 'border-outline-variant'}`} placeholder="At least 6 characters" type="password" value={formData.password} onChange={handleDirectChange('password')} />
+                <input className={cn('w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all', errors.password ? 'border-error' : 'border-outline-variant')} placeholder="At least 6 characters" type="password" value={formData.password} onChange={handleDirectChange('password')} />
                 {errors.password && <p className="text-error font-meta">{errors.password}</p>}
               </div>
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface">Store Name</label>
-                <input className={`w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all ${errors.storeName ? 'border-error' : 'border-outline-variant'}`} placeholder="e.g. Minimalist Home Decor" type="text" value={formData.storeName} onChange={handleChange} />
+                <input className={cn('w-full h-12 px-md border rounded-lg focus:border-on-surface text-body-md transition-all', errors.storeName ? 'border-error' : 'border-outline-variant')} placeholder="e.g. Minimalist Home Decor" type="text" value={formData.storeName} onChange={handleChange} />
                 {errors.storeName && <p className="text-error font-meta">{errors.storeName}</p>}
               </div>
               <div className="flex flex-col gap-base">

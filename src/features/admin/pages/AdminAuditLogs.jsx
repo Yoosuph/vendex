@@ -4,6 +4,7 @@ import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function AdminAuditLogs() {
   const { auditLogs, loading } = useContext(MarketplaceContext);
@@ -101,11 +102,11 @@ export default function AdminAuditLogs() {
             </div>
             <div className="font-headline-md text-headline-md text-sm">
               <button
-                className={`px-3 py-1 rounded-lg text-xs font-bold ${sortDir === 'desc' ? 'bg-primary text-on-primary' : 'bg-surface-container'}`}
+                className={cn('px-3 py-1 rounded-lg text-xs font-bold', sortDir === 'desc' ? 'bg-primary text-on-primary' : 'bg-surface-container')}
                 onClick={() => setSortDir('desc')}
               >Newest</button>
               <button
-                className={`px-3 py-1 rounded-lg text-xs font-bold ml-2 ${sortDir === 'asc' ? 'bg-primary text-on-primary' : 'bg-surface-container'}`}
+                className={cn('px-3 py-1 rounded-lg text-xs font-bold ml-2', sortDir === 'asc' ? 'bg-primary text-on-primary' : 'bg-surface-container')}
                 onClick={() => setSortDir('asc')}
               >Oldest</button>
             </div>
@@ -159,7 +160,7 @@ export default function AdminAuditLogs() {
                   {filteredLogs.map((log, i) => {
                     const isFailed = (log.status || '').toLowerCase() === 'failed' || (log.status || '').toLowerCase() === 'critical';
                     return (
-                      <tr key={log.id || i} className={`hover:bg-surface-container-lowest transition-colors group ${isFailed ? 'bg-error/5' : ''}`}>
+                      <tr key={log.id || i} className={cn('hover:bg-surface-container-lowest transition-colors group', isFailed && 'bg-error/5')}>
                         <td className="px-md py-4">
                           <div className="flex flex-col">
                             <span className="font-body-md text-body-md">{log.timestamp || 'N/A'}</span>
@@ -174,7 +175,7 @@ export default function AdminAuditLogs() {
                           </div>
                         </td>
                         <td className="px-md py-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${getActionBadge(log.action)}`}>
+                          <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold', getActionBadge(log.action))}>
                             {log.action || 'UNKNOWN'}
                           </span>
                         </td>
@@ -183,14 +184,14 @@ export default function AdminAuditLogs() {
                             <span className="material-symbols-outlined text-on-surface-variant text-body-lg">
                               {isFailed ? 'dns' : 'inventory_2'}
                             </span>
-                            <span className={`font-body-sm text-body-sm ${isFailed ? 'text-error font-bold' : ''}`}>
+                            <span className={cn('font-body-sm text-body-sm', isFailed && 'text-error font-bold')}>
                               {log.resource || 'N/A'}
                             </span>
                           </div>
                         </td>
                         <td className="px-md py-4">
                           <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface">
-                            <span className={`w-1.5 h-1.5 rounded-full ${isFailed ? 'bg-error' : 'bg-green-500'}`}></span>
+                            <span className={cn('w-1.5 h-1.5 rounded-full', isFailed ? 'bg-error' : 'bg-green-500')}></span>
                             {log.status || 'Success'}
                           </span>
                         </td>

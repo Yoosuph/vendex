@@ -6,6 +6,7 @@ import Button from '@/shared/components/Button';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import { motion } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 export default function SearchResults() {
   const { products } = useContext(MarketplaceContext);
@@ -111,9 +112,7 @@ export default function SearchResults() {
               {categories.map((cat) => (
                 <li key={cat}>
                   <Link
-                    className={`flex items-center justify-between font-body-sm text-body-sm transition-colors ${
-                      categoryFilter === cat ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary'
-                    }`}
+                    className={cn('flex items-center justify-between font-body-sm text-body-sm transition-colors', categoryFilter === cat ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary')}
                     to={`/search?category=${encodeURIComponent(cat)}`}
                   >
                     {cat}
@@ -227,7 +226,7 @@ export default function SearchResults() {
                         className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => toggleWishlist(product)}
                       >
-                        <span className={`material-symbols-outlined text-body-lg ${isWished ? 'text-primary' : 'text-on-surface-variant'}`} style={{ fontVariationSettings: isWished ? "'FILL' 1" : "'FILL' 0" }}>
+                        <span className={cn('material-symbols-outlined text-body-lg', isWished ? 'text-primary' : 'text-on-surface-variant')} style={{ fontVariationSettings: isWished ? "'FILL' 1" : "'FILL' 0" }}>
                           favorite
                         </span>
                       </button>
@@ -243,7 +242,7 @@ export default function SearchResults() {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <span
                             key={star}
-                            className={`material-symbols-outlined text-base ${star <= Math.round(product.rating || 0) ? '' : ''}`}
+                            className={cn('material-symbols-outlined text-base', star <= Math.round(product.rating || 0) ? '' : '')}
                             style={{ fontVariationSettings: star <= Math.round(product.rating || 0) ? "'FILL' 1" : "'FILL' 0" }}
                           >
                             {star <= Math.round(product.rating || 0) ? 'star' : 'star_outline'}

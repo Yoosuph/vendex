@@ -5,6 +5,7 @@ import { AuthContext } from "@/shared/context/AuthContext";
 import Button from '@/shared/components/Button';
 import useForm from '@/shared/hooks/useForm';
 import { motion } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 export default function Checkout() {
  const { cart, cartTotal, checkoutAndCommit } = useContext(CartContext);
@@ -71,7 +72,7 @@ export default function Checkout() {
            <div className="space-y-xs">
              <label className="font-label-md text-label-md text-on-surface-variant block">First Name</label>
              <input
-               className={`w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none ${touched.firstName && errors.firstName ? 'border-error' : 'border-outline-variant'}`}
+               className={cn('w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none', touched.firstName && errors.firstName ? 'border-error' : 'border-outline-variant')}
                type="text"
                name="firstName"
                required
@@ -84,7 +85,7 @@ export default function Checkout() {
            <div className="space-y-xs">
              <label className="font-label-md text-label-md text-on-surface-variant block">Last Name</label>
              <input
-               className={`w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none ${touched.lastName && errors.lastName ? 'border-error' : 'border-outline-variant'}`}
+               className={cn('w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none', touched.lastName && errors.lastName ? 'border-error' : 'border-outline-variant')}
                type="text"
                name="lastName"
                required
@@ -97,7 +98,7 @@ export default function Checkout() {
            <div className="space-y-xs sm:col-span-2">
              <label className="font-label-md text-label-md text-on-surface-variant block">Address</label>
              <input
-               className={`w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none ${touched.address && errors.address ? 'border-error' : 'border-outline-variant'}`}
+               className={cn('w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none', touched.address && errors.address ? 'border-error' : 'border-outline-variant')}
                type="text"
                name="address"
                required
@@ -110,7 +111,7 @@ export default function Checkout() {
            <div className="space-y-xs">
              <label className="font-label-md text-label-md text-on-surface-variant block">City</label>
              <input
-               className={`w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none ${touched.city && errors.city ? 'border-error' : 'border-outline-variant'}`}
+               className={cn('w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none', touched.city && errors.city ? 'border-error' : 'border-outline-variant')}
                type="text"
                name="city"
                required
@@ -123,7 +124,7 @@ export default function Checkout() {
            <div className="space-y-xs">
              <label className="font-label-md text-label-md text-on-surface-variant block">ZIP / Postal Code</label>
              <input
-               className={`w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none ${touched.zip && errors.zip ? 'border-error' : 'border-outline-variant'}`}
+               className={cn('w-full px-sm py-sm border rounded-lg bg-surface-container-low focus:ring-1 focus:ring-primary outline-none', touched.zip && errors.zip ? 'border-error' : 'border-outline-variant')}
                type="text"
                name="zip"
                required

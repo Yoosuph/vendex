@@ -30,7 +30,7 @@ export default function OrderConfirmation() {
 
         <div className="flex flex-col items-center text-center mb-xl">
           <div className="success-checkmark-animation bg-primary-container rounded-full p-lg mb-md inline-flex shadow-lg shadow-primary/10">
-            <span className="material-symbols-outlined text-white text-[64px]" style={{ fontVariationSettings: "'FILL' 0, 'wght' 600" }}>check_circle</span>
+            <span className="material-symbols-outlined text-white text-[64px] font-semibold">check_circle</span>
           </div>
           <h1 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Thank you for your order!</h1>
           <p className="font-body-lg text-body-lg text-secondary mb-base">Your transaction was successful and your items are being prepared.</p>

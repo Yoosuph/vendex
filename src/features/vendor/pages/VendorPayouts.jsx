@@ -5,6 +5,7 @@ import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function VendorPayouts() {
   const { orders, loading } = useContext(MarketplaceContext);
@@ -120,8 +121,8 @@ export default function VendorPayouts() {
                       <td className="px-lg py-md text-secondary">{payout.destination}</td>
                       <td className="px-lg py-md font-bold text-on-surface">${(payout.amount || 0).toFixed(2)}</td>
                       <td className="px-lg py-md">
-                        <span className={`inline-flex items-center px-xs py-0.5 rounded-full text-meta font-bold uppercase tracking-wider ${payout.status === 'Completed' ? 'bg-success-container text-success' : 'bg-error-container text-error'}`}>
-                          <span className={`w-1 h-1 rounded-full mr-xs ${payout.status === 'Completed' ? 'bg-success' : 'bg-error'}`}></span>
+                        <span className={cn('inline-flex items-center px-xs py-0.5 rounded-full text-meta font-bold uppercase tracking-wider', payout.status === 'Completed' ? 'bg-success-container text-success' : 'bg-error-container text-error')}>
+                          <span className={cn('w-1 h-1 rounded-full mr-xs', payout.status === 'Completed' ? 'bg-success' : 'bg-error')}></span>
                           {payout.status}
                         </span>
                       </td>

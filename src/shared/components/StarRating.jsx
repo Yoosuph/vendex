@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { cn } from '@/utils/cn';
 
 export default function StarRating({
   rating = 0,
@@ -50,9 +51,7 @@ export default function StarRating({
     stars.push(
       <span
         key={i}
-        className={`material-symbols-outlined text-xl ${colorClass} ${
-          interactive ? 'cursor-pointer transition-transform hover:scale-110' : ''
-        }`}
+        className={cn('material-symbols-outlined text-xl', colorClass, interactive && 'cursor-pointer transition-transform hover:scale-110')}
         onClick={() => handleClick(i)}
         onMouseEnter={() => handleMouseEnter(i)}
         onMouseLeave={handleMouseLeave}

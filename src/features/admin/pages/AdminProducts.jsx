@@ -7,6 +7,7 @@ import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function AdminProducts() {
   const { products, users, loading, deleteProduct, updateProductStock } = useContext(MarketplaceContext);
@@ -163,7 +164,7 @@ export default function AdminProducts() {
                             <Button variant="danger" onClick={() => setEditingStock({ id: null, value: '' })}>✗</Button>
                           </div>
                         ) : (
-                          <span className={`${(p.stock || 0) === 0 ? 'text-error font-bold' : (p.stock || 0) < 10 ? 'text-amber-600' : ''}`}>
+                          <span className={cn((p.stock || 0) === 0 ? 'text-error font-bold' : (p.stock || 0) < 10 ? 'text-amber-600' : '')}>
                             {p.stock || 0} units
                           </span>
                         )}
@@ -231,7 +232,7 @@ export default function AdminProducts() {
                           </div>
                           <div className="flex text-primary">
                             {Array.from({ length: r.rating || 5 }).map((_, j) => (
-                              <span key={j} className="material-symbols-outlined text-body-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                              <span key={j} className="material-symbols-outlined text-body-sm icon-filled">star</span>
                             ))}
                           </div>
                         </div>

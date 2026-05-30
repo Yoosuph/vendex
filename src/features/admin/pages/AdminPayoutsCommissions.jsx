@@ -2,6 +2,7 @@ import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 const STORAGE_KEY = 'vendex_commission_settings';
 
@@ -152,7 +153,7 @@ export default function AdminPayoutsCommissions() {
                       <td className="p-sm text-error text-body-sm">-${p.fee.toFixed(2)}</td>
                       <td className="p-sm font-bold text-body-sm">${p.net.toFixed(2)}</td>
                       <td className="p-sm">
-                        <span className={`px-2 py-0.5 rounded-full text-meta font-bold uppercase ${p.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>{p.status}</span>
+                        <span className={cn('px-2 py-0.5 rounded-full text-meta font-bold uppercase', p.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700')}>{p.status}</span>
                       </td>
                     </tr>
                   ))}

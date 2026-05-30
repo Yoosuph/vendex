@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 const STORAGE_KEY = 'vendex_settings';
 
@@ -124,8 +125,8 @@ export default function AdminSettings() {
                           className="sr-only"
                           type="checkbox"
                         />
-                        <div className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${settings.maintenanceMode ? 'bg-primary' : 'bg-outline-variant'}`}>
-                          <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${settings.maintenanceMode ? 'translate-x-5' : ''}`}></div>
+                        <div className={cn('w-11 h-6 rounded-full transition-colors flex items-center px-0.5', settings.maintenanceMode ? 'bg-primary' : 'bg-outline-variant')}>
+                          <div className={cn('w-4 h-4 bg-white rounded-full shadow-sm transition-transform', settings.maintenanceMode && 'translate-x-5')}></div>
                         </div>
                       </label>
                     </div>
@@ -133,11 +134,11 @@ export default function AdminSettings() {
                 </div>
                 <div className="flex justify-end border-t border-outline-variant pt-md">
                   <motion.button
-                    className={`px-xl py-sm rounded-lg font-label-md transition-all active:scale-95 ${
+                    className={cn('px-xl py-sm rounded-lg font-label-md transition-all active:scale-95',
                       saved
                         ? 'bg-outline-variant text-on-surface-variant cursor-not-allowed'
                         : 'bg-[#C0152A] hover:bg-[#96101F] text-white'
-                    }`}
+                    )}
                     onClick={handleSaveClick}
                     disabled={saved}
                     whileHover={saved ? {} : { scale: 1.02 }}

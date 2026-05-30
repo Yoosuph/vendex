@@ -9,6 +9,7 @@ import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import ErrorState from '@/shared/components/ErrorState';
 import EmptyState from '@/shared/components/EmptyState';
 import { motion } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -139,9 +140,7 @@ export default function ProductDetail() {
                 {images.map((imgUrl, idx) => (
                   <button
                     key={idx}
-                    className={`w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border transition-colors ${
-                      currentImage === imgUrl ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant hover:border-primary'
-                    }`}
+                    className={cn('w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border transition-colors', currentImage === imgUrl ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant hover:border-primary')}
                     onClick={() => setSelectedImage(imgUrl)}
                   >
                     <img alt={`${product.name} - View ${idx + 1}`} className="w-full h-full object-cover" src={imgUrl} />
@@ -255,25 +254,19 @@ export default function ProductDetail() {
         <section className="mt-xl">
           <div className="border-b border-outline-variant flex gap-xl overflow-x-auto">
             <button
-              className={`pb-md text-headline-md whitespace-nowrap transition-all ${
-                activeTab === 'description' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary'
-              }`}
+              className={cn('pb-md text-headline-md whitespace-nowrap transition-all', activeTab === 'description' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary')}
               onClick={() => setActiveTab('description')}
             >
               Description
             </button>
             <button
-              className={`pb-md text-headline-md whitespace-nowrap transition-all ${
-                activeTab === 'specs' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary'
-              }`}
+              className={cn('pb-md text-headline-md whitespace-nowrap transition-all', activeTab === 'specs' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary')}
               onClick={() => setActiveTab('specs')}
             >
               Specs
             </button>
             <button
-              className={`pb-md text-headline-md whitespace-nowrap transition-all ${
-                activeTab === 'reviews' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary'
-              }`}
+              className={cn('pb-md text-headline-md whitespace-nowrap transition-all', activeTab === 'reviews' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary')}
               onClick={() => setActiveTab('reviews')}
             >
               Reviews ({product.reviewsCount || 0})

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 const STORAGE_KEY = 'vendex_roles_permissions';
 
@@ -203,8 +204,8 @@ export default function AdminRolesPermissions() {
                             className="sr-only"
                             type="checkbox"
                           />
-                          <div className={`w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${selectedRole.permissions[perm.key] ? 'bg-primary' : 'bg-outline-variant'}`}>
-                            <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${selectedRole.permissions[perm.key] ? 'translate-x-5' : ''}`}></div>
+                          <div className={cn('w-11 h-6 rounded-full transition-colors flex items-center px-0.5', selectedRole.permissions[perm.key] ? 'bg-primary' : 'bg-outline-variant')}>
+                            <div className={cn('w-4 h-4 bg-white rounded-full shadow-sm transition-transform', selectedRole.permissions[perm.key] && 'translate-x-5')}></div>
                           </div>
                         </label>
                       </div>

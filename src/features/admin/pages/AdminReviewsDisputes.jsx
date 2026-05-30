@@ -5,6 +5,7 @@ import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function AdminReviewsDisputes() {
   const { products, disputes, loading, resolveDispute } = useContext(MarketplaceContext);
@@ -128,7 +129,7 @@ export default function AdminReviewsDisputes() {
                         <td className="px-md py-md">
                           <div className="flex text-primary">
                             {Array.from({ length: r.rating || 5 }).map((_, j) => (
-                              <span key={j} className="material-symbols-outlined text-body-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                              <span key={j} className="material-symbols-outlined text-body-lg icon-filled">star</span>
                             ))}
                             {Array.from({ length: 5 - (r.rating || 5) }).map((_, j) => (
                               <span key={`e${j}`} className="material-symbols-outlined text-body-lg">star</span>
@@ -150,7 +151,7 @@ export default function AdminReviewsDisputes() {
           )}
 
           {/* Disputes Tab */}
-          <div className={`animate-in fade-in slide-in-from-bottom-2 duration-300 ${activeTab === 'disputes' ? '' : 'hidden'}`}>
+          <div className={cn('animate-in fade-in slide-in-from-bottom-2 duration-300', activeTab !== 'disputes' && 'hidden')}>
             {disputes.length === 0 ? (
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-lg">
                 <EmptyState icon="gavel" title="No disputes" description="Disputes will appear here when buyers file claims against orders." />
@@ -176,11 +177,11 @@ export default function AdminReviewsDisputes() {
                         <td className="px-md py-md font-body-sm">{d.claimant || d.claimantName || 'N/A'}</td>
                         <td className="px-md py-md text-body-sm">{d.vendor || d.vendorName || 'N/A'}</td>
                         <td className="px-md py-md">
-                          <span className={`px-2 py-1 rounded font-label-sm uppercase tracking-tight ${
+                          <span className={cn('px-2 py-1 rounded font-label-sm uppercase tracking-tight',
                             d.status === 'Resolved' ? 'bg-secondary-container text-on-secondary-container' :
                             d.status === 'Under Review' ? 'bg-primary/10 text-primary' :
                             'bg-error/10 text-error'
-                          }`}>{d.status || 'Open'}</span>
+                          )}>{d.status || 'Open'}</span>
                         </td>
                         <td className="px-md py-md font-label-md">${Number(d.amount || 0).toFixed(2)}</td>
                         <td className="px-md py-md text-meta">{d.date || d.createdAt || 'N/A'}</td>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 const sizeMap = {
   sm: 'w-6 h-6 border-2',
@@ -18,7 +19,7 @@ export default function LoadingSpinner({ text = 'Loading...', size = 'md' }) {
       transition={{ duration: 0.3 }}
     >
       <div
-        className={`${spinnerSize} rounded-full border-on-surface/20 border-t-primary animate-spin`}
+        className={cn(spinnerSize, 'rounded-full border-on-surface/20 border-t-primary animate-spin')}
         role="status"
         aria-label={text}
       />

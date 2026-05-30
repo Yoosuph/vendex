@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import LoadingSpinner from './LoadingSpinner';
+import { cn } from '@/utils/cn';
 
 export default function DataTable({
   columns = [],
@@ -79,9 +80,7 @@ export default function DataTable({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-4 py-3 text-left font-label-sm text-label-sm text-secondary ${
-                    col.sortable !== false ? 'cursor-pointer select-none hover:bg-surface-container transition-colors' : ''
-                  }`}
+                  className={cn('px-4 py-3 text-left font-label-sm text-label-sm text-secondary', col.sortable !== false && 'cursor-pointer select-none hover:bg-surface-container transition-colors')}
                   onClick={() => {
                     if (col.sortable !== false) handleSort(col.key);
                   }}

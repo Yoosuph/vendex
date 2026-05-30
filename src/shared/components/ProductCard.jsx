@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Button from '@/shared/components/Button';
 import { motion } from 'framer-motion';
 import StarRating from './StarRating';
+import { cn } from '@/utils/cn';
 
 const sizeConfig = {
   default: {
@@ -53,10 +54,10 @@ export default function ProductCard({
     >
       <Link
         to={`/product/${product.id}`}
-        className={`block bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden ${cfg.card}`}
+        className={cn('block bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden', cfg.card)}
       >
         {/* Image */}
-        <div className={`relative ${cfg.imageWrapper} rounded-lg overflow-hidden bg-surface-container-low`}>
+        <div className={cn('relative', cfg.imageWrapper, 'rounded-lg overflow-hidden bg-surface-container-low')}>
           <motion.img
             src={product.image || 'https://via.placeholder.com/400'}
             alt={product.name}
@@ -85,7 +86,7 @@ export default function ProductCard({
               aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
             >
               <span
-                className={`material-symbols-outlined text-xl ${isWished ? 'text-primary' : 'text-on-surface-variant'}`}
+                className={cn('material-symbols-outlined text-xl', isWishlisted ? 'text-primary' : 'text-on-surface-variant')}
               >
                 favorite
               </span>
@@ -96,16 +97,16 @@ export default function ProductCard({
         {/* Info */}
         <div className="mt-3 space-y-1.5">
           {showVendor && product.vendor && (
-            <p className={`${cfg.vendor} text-secondary truncate`}>{product.vendor}</p>
+            <p className={cn(cfg.vendor, 'text-secondary truncate')}>{product.vendor}</p>
           )}
 
-          <h3 className={`${cfg.name} text-on-surface line-clamp-2`}>{product.name}</h3>
+          <h3 className={cn(cfg.name, 'text-on-surface line-clamp-2')}>{product.name}</h3>
 
           {product.rating !== undefined && (
             <StarRating rating={product.rating} count={product.reviewCount} />
           )}
 
-          <p className={`${cfg.price} text-primary`}>
+          <p className={cn(cfg.price, 'text-primary')}>
             ${(product.price ?? 0).toFixed(2)}
           </p>
         </div>

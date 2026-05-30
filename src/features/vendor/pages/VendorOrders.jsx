@@ -6,6 +6,7 @@ import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function VendorOrders() {
   const { orders, loading } = useContext(MarketplaceContext);
@@ -85,8 +86,8 @@ export default function VendorOrders() {
                       <td className="px-sm py-4 font-body-md text-body-md text-on-surface-variant">{order.date}</td>
                       <td className="px-sm py-4 font-body-md text-body-md font-medium text-on-surface">${(order.total || 0).toFixed(2)}</td>
                       <td className="px-sm py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-label-sm ${statusBadgeColor(order.status)}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${order.status === 'Shipped' ? 'bg-outline' : 'bg-error'}`}></span>
+                        <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-label-sm', statusBadgeColor(order.status))}>
+                          <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', order.status === 'Shipped' ? 'bg-outline' : 'bg-error')}></span>
                           {order.status}
                         </span>
                       </td>

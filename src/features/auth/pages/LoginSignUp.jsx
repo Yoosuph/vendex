@@ -4,6 +4,7 @@ import { AuthContext } from "@/shared/context/AuthContext";
 import Button from '@/shared/components/Button';
 import useForm from '@/shared/hooks/useForm';
 import { motion } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 export default function LoginSignUp() {
  const { login } = useContext(AuthContext);
@@ -109,9 +110,7 @@ export default function LoginSignUp() {
  {/* Tab Toggle */}
  <div className="flex gap-lg border-b border-outline-variant mb-lg">
  <button
- className={`pb-base font-headline-md text-headline-md transition-all-custom ${
- activeTab === 'login' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary'
- }`}
+              className={cn('pb-base font-headline-md text-headline-md transition-all-custom', activeTab === 'login' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary')}
  onClick={() => {
  setActiveTab('login');
  setErrorMsg('');
@@ -120,9 +119,7 @@ export default function LoginSignUp() {
  Login
  </button>
  <button
- className={`pb-base font-headline-md text-headline-md transition-all-custom ${
- activeTab === 'signup' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary'
- }`}
+              className={cn('pb-base font-headline-md text-headline-md transition-all-custom', activeTab === 'signup' ? 'text-primary border-b-2 border-primary' : 'text-secondary hover:text-primary')}
  onClick={() => {
  setActiveTab('signup');
  setErrorMsg('');
@@ -146,13 +143,11 @@ export default function LoginSignUp() {
  <label className="font-label-md text-label-md text-on-surface-variant block mb-sm">I want to...</label>
  <div className="grid grid-cols-2 gap-sm">
  <div
- className={`cursor-pointer p-sm border-2 rounded-lg bg-surface-container-low transition-all-custom ${
- role === 'shop' ? 'border-primary' : 'border-outline-variant hover:border-primary'
- }`}
+                  className={cn('cursor-pointer p-sm border-2 rounded-lg bg-surface-container-low transition-all-custom', role === 'shop' ? 'border-primary' : 'border-outline-variant hover:border-primary')}
  onClick={() => setRole('shop')}
  >
  <span
- className={`material-symbols-outlined mb-xs ${role === 'shop' ? 'text-primary' : 'text-secondary'}`}
+                className={cn('material-symbols-outlined mb-xs', role === 'shop' ? 'text-primary' : 'text-secondary')}
  style={{ fontVariationSettings: role === 'shop' ? "'FILL' 1" : "'FILL' 0" }}
  >
  shopping_cart
@@ -161,13 +156,11 @@ export default function LoginSignUp() {
  <p className="font-meta text-meta text-on-surface-variant">Find unique products</p>
  </div>
  <div
- className={`cursor-pointer p-sm border-2 rounded-lg bg-surface-container-low transition-all-custom ${
- role === 'sell' ? 'border-primary' : 'border-outline-variant hover:border-primary'
- }`}
+                  className={cn('cursor-pointer p-sm border-2 rounded-lg bg-surface-container-low transition-all-custom', role === 'sell' ? 'border-primary' : 'border-outline-variant hover:border-primary')}
  onClick={() => setRole('sell')}
  >
  <span
- className={`material-symbols-outlined mb-xs ${role === 'sell' ? 'text-primary' : 'text-secondary'}`}
+                className={cn('material-symbols-outlined mb-xs', role === 'sell' ? 'text-primary' : 'text-secondary')}
  style={{ fontVariationSettings: role === 'sell' ? "'FILL' 1" : "'FILL' 0" }}
  >
  storefront
@@ -184,7 +177,7 @@ export default function LoginSignUp() {
                <div className="space-y-xs">
                  <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="email">Email Address</label>
                  <input
-                   className={`w-full px-sm py-sm border rounded-lg bg-white focus:ring-0 focus:border-on-surface transition-all-custom outline-none placeholder:text-outline ${touched.email && errors.email ? 'border-error' : 'border-outline-variant'}`}
+                    className={cn('w-full px-sm py-sm border rounded-lg bg-white focus:ring-0 focus:border-on-surface transition-all-custom outline-none placeholder:text-outline', touched.email && errors.email ? 'border-error' : 'border-outline-variant')}
                    id="email"
                    name="email"
                    placeholder="name@company.com"
@@ -203,7 +196,7 @@ export default function LoginSignUp() {
                    )}
                  </div>
                  <input
-                   className={`w-full px-sm py-sm border rounded-lg bg-white focus:ring-0 focus:border-on-surface transition-all-custom outline-none ${touched.password && errors.password ? 'border-error' : 'border-outline-variant'}`}
+                    className={cn('w-full px-sm py-sm border rounded-lg bg-white focus:ring-0 focus:border-on-surface transition-all-custom outline-none', touched.password && errors.password ? 'border-error' : 'border-outline-variant')}
                    id="password"
                    name="password"
                    placeholder="••••••••"

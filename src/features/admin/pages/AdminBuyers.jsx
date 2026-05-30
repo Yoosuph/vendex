@@ -6,6 +6,7 @@ import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function AdminBuyers() {
   const { users, orders, loading, suspendUser } = useContext(MarketplaceContext);
@@ -130,11 +131,11 @@ export default function AdminBuyers() {
                         <td className="px-md py-4 font-body-sm text-body-sm text-on-surface">{b.orderCount}</td>
                         <td className="px-md py-4 font-body-sm text-body-sm font-bold text-on-surface">${b.totalSpent.toFixed(2)}</td>
                         <td className="px-md py-4">
-                          <span className={`px-2 py-1 rounded-full text-meta font-bold ${
+                          <span className={cn('px-2 py-1 rounded-full text-meta font-bold',
                             b.status === 'suspended' ? 'bg-error-container text-error' :
                             b.status === 'flagged' ? 'bg-surface-variant text-on-surface-variant' :
-                            'bg-[#2d7a4f1a] text-[#2d7a4f]'
-                          }`}>{b.status || 'Active'}</span>
+                            'bg-success-container text-success'
+                          )}>{b.status || 'Active'}</span>
                         </td>
                         <td className="px-md py-4 font-body-sm text-body-sm text-on-surface-variant">{b.joinedAt || b.createdAt || 'N/A'}</td>
                         <td className="px-md py-4 text-right">

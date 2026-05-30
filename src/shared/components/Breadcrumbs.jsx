@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, ChevronRight } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 function autoGenerateFromPath(pathname) {
   const segments = pathname.split('/').filter(Boolean);
@@ -43,7 +44,7 @@ export default function Breadcrumbs({ items }) {
 
             {isLast || !crumb.path ? (
               <span
-                className={`${isLast ? 'font-bold text-on-surface' : 'text-secondary'} truncate max-w-[180px]`}
+                className={cn(isLast ? 'font-bold text-on-surface' : 'text-secondary', 'truncate max-w-[180px]')}
                 aria-current={isLast ? 'page' : undefined}
               >
                 {idx === 0 ? (

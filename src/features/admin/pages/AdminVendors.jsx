@@ -6,6 +6,7 @@ import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import Button from '@/shared/components/Button';
+import { cn } from '@/utils/cn';
 
 export default function AdminVendors() {
   const { users, products, loading, approveVendor, suspendUser } = useContext(MarketplaceContext);
@@ -138,16 +139,18 @@ export default function AdminVendors() {
                         <td className="px-md py-md font-body-md text-body-md">{v.vendorId || v.id}</td>
                         <td className="px-md py-md font-body-md text-body-md text-center">{getProductCount(v.id)}</td>
                         <td className="px-md py-md">
-                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
+                          <span className={cn(
+                            'inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold',
                             v.status === 'approved' ? 'bg-green-100 text-green-800' :
                             v.status === 'suspended' ? 'bg-red-100 text-red-800' :
                             'bg-blue-100 text-blue-800'
-                          }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${
+                          )}>
+                            <span className={cn(
+                              'w-1.5 h-1.5 rounded-full',
                               v.status === 'approved' ? 'bg-green-600' :
                               v.status === 'suspended' ? 'bg-red-600' :
                               'bg-blue-600'
-                            }`}></span>
+                            )}></span>
                             {(v.status || 'PENDING').toUpperCase()}
                           </span>
                         </td>
