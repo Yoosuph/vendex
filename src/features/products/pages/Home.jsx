@@ -277,7 +277,7 @@ export default function Home() {
                       <span className="text-body-sm font-bold text-on-surface">{store.rating}</span>
                       <span className="text-body-sm text-on-surface-variant">({store.reviews})</span>
                     </div>
- <Button variant="primary-container" fullWidth size="sm" to="/vendor/storefront">
+ <Button variant="primary-container" fullWidth size="sm" to={`/store/${store.vendorId}`}>
  Visit Store
  </Button>
                   </div>

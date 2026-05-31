@@ -36,7 +36,7 @@ export default function Footer() {
           <ul className="space-y-2.5">
             <li><Link to="/search" className="text-body-sm text-secondary hover:text-primary transition-colors">Explore Products</Link></li>
             <li><Link to="/search?category=Luxury%20Goods" className="text-body-sm text-secondary hover:text-primary transition-colors">Categories</Link></li>
-            <li><Link to="/vendor/storefront" className="text-body-sm text-secondary hover:text-primary transition-colors">Top Stores</Link></li>
+            <li><Link to="/search" className="text-body-sm text-secondary hover:text-primary transition-colors">Top Stores</Link></li>
             <li><Link to="/search" className="text-body-sm text-secondary hover:text-primary transition-colors">New Arrivals</Link></li>
             <li><Link to="/search" className="text-body-sm text-secondary hover:text-primary transition-colors">On Sale</Link></li>
           </ul>
@@ -58,11 +58,11 @@ export default function Footer() {
         <div>
           <h4 className="text-on-surface font-semibold text-body-sm uppercase tracking-wider mb-4">Company</h4>
           <ul className="space-y-2.5">
-            <li><a href="#" className="text-body-sm text-secondary hover:text-primary transition-colors">About Us</a></li>
-            <li><a href="#" className="text-body-sm text-secondary hover:text-primary transition-colors">Careers</a></li>
-            <li><a href="#" className="text-body-sm text-secondary hover:text-primary transition-colors">Press</a></li>
-            <li><a href="#" className="text-body-sm text-secondary hover:text-primary transition-colors">Privacy Policy</a></li>
-            <li><a href="#" className="text-body-sm text-secondary hover:text-primary transition-colors">Terms of Service</a></li>
+            <li><a href="#" onClick={(e) => e.preventDefault()} className="text-body-sm text-secondary hover:text-primary transition-colors">About Us</a></li>
+            <li><a href="#" onClick={(e) => e.preventDefault()} className="text-body-sm text-secondary hover:text-primary transition-colors">Careers</a></li>
+            <li><a href="#" onClick={(e) => e.preventDefault()} className="text-body-sm text-secondary hover:text-primary transition-colors">Press</a></li>
+            <li><a href="#" onClick={(e) => e.preventDefault()} className="text-body-sm text-secondary hover:text-primary transition-colors">Privacy Policy</a></li>
+            <li><a href="#" onClick={(e) => e.preventDefault()} className="text-body-sm text-secondary hover:text-primary transition-colors">Terms of Service</a></li>
           </ul>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
@@ -22,6 +22,7 @@ const statusBadge = (status) => {
 export default function BuyerDashboardOverview() {
   const { orders, products, loading } = useContext(MarketplaceContext);
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const myOrders = useMemo(() => {
     if (!user) return [];
@@ -101,7 +102,7 @@ export default function BuyerDashboardOverview() {
               </thead>
               <tbody className="divide-y divide-outline-variant">
                 {recentOrders.map(order => (
-                  <tr key={order.id} className="hover:bg-surface-container-low transition-colors cursor-pointer" onClick={() => window.location.href = `/buyer/order-detail/${order.id}`}>
+                  <tr key={order.id} className="hover:bg-surface-container-low transition-colors cursor-pointer" onClick={() => navigate(`/buyer/order-detail/${order.id}`)}>
                     <td className="px-md py-sm">
                       <p className="text-body-sm font-medium text-on-surface">#{order.id}</p>
                       <p className="text-meta text-on-surface-variant mt-base truncate max-w-[180px]">

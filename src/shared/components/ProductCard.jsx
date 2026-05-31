@@ -68,12 +68,12 @@ export default function ProductCard({
 
           {/* Stock badges */}
           {isOutOfStock && (
-            <div className="absolute top-2 left-2 bg-error/90 text-white text-meta font-bold px-2.5 py-1 rounded-full">
+            <div className="absolute top-2 left-2 bg-error text-on-error text-meta font-bold px-2.5 py-1 rounded-full">
               Out of Stock
             </div>
           )}
           {isLowStock && (
-            <div className="absolute top-2 left-2 bg-amber-500/90 text-white text-meta font-bold px-2.5 py-1 rounded-full">
+            <div className="absolute top-2 left-2 bg-warning-container text-on-warning-container text-meta font-bold px-2.5 py-1 rounded-full">
               Low Stock
             </div>
           )}

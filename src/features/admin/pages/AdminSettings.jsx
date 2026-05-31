@@ -49,7 +49,7 @@ export default function AdminSettings() {
 
   return (
     <>
-      <main className="pt-16 min-h-screen bg-background">
+      <div className="pt-16 min-h-screen bg-background">
         <div className="max-w-container-max mx-auto p-gutter">
           <div className="flex flex-col md:flex-row gap-lg">
             <div className="flex-1 space-y-lg">
@@ -174,7 +174,7 @@ export default function AdminSettings() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       <ConfirmDialog
         open={dialog.open}

@@ -2,7 +2,6 @@ import React, { useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
-import ErrorState from '@/shared/components/ErrorState';
 import Button from '@/shared/components/Button';
 import { cn } from '@/utils/cn';
 
@@ -29,8 +28,17 @@ export default function OrderDetail() {
 
   if (!order) {
     return (
-      <div className="p-xl">
-        <ErrorState message="Order not found." onRetry={() => navigate('/buyer/orders')} />
+      <div className="flex-1 flex items-center justify-center p-xl min-h-[40vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-error-container flex items-center justify-center">
+            <span className="material-symbols-outlined text-headline-lg text-error">error_outline</span>
+          </div>
+          <h2 className="text-headline-md font-bold text-on-surface mb-2">Order Not Found</h2>
+          <p className="text-body-sm text-on-surface-variant mb-6">Order #{id} could not be found. It may have been removed or the ID is incorrect.</p>
+          <Button variant="secondary" onClick={() => navigate('/buyer/orders')}>
+            Back to Orders
+          </Button>
+        </div>
       </div>
     );
   }
@@ -41,7 +49,7 @@ export default function OrderDetail() {
   const total = Number(order.total) || subtotal + tax;
   const ship = order.shippingDetails || {};
   const steps = ['Processing', 'Shipped', 'Delivered'];
-  const currentStep = steps.indexOf(order.status);
+  const currentStep = order.status === 'Cancelled' ? -1 : steps.indexOf(order.status);
 
   return (
     <div className="space-y-xl">
@@ -59,7 +67,8 @@ export default function OrderDetail() {
         </span>
       </div>
 
-      {/* Progress tracker */}
+      {/* Progress tracker — only for active orders */}
+      {order.status !== 'Cancelled' && (
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           {steps.map((step, i) => (
@@ -75,7 +84,7 @@ export default function OrderDetail() {
                 <span className={cn('text-meta font-medium', i <= currentStep ? 'text-on-surface' : 'text-on-surface-variant')}>{step}</span>
               </div>
               {i < steps.length - 1 && (
-                <div className={cn('flex-1 h-0.5 mx-sm mt-[-20px] rounded-full transition-colors',
+                <div className={cn('flex-1 h-0.5 mx-sm -mt-5 rounded-full transition-colors',
                   i < currentStep ? 'bg-primary' : 'bg-surface-container-high',
                 )} />
               )}
@@ -83,6 +92,7 @@ export default function OrderDetail() {
           ))}
         </div>
       </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-xl">
         {/* Items */}

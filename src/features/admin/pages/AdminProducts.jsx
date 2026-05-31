@@ -70,7 +70,7 @@ export default function AdminProducts() {
 
   return (
     <>
-      <main className="pt-16 min-h-screen">
+      <div className="pt-16 min-h-screen">
         <div className="p-gutter max-w-container-max mx-auto">
           <div className="flex justify-between items-end mb-lg">
             <div>
@@ -164,7 +164,7 @@ export default function AdminProducts() {
                             <Button variant="danger" onClick={() => setEditingStock({ id: null, value: '' })}>✗</Button>
                           </div>
                         ) : (
-                          <span className={cn((p.stock || 0) === 0 ? 'text-error font-bold' : (p.stock || 0) < 10 ? 'text-amber-600' : '')}>
+                          <span className={cn((p.stock || 0) === 0 ? 'text-error font-bold' : (p.stock || 0) < 10 ? 'text-warning' : '')}>
                             {p.stock || 0} units
                           </span>
                         )}
@@ -193,7 +193,7 @@ export default function AdminProducts() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* Review Modal */}
       {reviewModal && (

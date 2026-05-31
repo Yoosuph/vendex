@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
@@ -6,12 +6,14 @@ import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
+import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import { cn } from '@/utils/cn';
 
 export default function VendorProducts() {
   const { products, deleteProduct, loading } = useContext(MarketplaceContext);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const vendorProducts = useMemo(() => {
     if (!user?.vendorId) return [];
@@ -23,23 +25,29 @@ export default function VendorProducts() {
   const lowStock = vendorProducts.filter(p => p.stock > 0 && p.stock <= 10).length;
 
   const handleDelete = (productId, productName) => {
-    if (window.confirm(`Delete "${productName}"? This cannot be undone.`)) {
-      deleteProduct(productId, user?.name);
+    setDeleteTarget({ id: productId, name: productName });
+  };
+
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      deleteProduct(deleteTarget.id, user?.name);
+      setDeleteTarget(null);
     }
   };
 
   if (loading) return <LoadingSpinner text="Loading products..." />;
 
   return (
+    <>
     <div className="max-w-container-max mx-auto flex">
-      <main className="flex-1 p-gutter md:p-xl">
+      <div className="flex-1 p-gutter md:p-xl">
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
           <div>
             <h1 className="font-headline-lg text-headline-lg text-on-surface">Product Inventory</h1>
             <p className="font-body-md text-body-md text-secondary">Manage your catalog, stock levels and visibility across Vendex.</p>
           </div>
-          <Link to="/vendor/add-product" className="bg-primary hover:bg-primary-container text-on-primary px-md py-xs rounded-lg flex items-center justify-center gap-xs transition-all shadow-sm active:scale-[0.98]">
+          <Link to="/vendor/add-product" className="bg-primary hover:bg-primary-container text-on-primary px-md py-xs rounded-lg flex items-center justify-center gap-xs transition-all shadow-sm active:scale-95">
             <span className="material-symbols-outlined text-body-lg">add</span>
             <span className="font-label-md text-label-md uppercase tracking-wide">Add New Product</span>
           </Link>
@@ -145,7 +153,19 @@ export default function VendorProducts() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
+
+    {deleteTarget && (
+      <ConfirmDialog
+        title="Delete Product"
+        message={`Delete "${deleteTarget.name}"? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+    )}
+    </>
   );
 }

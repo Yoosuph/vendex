@@ -9,6 +9,19 @@
   .icon-filled {
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
+
+  /* Cross-browser backdrop-filter — Chrome requires -webkit- prefix */
+  [class*="backdrop-blur"],
+  [class*="backdrop-brightness"],
+  [class*="backdrop-contrast"],
+  [class*="backdrop-grayscale"],
+  [class*="backdrop-hue-rotate"],
+  [class*="backdrop-invert"],
+  [class*="backdrop-opacity"],
+  [class*="backdrop-saturate"],
+  [class*="backdrop-sepia"] {
+    -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+  }
 }
 
 @layer utilities {

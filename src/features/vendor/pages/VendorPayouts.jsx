@@ -13,6 +13,7 @@ export default function VendorPayouts() {
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawSuccess, setWithdrawSuccess] = useState(false);
 
   const vendorOrders = useMemo(() => {
     if (!user?.vendorId) return [];
@@ -44,9 +45,10 @@ export default function VendorPayouts() {
   const pendingClearance = totalRevenue * 0.3;
 
   const handleConfirmWithdrawal = () => {
-    alert(`Withdrawal of $${withdrawAmount || availableBalance.toFixed(2)} has been submitted.`);
     setShowWithdrawModal(false);
+    setWithdrawSuccess(true);
     setWithdrawAmount('');
+    setTimeout(() => setWithdrawSuccess(false), 3000);
   };
 
   const processingFee = (parseFloat(withdrawAmount) || availableBalance) * 0.015;
@@ -56,7 +58,13 @@ export default function VendorPayouts() {
 
   return (
     <>
-      <main className="max-w-container-max mx-auto px-gutter py-xl">
+      {withdrawSuccess && (
+        <div className="fixed top-20 right-4 z-50 bg-success-container text-on-success-container px-md py-sm rounded-xl shadow-lg flex items-center gap-xs animate-bounce">
+          <span className="material-symbols-outlined">check_circle</span>
+          <span className="font-label-md text-label-md">Withdrawal submitted successfully!</span>
+        </div>
+      )}
+      <div className="max-w-container-max mx-auto px-gutter py-xl">
         <nav className="flex items-center gap-xs mb-md text-on-surface-variant font-label-sm">
           <span>Finance</span>
           <span className="material-symbols-outlined text-body-sm">chevron_right</span>
@@ -139,7 +147,7 @@ export default function VendorPayouts() {
             <span className="text-body-sm text-on-surface-variant">Showing {payoutHistory.length} payouts</span>
           </div>
         </div>
-      </main>
+      </div>
 
       {showWithdrawModal && (
         <div className="fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-gutter transition-opacity duration-300" onClick={() => setShowWithdrawModal(false)}>

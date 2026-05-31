@@ -50,15 +50,15 @@ export default function AdminAuditLogs() {
   const getActionBadge = (action) => {
     const a = (action || '').toUpperCase();
     if (a.includes('DELETE') || a.includes('SUSPEND') || a.includes('CRITICAL')) return 'bg-error/10 text-error';
-    if (a.includes('APPROVE') || a.includes('RESOLVE') || a.includes('ADD')) return 'bg-green-100 text-green-700';
-    if (a.includes('EDIT') || a.includes('UPDATE')) return 'bg-orange-100 text-orange-700';
+    if (a.includes('APPROVE') || a.includes('RESOLVE') || a.includes('ADD')) return 'bg-success-container text-on-success-container';
+    if (a.includes('EDIT') || a.includes('UPDATE')) return 'bg-orange-100 text-warning';
     return 'bg-surface-container text-on-surface-variant';
   };
 
   if (loading) return <div className="pt-16"><LoadingSpinner text="Loading audit logs..." /></div>;
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <section className="pt-24 pb-xl px-gutter max-w-container-max mx-auto">
         <div className="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
           <div>
@@ -144,7 +144,7 @@ export default function AdminAuditLogs() {
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-surface-variant overflow-hidden">
-            <div className="custom-scrollbar overflow-x-auto">
+            <div className="hide-scrollbar overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-container-low border-b border-outline-variant">
@@ -191,7 +191,7 @@ export default function AdminAuditLogs() {
                         </td>
                         <td className="px-md py-4">
                           <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface">
-                            <span className={cn('w-1.5 h-1.5 rounded-full', isFailed ? 'bg-error' : 'bg-green-500')}></span>
+                            <span className={cn('w-1.5 h-1.5 rounded-full', isFailed ? 'bg-error' : 'bg-success')}></span>
                             {log.status || 'Success'}
                           </span>
                         </td>
@@ -208,6 +208,6 @@ export default function AdminAuditLogs() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }

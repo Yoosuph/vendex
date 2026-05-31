@@ -57,7 +57,7 @@ export default function AdminBuyers() {
 
   return (
     <>
-      <main className="pt-16 min-h-screen">
+      <div className="pt-16 min-h-screen">
         <div className="p-gutter max-w-container-max mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-lg gap-md">
             <div>
@@ -152,7 +152,7 @@ export default function AdminBuyers() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* Drawer */}
       {drawerOpen && selectedBuyer && (

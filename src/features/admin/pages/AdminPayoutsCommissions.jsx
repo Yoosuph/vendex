@@ -75,7 +75,7 @@ export default function AdminPayoutsCommissions() {
   if (loading) return <div className="pt-16"><LoadingSpinner text="Loading payouts..." /></div>;
 
   return (
-    <main className="pt-16 min-h-screen">
+    <div className="pt-16 min-h-screen">
       <div className="p-gutter max-w-container-max mx-auto space-y-md">
         <div className="flex justify-between items-end">
           <div>
@@ -153,7 +153,7 @@ export default function AdminPayoutsCommissions() {
                       <td className="p-sm text-error text-body-sm">-${p.fee.toFixed(2)}</td>
                       <td className="p-sm font-bold text-body-sm">${p.net.toFixed(2)}</td>
                       <td className="p-sm">
-                        <span className={cn('px-2 py-0.5 rounded-full text-meta font-bold uppercase', p.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700')}>{p.status}</span>
+                        <span className={cn('px-2 py-0.5 rounded-full text-meta font-bold uppercase', p.status === 'pending' ? 'bg-warning-container text-on-warning-container' : 'bg-success-container text-on-success-container')}>{p.status}</span>
                       </td>
                     </tr>
                   ))}
@@ -209,6 +209,6 @@ export default function AdminPayoutsCommissions() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

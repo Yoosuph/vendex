@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
@@ -9,6 +9,7 @@ import { cn } from '@/utils/cn';
 export default function VendorOverview() {
   const { products, orders, loading } = useContext(MarketplaceContext);
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const vendorProducts = useMemo(() => {
     if (!user?.vendorId) return [];
@@ -34,7 +35,7 @@ export default function VendorOverview() {
 
   return (
     <div>
-      <main className="flex-1 p-gutter md:p-lg bg-surface min-w-0">
+      <div className="flex-1 p-gutter md:p-lg bg-surface min-w-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">
 
           <div className="bg-surface-container-lowest p-sm rounded-xl card-shadow border border-outline-variant/30">
@@ -72,11 +73,11 @@ export default function VendorOverview() {
               <span className="material-symbols-outlined text-secondary">grade</span>
             </div>
             <h3 className="font-headline-md text-headline-md text-on-surface">4.9</h3>
-            <div className="flex items-center gap-[2px] mt-xs">
+            <div className="flex items-center gap-0.5 mt-xs">
               {[1, 2, 3, 4].map(i => (
-                <span key={i} className="material-symbols-outlined text-primary filled">star</span>
+                <span key={i} className="material-symbols-outlined text-primary icon-filled">star</span>
               ))}
-              <span className="material-symbols-outlined text-primary filled">star_half</span>
+              <span className="material-symbols-outlined text-primary icon-filled">star_half</span>
             </div>
             <p className="text-secondary font-meta text-meta mt-xs">Based on 1,240 reviews</p>
           </div>
@@ -85,7 +86,7 @@ export default function VendorOverview() {
         <section className="bg-surface-container-lowest rounded-xl card-shadow border border-outline-variant/30 overflow-hidden">
           <div className="p-gutter border-b border-outline-variant flex items-center justify-between">
             <h2 className="font-headline-md text-headline-md text-on-surface">Recent Orders</h2>
-            <button className="text-primary font-label-md text-label-md hover:underline">View All</button>
+            <Link to="/vendor/orders" className="text-primary font-label-md text-label-md hover:underline">View All</Link>
           </div>
           <div className="overflow-x-auto">
             {vendorOrders.length === 0 ? (
@@ -140,7 +141,7 @@ export default function VendorOverview() {
             )}
           </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

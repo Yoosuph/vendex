@@ -138,10 +138,10 @@ export default function AdminRolesPermissions() {
   };
 
   return (
-    <main className="pt-16 h-screen overflow-hidden flex flex-col bg-background">
+    <div className="flex flex-col bg-background">
       <div className="flex-1 flex overflow-hidden">
         {/* Role sidebar */}
-        <section className="w-80 border-r border-outline-variant bg-surface-container-low p-md flex flex-col overflow-y-auto custom-scrollbar">
+        <section className="w-80 border-r border-outline-variant bg-surface-container-low p-md flex flex-col overflow-y-auto hide-scrollbar">
           <div className="mb-6">
             <h2 className="font-headline-md text-on-surface mb-1">User Roles</h2>
             <p className="font-body-sm text-on-surface-variant">Select a role to configure permissions</p>
@@ -168,7 +168,7 @@ export default function AdminRolesPermissions() {
         </section>
 
         {/* Permissions panel */}
-        <section className="flex-1 p-lg overflow-y-auto custom-scrollbar bg-white">
+        <section className="flex-1 p-lg overflow-y-auto hide-scrollbar bg-surface-container-lowest">
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-end mb-8">
               <div>
@@ -192,7 +192,7 @@ export default function AdminRolesPermissions() {
                   </h3>
                   <div className="grid grid-cols-1 gap-px bg-outline-variant border border-outline-variant rounded-xl overflow-hidden shadow-sm">
                     {group.permissions.map(perm => (
-                      <div key={perm.key} className="bg-white p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors">
+                      <div key={perm.key} className="bg-surface-container-lowest p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors">
                         <div>
                           <p className="font-label-md text-on-surface">{perm.label}</p>
                           <p className="font-meta text-on-surface-variant">{perm.description}</p>
@@ -205,7 +205,7 @@ export default function AdminRolesPermissions() {
                             type="checkbox"
                           />
                           <div className={cn('w-11 h-6 rounded-full transition-colors flex items-center px-0.5', selectedRole.permissions[perm.key] ? 'bg-primary' : 'bg-outline-variant')}>
-                            <div className={cn('w-4 h-4 bg-white rounded-full shadow-sm transition-transform', selectedRole.permissions[perm.key] && 'translate-x-5')}></div>
+                            <div className={cn('w-4 h-4 bg-surface-container-lowest rounded-full shadow-sm transition-transform', selectedRole.permissions[perm.key] && 'translate-x-5')}></div>
                           </div>
                         </label>
                       </div>
@@ -218,6 +218,6 @@ export default function AdminRolesPermissions() {
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

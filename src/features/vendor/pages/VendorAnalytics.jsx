@@ -76,7 +76,7 @@ export default function VendorAnalytics() {
 
   return (
     <div>
-      <main className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
         <div className="max-w-container-max mx-auto px-gutter py-lg">
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-lg">
@@ -109,7 +109,7 @@ export default function VendorAnalytics() {
             </div>
 
             <div className="h-64 w-full relative">
-              <svg className="w-full h-full preserve-3d" viewBox="0 0 1000 200">
+              <svg className="w-full h-full" viewBox="0 0 1000 200">
                 <line stroke="#DEDEDA" strokeDasharray="5,5" strokeWidth="1" x1="0" x2="1000" y1="50" y2="50"></line>
                 <line stroke="#DEDEDA" strokeDasharray="5,5" strokeWidth="1" x1="0" x2="1000" y1="100" y2="100"></line>
                 <line stroke="#DEDEDA" strokeDasharray="5,5" strokeWidth="1" x1="0" x2="1000" y1="150" y2="150"></line>
@@ -136,7 +136,7 @@ export default function VendorAnalytics() {
             <div className="bg-surface-container-lowest rounded-xl shadow-subtle p-gutter">
               <div className="flex items-center justify-between mb-lg">
                 <h5 className="font-headline-md text-headline-md text-on-surface">Top Categories</h5>
-                <Button variant="primary">more_vert</Button>
+                <Button variant="ghost" icon={<span className="material-symbols-outlined">more_vert</span>} />
               </div>
               <div className="space-y-md">
                 {categoryBreakdown.length === 0 ? (
@@ -149,7 +149,7 @@ export default function VendorAnalytics() {
                         <span className="text-secondary">{cat.pct.toFixed(0)}%</span>
                       </div>
                       <div className="h-4 w-full bg-surface-container rounded-full overflow-hidden">
-                        <div className="bar-grow h-full bg-primary-container" style={{ width: `${cat.pct}%` }}></div>
+                        <div className="h-full bg-primary-container rounded-full" style={{ width: `${cat.pct}%` }}></div>
                       </div>
                     </div>
                   ))
@@ -160,7 +160,7 @@ export default function VendorAnalytics() {
             <div className="bg-surface-container-lowest rounded-xl shadow-subtle p-gutter">
               <div className="flex items-center justify-between mb-lg">
                 <h5 className="font-headline-md text-headline-md text-on-surface">Customer Loyalty</h5>
-                <Button variant="primary">info</Button>
+                <Button variant="ghost" icon={<span className="material-symbols-outlined">info</span>} />
               </div>
               <div className="flex flex-col md:flex-row items-center gap-lg">
                 <div className="relative w-48 h-48">
@@ -209,7 +209,7 @@ export default function VendorAnalytics() {
             ))}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

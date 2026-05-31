@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import VendorSidebar from './VendorSidebar';
 import Header from "@/shared/components/Header";
 import Footer from "@/shared/components/Footer";
@@ -7,6 +7,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function VendorLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [drawerOpen]);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -33,7 +42,7 @@ export default function VendorLayout({ children }) {
               <div className="relative h-full flex flex-col">
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  className="absolute top-4 right-4 p-2 rounded-full hover:bg-surface-container"
+                  className="absolute top-4 right-4 p-2 rounded-full hover:bg-surface-container z-10"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -44,7 +53,7 @@ export default function VendorLayout({ children }) {
         )}
       </AnimatePresence>
       <div className="flex-1 flex flex-col min-w-0">
-        <Header onMenuToggle={() => setDrawerOpen(true)} isPortal />
+        <Header onMenuToggle={() => setDrawerOpen(prev => !prev)} isPortal menuOpen={drawerOpen} />
         <main className="flex-1 p-4 md:p-gutter max-w-container-max w-full mx-auto pb-24 md:pb-gutter">
           {children}
         </main>

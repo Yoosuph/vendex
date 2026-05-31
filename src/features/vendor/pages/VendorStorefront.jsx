@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { CartContext } from '@/shared/context/CartContext';
+import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
@@ -11,9 +12,10 @@ export default function VendorStorefront() {
   const { vendorId: paramVendorId } = useParams();
   const { products, loading } = useContext(MarketplaceContext);
   const { addToCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
 
-  // Use the first vendor ID from products if no param, or the provided one
-  const vendorId = paramVendorId || products[0]?.vendorId;
+  // Use URL param for public store view, or logged-in vendor's ID for console
+  const vendorId = paramVendorId || user?.vendorId || products[0]?.vendorId;
 
   const vendorProducts = useMemo(() => {
     if (!vendorId) return [];
@@ -34,7 +36,7 @@ export default function VendorStorefront() {
           <Button variant="ghost">Policies</Button>
         </div>
       </nav>
-      <main className="max-w-container-max mx-auto px-gutter py-lg">
+      <div className="max-w-container-max mx-auto px-gutter py-lg">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
           <section className="md:col-span-9">
             <div className="flex justify-between items-center mb-md">
@@ -61,18 +63,18 @@ export default function VendorStorefront() {
                     <div className="relative aspect-square overflow-hidden bg-surface-container">
                       <img
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         src={product.image}
                       />
                       {product.stock <= 5 && product.stock > 0 && (
-                        <span className="absolute top-sm right-sm bg-white/90 backdrop-blur-md px-xs py-1 rounded text-meta font-bold text-primary">LOW STOCK</span>
+                        <span className="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-md px-xs py-1 rounded text-meta font-bold text-primary">LOW STOCK</span>
                       )}
                     </div>
                     <div className="p-sm flex-grow">
                       <p className="text-meta text-on-surface-variant mb-xs">{product.category}</p>
                       <h3 className="font-label-md text-on-surface mb-xs group-hover:text-primary transition-colors">{product.name}</h3>
                       <div className="flex items-center gap-xs mb-md">
-                        <span className="material-symbols-outlined text-body-sm text-primary filled" data-icon="star">star</span>
+                        <span className="material-symbols-outlined text-body-sm text-primary icon-filled" data-icon="star">star</span>
                         <span className="text-meta font-bold">{product.rating || '4.0'}</span>
                         <span className="text-meta text-on-surface-variant">({product.reviewsCount || 0})</span>
                       </div>
@@ -99,7 +101,7 @@ export default function VendorStorefront() {
             )}
           </section>
         </div>
-      </main>
+      </div>
     </>
   );
 }

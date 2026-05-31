@@ -70,7 +70,7 @@ export default function AdminOverview() {
   };
 
   return (
-    <main className="pt-16 min-h-screen p-gutter max-w-container-max mx-auto">
+    <div className="pt-16 min-h-screen p-gutter max-w-container-max mx-auto">
 
       {/* Stats cards */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md mb-xl">
@@ -220,7 +220,7 @@ export default function AdminOverview() {
                       </td>
                       <td className="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">{v.vendorId || v.id}</td>
                       <td className="px-md py-sm text-right">
-                        <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-bold">{v.status || 'pending'}</span>
+                        <span className="px-2 py-1 bg-warning-container text-on-warning-container text-xs rounded-full font-bold">{v.status || 'pending'}</span>
                       </td>
                     </tr>
                   ))}
@@ -233,7 +233,7 @@ export default function AdminOverview() {
         <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
           <div className="p-md border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-headline-md text-headline-md font-bold">Recent Orders</h3>
-            <Link to="/admin" className="text-primary font-label-md text-label-md hover:underline">View All</Link>
+            <Link to="/admin/products" className="text-primary font-label-md text-label-md hover:underline">View All</Link>
           </div>
           {recentOrders.length === 0 ? (
             <EmptyState icon="shopping_cart" title="No orders yet" description="Orders will appear here once buyers start purchasing." />
@@ -272,6 +272,6 @@ export default function AdminOverview() {
           )}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

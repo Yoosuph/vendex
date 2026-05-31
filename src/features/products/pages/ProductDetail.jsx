@@ -156,15 +156,14 @@ export default function ProductDetail() {
               <h1 className="font-headline-lg text-headline-lg text-on-surface mb-xs">{product.name}</h1>
               <div className="flex items-center gap-xs font-body-md">
                 <span className="text-on-surface-variant">Vendor:</span>
-                <Link className="text-primary font-bold hover:underline" to="/vendor/storefront">
+                <Link className="text-primary font-bold hover:underline" to={`/store/${product.vendorId}`}>
                   {product.vendor}
                 </Link>
                 <div className="flex items-center text-primary ml-auto">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
-                      className="material-symbols-outlined text-body-lg"
-                      style={{ fontVariationSettings: star <= ratingRounded ? "'FILL' 1" : "'FILL' 0" }}
+                      className={cn('material-symbols-outlined text-body-lg', star <= ratingRounded && 'icon-filled')}
                     >
                       {star <= ratingRounded ? 'star' : 'star_outline'}
                     </span>
@@ -230,10 +229,10 @@ export default function ProductDetail() {
  Buy Now
  </Button>
  <Button
- variant={isWished ? 'outline' : 'outline'}
+ variant={isWished ? 'ghost' : 'outline'}
  fullWidth
  size="lg"
- icon={<span className="material-symbols-outlined" style={{ fontVariationSettings: isWished ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>}
+ icon={<span className={cn('material-symbols-outlined', isWished && 'icon-filled')}>favorite</span>}
  onClick={handleToggleWishlist}
  className={isWished ? 'bg-primary/5' : ''}
  >
@@ -349,8 +348,7 @@ export default function ProductDetail() {
                             {[1, 2, 3, 4, 5].map((star) => (
                               <span
                                 key={star}
-                                className="material-symbols-outlined text-body-md"
-                                style={{ fontVariationSettings: star <= (review.score || 0) ? "'FILL' 1" : "'FILL' 0" }}
+                                className={cn('material-symbols-outlined text-body-md', star <= (review.score || 0) && 'icon-filled')}
                               >
                                 {star <= (review.score || 0) ? 'star' : 'star_outline'}
                               </span>

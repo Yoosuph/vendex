@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from "@/shared/context/CartContext";
 import Button from '@/shared/components/Button';
-import { motion } from 'framer-motion';
 
 export default function Cart() {
  const { cart, updateQuantity, removeFromCart, cartTotal } = useContext(CartContext);
@@ -42,7 +41,7 @@ export default function Cart() {
  <img alt={item.name} className="w-full h-full object-cover" src={item.image} />
  </div>
  <div className="flex-1 min-w-0">
- <span className="text-primary font-label-sm text-label-sm block mb-[2px]">{item.vendor}</span>
+ <span className="text-primary font-label-sm text-label-sm block mb-0.5">{item.vendor}</span>
  <h3 className="font-headline-md text-headline-md text-body-lg text-on-surface truncate mb-1">
  {item.name}
  </h3>

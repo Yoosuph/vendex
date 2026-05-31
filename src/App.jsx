@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider } from "@/shared/context/AuthContext";
 import { CartProvider } from "@/shared/context/CartContext";
 import { MarketplaceProvider } from "@/shared/context/MarketplaceContext";
+import { ToastProvider } from "@/shared/context/ToastContext";
 import { AnimatePresence } from 'framer-motion';
 
 import { PrivateRoute, RoleRoute } from "@/shared/components/RoleGuards";
@@ -68,6 +69,8 @@ function AnimatedAppRoutes() {
         <Route path="/buyer/order-detail/:id" element={<RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><OrderDetail /></AnimatedPage></BuyerLayout></RoleRoute>} />
         <Route path="/buyer/wishlist" element={<RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Wishlist /></AnimatedPage></BuyerLayout></RoleRoute>} />
 
+        <Route path="/store/:vendorId" element={<PublicLayout><AnimatedPage><VendorStorefront /></AnimatedPage></PublicLayout>} />
+
         {/* VENDOR ONBOARDING */}
         <Route path="/vendor/onboarding" element={<PrivateRoute><AnimatedPage><VendorOnboarding /></AnimatedPage></PrivateRoute>} />
         <Route path="/vendor/submitted" element={<PrivateRoute><AnimatedPage><ApplicationSubmitted /></AnimatedPage></PrivateRoute>} />
@@ -105,9 +108,11 @@ export default function App() {
     <AuthProvider>
       <MarketplaceProvider>
         <CartProvider>
-          <Router>
-            <AnimatedAppRoutes />
-          </Router>
+          <ToastProvider>
+            <Router>
+              <AnimatedAppRoutes />
+            </Router>
+          </ToastProvider>
         </CartProvider>
       </MarketplaceProvider>
     </AuthProvider>

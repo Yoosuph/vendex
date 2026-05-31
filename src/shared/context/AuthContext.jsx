@@ -19,13 +19,15 @@ export const AuthProvider = ({ children }) => {
     return userToSet;
   };
 
-  const signup = (name, email, password, role = 'buyer') => {
+  const signup = (name, email, password, role = 'buyer', extraData = {}) => {
     const users = mockDb.get('users');
     if (users.find(u => u.email === email)) throw new Error("Email already registered");
     const newUser = {
       id: 'u_' + Date.now(), name, email, password, role,
       vendorId: role === 'vendor' ? 'v_' + Date.now() : undefined,
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCtv7uh8DDOK8CmpozshtBxthpxPB_FLdvcqAhE6kV834vKsZOB7ZW_4c7XCfxrA_bN8OwEQ1tYjgV_Eme4yU0HxPkrBGWz7G1o5Rb7EzvtH-uKZijHLirL-Pp8vCNncf-rQE9u6REjpVZP_p7voTvOq0fG15VKw5IRyjhOD3pYDYRpj-X989-wDTFth3QxcEIPKboycKN1bxQrJoy3p1UdcI04US2oaY--NYu97WA_V0ZnkMfFb01rVKUqej29abLp92DtGkfmdCyG'
+      status: role === 'vendor' ? 'pending' : undefined,
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCtv7uh8DDOK8CmpozshtBxthpxPB_FLdvcqAhE6kV834vKsZOB7ZW_4c7XCfxrA_bN8OwEQ1tYjgV_Eme4yU0HxPkrBGWz7G1o5Rb7EzvtH-uKZijHLirL-Pp8vCNncf-rQE9u6REjpVZP_p7voTvOq0fG15VKw5IRyjhOD3pYDYRpj-X989-wDTFth3QxcEIPKboycKN1bxQrJoy3p1UdcI04US2oaY--NYu97WA_V0ZnkMfFb01rVKUqej29abLp92DtGkfmdCyG',
+      ...extraData,
     };
     mockDb.set('users', [...users, newUser]);
     setUser(newUser);

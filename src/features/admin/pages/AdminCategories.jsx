@@ -48,7 +48,7 @@ export default function AdminCategories() {
 
   return (
     <>
-      <main className="pt-16 min-h-screen">
+      <div className="pt-16 min-h-screen">
         <div className="max-w-container-max mx-auto px-gutter py-lg">
           <div className="flex justify-between items-end mb-lg">
             <div>
@@ -199,7 +199,7 @@ export default function AdminCategories() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       <ConfirmDialog
         open={dialog.open}

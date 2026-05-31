@@ -48,7 +48,7 @@ export default function VendorAddProduct() {
   if (isSubmitting) return <LoadingSpinner text="Publishing product..." />;
 
   return (
-    <main className="max-w-container-max mx-auto px-gutter py-lg">
+    <div className="max-w-container-max mx-auto px-gutter py-lg">
       <div className="mb-lg">
         <div className="flex items-center gap-base text-secondary mb-base">
           <span className="font-label-sm text-label-sm">Inventory</span>
@@ -58,12 +58,12 @@ export default function VendorAddProduct() {
         <h1 className="font-headline-lg text-headline-lg">Add New Product</h1>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden border border-surface-container-high">
+      <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden border border-outline-variant">
         <form className="p-lg" onSubmit={handleSubmit}>
           <div className="mb-lg">
             <label className="font-label-md text-label-md block mb-xs">Product Imagery</label>
             <div className="border-2 border-dashed border-primary-container bg-primary-fixed/10 rounded-xl p-xl flex flex-col items-center justify-center cursor-pointer hover:bg-primary-fixed/20 transition-all group">
-              <span className="material-symbols-outlined text-5xl text-primary mb-sm group-hover:scale-110 transition-transform filled">cloud_upload</span>
+              <span className="material-symbols-outlined text-5xl text-primary mb-sm group-hover:scale-110 transition-transform icon-filled">cloud_upload</span>
               <div className="text-center">
                 <p className="font-body-md text-body-md text-on-surface font-bold">Provide Image URL below</p>
                 <p className="font-label-sm text-label-sm text-secondary">Paste a product image URL. Supports JPG, PNG, WEBP.</p>
@@ -216,6 +216,6 @@ export default function VendorAddProduct() {
           </div>
         </form>
       </div>
-    </main>
+    </div>
   );
 }

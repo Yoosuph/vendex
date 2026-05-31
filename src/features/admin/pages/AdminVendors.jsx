@@ -65,7 +65,7 @@ export default function AdminVendors() {
 
   return (
     <>
-      <main className="min-h-screen">
+      <div className="min-h-screen">
         <div className="mt-16 p-gutter max-w-container-max mx-auto">
           <div className="flex justify-between items-end mb-lg">
             <div>
@@ -141,9 +141,9 @@ export default function AdminVendors() {
                         <td className="px-md py-md">
                           <span className={cn(
                             'inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold',
-                            v.status === 'approved' ? 'bg-green-100 text-green-800' :
-                            v.status === 'suspended' ? 'bg-red-100 text-red-800' :
-                            'bg-blue-100 text-blue-800'
+                            v.status === 'approved' ? 'bg-success-container text-on-success-container' :
+                            v.status === 'suspended' ? 'bg-error-container text-on-error-container' :
+                            'bg-info-container text-on-info-container'
                           )}>
                             <span className={cn(
                               'w-1.5 h-1.5 rounded-full',
@@ -183,7 +183,7 @@ export default function AdminVendors() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       <ConfirmDialog
         open={dialog.open}

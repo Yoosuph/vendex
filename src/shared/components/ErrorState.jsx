@@ -13,13 +13,13 @@ export default function ErrorState({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center">
-        <span className="material-symbols-outlined text-4xl text-error">
+      <div className="w-16 h-16 rounded-full bg-error-container flex items-center justify-center">
+        <span className="material-symbols-outlined text-headline-lg text-error">
           error_outline
         </span>
       </div>
 
-      <p className="text-on-surface/70 text-body-sm max-w-xs">{message}</p>
+      <p className="text-on-surface-variant text-body-sm max-w-xs">{message}</p>
 
       {onRetry && (
         <Button

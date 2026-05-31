@@ -226,7 +226,7 @@ export default function SearchResults() {
                         className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => toggleWishlist(product)}
                       >
-                        <span className={cn('material-symbols-outlined text-body-lg', isWished ? 'text-primary' : 'text-on-surface-variant')} style={{ fontVariationSettings: isWished ? "'FILL' 1" : "'FILL' 0" }}>
+                        <span className={cn('material-symbols-outlined text-body-lg', isWished ? 'text-primary icon-filled' : 'text-on-surface-variant')}>
                           favorite
                         </span>
                       </button>
@@ -242,8 +242,7 @@ export default function SearchResults() {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <span
                             key={star}
-                            className={cn('material-symbols-outlined text-base', star <= Math.round(product.rating || 0) ? '' : '')}
-                            style={{ fontVariationSettings: star <= Math.round(product.rating || 0) ? "'FILL' 1" : "'FILL' 0" }}
+                            className={cn('material-symbols-outlined text-base', star <= Math.round(product.rating || 0) && 'icon-filled')}
                           >
                             {star <= Math.round(product.rating || 0) ? 'star' : 'star_outline'}
                           </span>

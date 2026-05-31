@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
@@ -25,6 +25,7 @@ export default function MyOrders() {
   const { orders, loading } = useContext(MarketplaceContext);
   const { user } = useContext(AuthContext);
   const [filter, setFilter] = useState('All');
+  const navigate = useNavigate();
 
   const myOrders = useMemo(() => {
     if (!user) return [];
@@ -75,7 +76,7 @@ export default function MyOrders() {
           title="No orders found"
           description={filter !== 'All' ? `No orders with status "${filter}".` : "You haven't placed any orders yet."}
           actionLabel={filter !== 'All' ? undefined : "Browse Products"}
-          onAction={filter !== 'All' ? undefined : () => window.location.href = '/search'}
+          onAction={filter !== 'All' ? undefined : () => navigate('/search')}
         />
       ) : (
         <div className="space-y-sm">

@@ -8,7 +8,7 @@ import ThemeToggle from './ThemeToggle';
 import Button from '@/shared/components/Button';
 import { cn } from '@/utils/cn';
 
-export default function Header({ onMenuToggle, isPortal }) {
+export default function Header({ onMenuToggle, isPortal, menuOpen }) {
   const { user, login, logout, switchRole } = useContext(AuthContext);
   const { cartCount } = useContext(CartContext);
   const { auditLogs } = useContext(MarketplaceContext);
@@ -89,7 +89,7 @@ export default function Header({ onMenuToggle, isPortal }) {
             <Button
               variant="ghost"
               onClick={onMenuToggle}
-              icon={<span className="material-symbols-outlined text-on-surface text-2xl">menu</span>}
+              icon={<span className="material-symbols-outlined text-on-surface text-2xl">{menuOpen ? 'close' : 'menu'}</span>}
               className="lg:hidden -ml-1"
             />
           )}
@@ -104,7 +104,7 @@ export default function Header({ onMenuToggle, isPortal }) {
               <Link to="/" className="text-body-sm font-medium text-on-surface hover:text-primary transition-colors">Home</Link>
               <Link to="/search" className="text-body-sm font-medium text-secondary hover:text-primary transition-colors">Explore</Link>
               <Link to="/search?category=Luxury%20Goods" className="text-body-sm font-medium text-secondary hover:text-primary transition-colors">Categories</Link>
-              <Link to="/vendor/storefront" className="text-body-sm font-medium text-secondary hover:text-primary transition-colors">Stores</Link>
+              <Link to="/search" className="text-body-sm font-medium text-secondary hover:text-primary transition-colors">Stores</Link>
             </div>
           )}
         </div>
@@ -301,7 +301,7 @@ export default function Header({ onMenuToggle, isPortal }) {
               <Link to="/search?category=Luxury%20Goods" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
                 <span className="material-symbols-outlined text-secondary text-xl">category</span> Categories
               </Link>
-              <Link to="/vendor/storefront" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
+              <Link to="/search" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>
                 <span className="material-symbols-outlined text-secondary text-xl">storefront</span> Stores
               </Link>
               <Link to="/cart" className="flex items-center gap-3 px-3 py-3 text-body-md font-medium text-on-surface hover:bg-surface-container-low rounded-xl transition-colors" onClick={closeAll}>

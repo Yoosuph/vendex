@@ -32,7 +32,7 @@ export default function VendorOrders() {
   };
 
   return (
-    <main className="max-w-container-max mx-auto px-gutter py-xl flex gap-gutter relative min-h-[calc(100vh-64px)]">
+    <div className="max-w-container-max mx-auto px-gutter py-xl flex gap-gutter relative min-h-[calc(100vh-64px)]">
       <div className="flex-1 transition-all duration-300 mr-[32%]">
         <div className="flex justify-between items-end mb-lg">
           <div>
@@ -109,6 +109,6 @@ export default function VendorOrders() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

@@ -4,12 +4,18 @@ import { AuthContext } from '@/shared/context/AuthContext';
 import Button from '@/shared/components/Button';
 import { cn } from '@/utils/cn';
 
-export default function Sidebar({ brandLabel, brandSubtitle, sections }) {
+export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   return (
-    <aside className="w-64 bg-white/80 backdrop-blur-xl rounded-2xl border border-outline-variant shadow-lg flex flex-col py-md sticky top-[62px] self-start z-40 h-[calc(100vh-94px)] m-4">
+    <aside className={cn(
+      'flex flex-col',
+      // Desktop: floating sticky sidebar
+      !mobile && 'w-64 bg-surface-container-lowest/80 backdrop-blur-xl rounded-2xl border border-outline-variant shadow-lg py-md sticky top-[62px] self-start z-40 h-[calc(100vh-94px)] m-4',
+      // Mobile: floating card that fills the drawer
+      mobile && 'w-full flex-1 min-h-0 bg-surface-container-lowest/80 backdrop-blur-xl rounded-2xl border border-outline-variant shadow-lg overflow-hidden'
+    )}>
       {/* Brand header */}
       <div className="px-md mb-lg">
         <h1
@@ -24,13 +30,13 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections }) {
       </div>
 
       {/* Navigation sections */}
-      <nav className="flex-1 flex flex-col gap-base overflow-y-auto hide-scrollbar px-2">
+      <nav className="flex-1 flex flex-col gap-base overflow-y-auto overscroll-contain hide-scrollbar px-2">
         {sections.map((section) => (
           <div key={section.title} className="mb-4">
             <p className="px-3 text-meta font-bold text-secondary uppercase tracking-widest mb-1">
               {section.title}
             </p>
-            <div className="flex flex-col gap-[2px]">
+            <div className="flex flex-col gap-0.5">
               {section.items.map((item) => {
                 if (item.disabled) {
                   return (

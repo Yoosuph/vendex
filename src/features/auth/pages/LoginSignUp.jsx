@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
 export default function LoginSignUp() {
- const { login } = useContext(AuthContext);
+ const { login, signup } = useContext(AuthContext);
  const navigate = useNavigate();
 
  const [activeTab, setActiveTab] = useState('login'); // 'login' or 'signup'
@@ -33,14 +33,24 @@ export default function LoginSignUp() {
        selectedRole = 'vendor';
      }
 
-     const loggedUser = login(vals.email, vals.password, selectedRole);
+     try {
+       let authUser;
+       if (activeTab === 'signup') {
+         const name = vals.email.split('@')[0];
+         authUser = signup(name, vals.email, vals.password, selectedRole);
+       } else {
+         authUser = login(vals.email, vals.password, selectedRole);
+       }
 
-     if (loggedUser.role === 'admin') {
-       navigate('/admin');
-     } else if (loggedUser.role === 'vendor') {
-       navigate('/vendor');
-     } else {
-       navigate('/');
+       if (authUser.role === 'admin') {
+         navigate('/admin');
+       } else if (authUser.role === 'vendor') {
+         navigate('/vendor');
+       } else {
+         navigate('/');
+       }
+     } catch (err) {
+       setErrorMsg(err.message || 'Authentication failed. Please try again.');
      }
    }
  });
@@ -147,9 +157,8 @@ export default function LoginSignUp() {
  onClick={() => setRole('shop')}
  >
  <span
-                className={cn('material-symbols-outlined mb-xs', role === 'shop' ? 'text-primary' : 'text-secondary')}
- style={{ fontVariationSettings: role === 'shop' ? "'FILL' 1" : "'FILL' 0" }}
- >
+              className={cn('material-symbols-outlined mb-xs', role === 'shop' ? 'text-primary icon-filled' : 'text-secondary')}
+            >
  shopping_cart
  </span>
  <p className="font-label-md text-label-md font-bold text-on-surface">Shop</p>
@@ -160,9 +169,8 @@ export default function LoginSignUp() {
  onClick={() => setRole('sell')}
  >
  <span
-                className={cn('material-symbols-outlined mb-xs', role === 'sell' ? 'text-primary' : 'text-secondary')}
- style={{ fontVariationSettings: role === 'sell' ? "'FILL' 1" : "'FILL' 0" }}
- >
+              className={cn('material-symbols-outlined mb-xs', role === 'sell' ? 'text-primary icon-filled' : 'text-secondary')}
+            >
  storefront
  </span>
  <p className="font-label-md text-label-md font-bold text-on-surface">Sell</p>

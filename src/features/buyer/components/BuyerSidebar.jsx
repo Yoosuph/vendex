@@ -27,6 +27,6 @@ const sections = [
   },
 ];
 
-export default function BuyerSidebar() {
-  return <Sidebar brandLabel="Vendex" brandSubtitle="Buyer Portal" sections={sections} />;
+export default function BuyerSidebar({ mobile }) {
+  return <Sidebar brandLabel="Vendex" brandSubtitle="Buyer Portal" sections={sections} mobile={mobile} />;
 }

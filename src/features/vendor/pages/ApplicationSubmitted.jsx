@@ -8,12 +8,12 @@ export default function ApplicationSubmitted() {
 
   return (
     <>
-      <main className="flex-grow flex items-center justify-center px-gutter py-xl">
+      <div className="flex-grow flex items-center justify-center px-gutter py-xl">
         <div className="max-w-[600px] w-full bg-surface-container-lowest rounded-xl p-xl success-card-shadow text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-primary-container"></div>
 
           <div className="mb-lg inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary-fixed">
-            <span className="material-symbols-outlined text-6xl text-primary-container micro-bounce filled" data-icon="verified">verified</span>
+            <span className="material-symbols-outlined text-6xl text-primary-container micro-bounce icon-filled" data-icon="verified">verified</span>
           </div>
 
           <h1 className="font-headline-lg text-headline-lg text-on-surface mb-sm">Store submitted for review</h1>
@@ -30,7 +30,7 @@ export default function ApplicationSubmitted() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-md">
             <Button variant="primary-container" onClick={() => navigate('/vendor')}>Go to Dashboard</Button>
-            <Button variant="ghost">View Submission</Button>
+            <Button variant="ghost" onClick={() => navigate('/vendor')}>View Dashboard</Button>
           </div>
 
           <div className="mt-xl pt-lg border-t border-outline-variant">
@@ -39,7 +39,7 @@ export default function ApplicationSubmitted() {
             </p>
           </div>
         </div>
-      </main>
+      </div>
 
       <section className="max-w-container-max mx-auto px-gutter pb-xl w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">

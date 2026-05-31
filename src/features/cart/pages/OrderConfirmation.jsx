@@ -128,7 +128,7 @@ export default function OrderConfirmation() {
         <div className="w-full flex flex-col sm:flex-row gap-sm mt-xl">
  <Button
  variant="primary"
- to="/my-orders"
+ to="/buyer/orders"
  icon={<span className="material-symbols-outlined">track_changes</span>}
  className="flex-1"
  >

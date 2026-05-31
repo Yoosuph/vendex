@@ -57,7 +57,7 @@ export default function AdminReviewsDisputes() {
 
   return (
     <>
-      <main className="mt-16 p-gutter min-h-[calc(100vh-4rem)]">
+      <div className="mt-16 p-gutter min-h-[calc(100vh-4rem)]">
         <div className="max-w-container-max mx-auto">
           <div className="flex justify-between items-end mb-lg">
             <div>
@@ -196,7 +196,7 @@ export default function AdminReviewsDisputes() {
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Resolution Panel */}
       {resolutionOpen && selectedDispute && (

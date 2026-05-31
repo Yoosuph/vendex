@@ -78,7 +78,7 @@ export default function VendorOnboarding() {
     setSubmitting(true);
     try {
       await signup(formData.name, formData.email, formData.password, 'vendor');
-      navigate('/vendor/application-submitted');
+      navigate('/vendor/submitted');
     } catch (err) {
       setErrors({ submit: err.message || 'Signup failed' });
       setSubmitting(false);
@@ -91,7 +91,7 @@ export default function VendorOnboarding() {
   if (submitting) return <LoadingSpinner text="Submitting application..." />;
 
   return (
-    <main className="w-full max-w-[800px] bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
+    <div className="w-full max-w-[800px] bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
       <div className="px-xl pt-xl pb-lg border-b border-outline-variant">
         <div className="flex justify-between relative mb-xs">
           <div className="absolute top-[18px] left-0 w-full h-0.5 bg-surface-container-high z-0"></div>
@@ -255,6 +255,6 @@ export default function VendorOnboarding() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }
