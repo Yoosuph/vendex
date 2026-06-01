@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Home, ChevronRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -21,13 +21,11 @@ function autoGenerateFromPath(pathname) {
 }
 
 export default function Breadcrumbs({ items }) {
+  const location = useLocation();
   const crumbs = useMemo(() => {
     if (items && items.length > 0) return items;
-    if (typeof window !== 'undefined') {
-      return autoGenerateFromPath(window.location.pathname);
-    }
-    return [{ label: 'Home', path: '/' }];
-  }, [items]);
+    return autoGenerateFromPath(location.pathname);
+  }, [items, location.pathname]);
 
   if (!crumbs.length) return null;
 

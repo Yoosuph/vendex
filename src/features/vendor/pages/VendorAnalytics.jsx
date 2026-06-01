@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
@@ -9,6 +9,8 @@ import Button from '@/shared/components/Button';
 export default function VendorAnalytics() {
   const { products, orders, loading } = useContext(MarketplaceContext);
   const { user } = useContext(AuthContext);
+
+  const [timeRange, setTimeRange] = useState('30d');
 
   const vendorProducts = useMemo(() => {
     if (!user?.vendorId) return [];
@@ -22,12 +24,26 @@ export default function VendorAnalytics() {
     );
   }, [orders, user]);
 
+  const filteredOrders = useMemo(() => {
+    if (timeRange === '7d') {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return vendorOrders.filter(o => new Date(o.date || o.createdAt || Date.now()) >= weekAgo);
+    }
+    if (timeRange === '365d') {
+      const yearAgo = new Date();
+      yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+      return vendorOrders.filter(o => new Date(o.date || o.createdAt || Date.now()) >= yearAgo);
+    }
+    return vendorOrders;
+  }, [vendorOrders, timeRange]);
+
   const totalSales = useMemo(() =>
-    vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0),
-    [vendorOrders]
+    filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0),
+    [filteredOrders]
   );
 
-  const orderCount = vendorOrders.length;
+  const orderCount = filteredOrders.length;
   const avgOrderValue = orderCount > 0 ? totalSales / orderCount : 0;
 
   // Category breakdown
@@ -85,9 +101,9 @@ export default function VendorAnalytics() {
               <p className="font-body-md text-body-md text-secondary">Real-time insights across all retail channels.</p>
             </div>
             <div className="inline-flex bg-surface-container-lowest border border-outline-variant p-1 rounded-xl shadow-subtle">
-              <Button variant="ghost">Last 7d</Button>
-              <Button variant="primary-container">Last 30d</Button>
-              <Button variant="ghost">Yearly</Button>
+              <Button variant={timeRange === '7d' ? 'primary-container' : 'ghost'} onClick={() => setTimeRange('7d')}>Last 7d</Button>
+              <Button variant={timeRange === '30d' ? 'primary-container' : 'ghost'} onClick={() => setTimeRange('30d')}>Last 30d</Button>
+              <Button variant={timeRange === '365d' ? 'primary-container' : 'ghost'} onClick={() => setTimeRange('365d')}>Yearly</Button>
             </div>
           </div>
 

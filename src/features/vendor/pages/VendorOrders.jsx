@@ -32,8 +32,8 @@ export default function VendorOrders() {
   };
 
   return (
-    <div className="max-w-container-max mx-auto px-gutter py-xl flex gap-gutter relative min-h-[calc(100vh-64px)]">
-      <div className="flex-1 transition-all duration-300 mr-[32%]">
+    <div className="max-w-container-max mx-auto px-gutter py-xl min-h-[calc(100vh-64px)]">
+      <div className="flex-1 transition-all duration-300">
         <div className="flex justify-between items-end mb-lg">
           <div>
             <h1 className="font-headline-lg text-headline-lg text-on-surface">Order Management</h1>

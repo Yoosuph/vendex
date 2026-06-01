@@ -7,12 +7,24 @@ import useForm from '@/shared/hooks/useForm';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
-export default function Checkout() {
+ export default function Checkout() {
  const { cart, cartTotal, checkoutAndCommit } = useContext(CartContext);
  const { user } = useContext(AuthContext);
  const navigate = useNavigate();
 
  const [loading, setLoading] = useState(false);
+
+ if (cart.length === 0) {
+   return (
+     <main className="max-w-container-max mx-auto px-gutter py-xl">
+       <div className="text-center py-xl bg-white border border-outline-variant/30 rounded-2xl p-lg">
+         <span className="material-symbols-outlined text-[64px] text-secondary mb-md">shopping_cart</span>
+         <p className="font-body-lg text-body-lg text-secondary mb-lg">Your cart is empty. Add some items before checking out.</p>
+         <Button variant="primary" to="/" size="lg">Go Shopping</Button>
+       </div>
+     </main>
+   );
+ }
 
  const shipping = 15.00;
  const tax = cartTotal * 0.08;
@@ -20,15 +32,15 @@ export default function Checkout() {
 
  const { values, errors, touched, handleChange, handleBlur, handleSubmit } = useForm({
    initialValues: {
-     firstName: 'Alexander',
-     lastName: 'Great',
-     address: '124 Commerce St.',
-     city: 'San Francisco',
-     zip: '94103',
-     cardName: 'Alexander Great',
-     cardNumber: '•••• •••• •••• 4242',
-     expDate: '12/28',
-     cvv: '123',
+     firstName: user?.name?.split(' ')[0] || '',
+     lastName: user?.name?.split(' ').slice(1).join(' ') || '',
+     address: '',
+     city: '',
+     zip: '',
+     cardName: user?.name || '',
+     cardNumber: '',
+     expDate: '',
+     cvv: '',
    },
    validate: (vals) => {
      const newErrors = {};

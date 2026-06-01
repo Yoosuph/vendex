@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from "@/shared/context/AuthContext";
 import { CartProvider } from "@/shared/context/CartContext";
@@ -12,41 +12,48 @@ import BuyerLayout from "@/features/buyer/components/BuyerLayout";
 import VendorLayout from "@/features/vendor/components/VendorLayout";
 import AdminLayout from "@/features/admin/components/AdminLayout";
 import AnimatedPage from "@/shared/components/AnimatedPage";
+import ErrorBoundary from "@/shared/components/ErrorBoundary";
 
-import Home from "@/features/products/pages/Home";
-import SearchResults from "@/features/products/pages/SearchResults";
-import ProductDetail from "@/features/products/pages/ProductDetail";
-import LoginSignUp from "@/features/auth/pages/LoginSignUp";
-import Cart from "@/features/cart/pages/Cart";
-import Checkout from "@/features/cart/pages/Checkout";
-import OrderConfirmation from "@/features/cart/pages/OrderConfirmation";
+const Home = React.lazy(() => import("@/features/products/pages/Home"));
+const SearchResults = React.lazy(() => import("@/features/products/pages/SearchResults"));
+const ProductDetail = React.lazy(() => import("@/features/products/pages/ProductDetail"));
+const LoginSignUp = React.lazy(() => import("@/features/auth/pages/LoginSignUp"));
+const Cart = React.lazy(() => import("@/features/cart/pages/Cart"));
+const Checkout = React.lazy(() => import("@/features/cart/pages/Checkout"));
+const OrderConfirmation = React.lazy(() => import("@/features/cart/pages/OrderConfirmation"));
 
-import BuyerDashboardOverview from "@/features/buyer/pages/BuyerDashboardOverview";
-import MyOrders from "@/features/buyer/pages/MyOrders";
-import OrderDetail from "@/features/buyer/pages/OrderDetail";
-import Wishlist from "@/features/buyer/pages/Wishlist";
+const BuyerDashboardOverview = React.lazy(() => import("@/features/buyer/pages/BuyerDashboardOverview"));
+const MyOrders = React.lazy(() => import("@/features/buyer/pages/MyOrders"));
+const OrderDetail = React.lazy(() => import("@/features/buyer/pages/OrderDetail"));
+const Wishlist = React.lazy(() => import("@/features/buyer/pages/Wishlist"));
 
-import VendorOnboarding from "@/features/vendor/pages/VendorOnboarding";
-import ApplicationSubmitted from "@/features/vendor/pages/ApplicationSubmitted";
-import VendorOverview from "@/features/vendor/pages/VendorOverview";
-import VendorProducts from "@/features/vendor/pages/VendorProducts";
-import VendorAddProduct from "@/features/vendor/pages/VendorAddProduct";
-import VendorOrders from "@/features/vendor/pages/VendorOrders";
-import VendorPayouts from "@/features/vendor/pages/VendorPayouts";
-import VendorAnalytics from "@/features/vendor/pages/VendorAnalytics";
-import VendorStorefront from "@/features/vendor/pages/VendorStorefront";
+const VendorOnboarding = React.lazy(() => import("@/features/vendor/pages/VendorOnboarding"));
+const ApplicationSubmitted = React.lazy(() => import("@/features/vendor/pages/ApplicationSubmitted"));
+const VendorOverview = React.lazy(() => import("@/features/vendor/pages/VendorOverview"));
+const VendorProducts = React.lazy(() => import("@/features/vendor/pages/VendorProducts"));
+const VendorAddProduct = React.lazy(() => import("@/features/vendor/pages/VendorAddProduct"));
+const VendorOrders = React.lazy(() => import("@/features/vendor/pages/VendorOrders"));
+const VendorPayouts = React.lazy(() => import("@/features/vendor/pages/VendorPayouts"));
+const VendorAnalytics = React.lazy(() => import("@/features/vendor/pages/VendorAnalytics"));
+const VendorStorefront = React.lazy(() => import("@/features/vendor/pages/VendorStorefront"));
 
-import AdminOverview from "@/features/admin/pages/AdminOverview";
-import AdminVendors from "@/features/admin/pages/AdminVendors";
-import AdminBuyers from "@/features/admin/pages/AdminBuyers";
-import AdminProducts from "@/features/admin/pages/AdminProducts";
-import AdminCategories from "@/features/admin/pages/AdminCategories";
-import AdminPayoutsCommissions from "@/features/admin/pages/AdminPayoutsCommissions";
-import AdminBannersPromotions from "@/features/admin/pages/AdminBannersPromotions";
-import AdminReviewsDisputes from "@/features/admin/pages/AdminReviewsDisputes";
-import AdminRolesPermissions from "@/features/admin/pages/AdminRolesPermissions";
-import AdminSettings from "@/features/admin/pages/AdminSettings";
-import AdminAuditLogs from "@/features/admin/pages/AdminAuditLogs";
+const AdminOverview = React.lazy(() => import("@/features/admin/pages/AdminOverview"));
+const AdminVendors = React.lazy(() => import("@/features/admin/pages/AdminVendors"));
+const AdminBuyers = React.lazy(() => import("@/features/admin/pages/AdminBuyers"));
+const AdminProducts = React.lazy(() => import("@/features/admin/pages/AdminProducts"));
+const AdminCategories = React.lazy(() => import("@/features/admin/pages/AdminCategories"));
+const AdminPayoutsCommissions = React.lazy(() => import("@/features/admin/pages/AdminPayoutsCommissions"));
+const AdminBannersPromotions = React.lazy(() => import("@/features/admin/pages/AdminBannersPromotions"));
+const AdminReviewsDisputes = React.lazy(() => import("@/features/admin/pages/AdminReviewsDisputes"));
+const AdminRolesPermissions = React.lazy(() => import("@/features/admin/pages/AdminRolesPermissions"));
+const AdminSettings = React.lazy(() => import("@/features/admin/pages/AdminSettings"));
+const AdminAuditLogs = React.lazy(() => import("@/features/admin/pages/AdminAuditLogs"));
+
+const PageFallback = (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
+  </div>
+);
 
 function AnimatedAppRoutes() {
   const location = useLocation();
@@ -55,47 +62,47 @@ function AnimatedAppRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* PUBLIC ROUTES */}
-        <Route path="/" element={<PublicLayout><AnimatedPage><Home /></AnimatedPage></PublicLayout>} />
-        <Route path="/login" element={<AnimatedPage><LoginSignUp /></AnimatedPage>} />
-        <Route path="/search" element={<PublicLayout><AnimatedPage><SearchResults /></AnimatedPage></PublicLayout>} />
-        <Route path="/product/:id" element={<PublicLayout><AnimatedPage><ProductDetail /></AnimatedPage></PublicLayout>} />
-        <Route path="/cart" element={<PublicLayout><AnimatedPage><Cart /></AnimatedPage></PublicLayout>} />
-        <Route path="/checkout" element={<PrivateRoute><PublicLayout><AnimatedPage><Checkout /></AnimatedPage></PublicLayout></PrivateRoute>} />
-        <Route path="/order-confirmation" element={<PrivateRoute><PublicLayout><AnimatedPage><OrderConfirmation /></AnimatedPage></PublicLayout></PrivateRoute>} />
+        <Route path="/" element={<ErrorBoundary><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><Home /></Suspense></AnimatedPage></PublicLayout></ErrorBoundary>} />
+        <Route path="/login" element={<ErrorBoundary><AnimatedPage><Suspense fallback={PageFallback}><LoginSignUp /></Suspense></AnimatedPage></ErrorBoundary>} />
+        <Route path="/search" element={<ErrorBoundary><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><SearchResults /></Suspense></AnimatedPage></PublicLayout></ErrorBoundary>} />
+        <Route path="/product/:id" element={<ErrorBoundary><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><ProductDetail /></Suspense></AnimatedPage></PublicLayout></ErrorBoundary>} />
+        <Route path="/cart" element={<ErrorBoundary><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><Cart /></Suspense></AnimatedPage></PublicLayout></ErrorBoundary>} />
+        <Route path="/checkout" element={<ErrorBoundary><PrivateRoute><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><Checkout /></Suspense></AnimatedPage></PublicLayout></PrivateRoute></ErrorBoundary>} />
+        <Route path="/order-confirmation" element={<ErrorBoundary><PrivateRoute><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><OrderConfirmation /></Suspense></AnimatedPage></PublicLayout></PrivateRoute></ErrorBoundary>} />
 
         {/* BUYER PORTAL */}
-        <Route path="/buyer" element={<RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><BuyerDashboardOverview /></AnimatedPage></BuyerLayout></RoleRoute>} />
-        <Route path="/buyer/orders" element={<RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><MyOrders /></AnimatedPage></BuyerLayout></RoleRoute>} />
-        <Route path="/buyer/order-detail/:id" element={<RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><OrderDetail /></AnimatedPage></BuyerLayout></RoleRoute>} />
-        <Route path="/buyer/wishlist" element={<RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Wishlist /></AnimatedPage></BuyerLayout></RoleRoute>} />
+        <Route path="/buyer" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerDashboardOverview /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/orders" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><MyOrders /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/order-detail/:id" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><OrderDetail /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/wishlist" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><Wishlist /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
 
-        <Route path="/store/:vendorId" element={<PublicLayout><AnimatedPage><VendorStorefront /></AnimatedPage></PublicLayout>} />
+        <Route path="/store/:vendorId" element={<ErrorBoundary><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorStorefront /></Suspense></AnimatedPage></PublicLayout></ErrorBoundary>} />
 
         {/* VENDOR ONBOARDING */}
-        <Route path="/vendor/onboarding" element={<PrivateRoute><AnimatedPage><VendorOnboarding /></AnimatedPage></PrivateRoute>} />
-        <Route path="/vendor/submitted" element={<PrivateRoute><AnimatedPage><ApplicationSubmitted /></AnimatedPage></PrivateRoute>} />
+        <Route path="/vendor/onboarding" element={<ErrorBoundary><PrivateRoute><AnimatedPage><Suspense fallback={PageFallback}><VendorOnboarding /></Suspense></AnimatedPage></PrivateRoute></ErrorBoundary>} />
+        <Route path="/vendor/submitted" element={<ErrorBoundary><PrivateRoute><AnimatedPage><Suspense fallback={PageFallback}><ApplicationSubmitted /></Suspense></AnimatedPage></PrivateRoute></ErrorBoundary>} />
 
         {/* VENDOR CONSOLE */}
-        <Route path="/vendor" element={<RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><VendorOverview /></AnimatedPage></VendorLayout></RoleRoute>} />
-        <Route path="/vendor/products" element={<RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><VendorProducts /></AnimatedPage></VendorLayout></RoleRoute>} />
-        <Route path="/vendor/add-product" element={<RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><VendorAddProduct /></AnimatedPage></VendorLayout></RoleRoute>} />
-        <Route path="/vendor/orders" element={<RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><VendorOrders /></AnimatedPage></VendorLayout></RoleRoute>} />
-        <Route path="/vendor/payouts" element={<RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><VendorPayouts /></AnimatedPage></VendorLayout></RoleRoute>} />
-        <Route path="/vendor/analytics" element={<RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><VendorAnalytics /></AnimatedPage></VendorLayout></RoleRoute>} />
-        <Route path="/vendor/storefront" element={<RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><VendorStorefront /></AnimatedPage></VendorLayout></RoleRoute>} />
+        <Route path="/vendor" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorOverview /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/products" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorProducts /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/add-product" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorAddProduct /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/orders" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorOrders /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/payouts" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorPayouts /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/analytics" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorAnalytics /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/storefront" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorStorefront /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
 
         {/* ADMIN PORTAL */}
-        <Route path="/admin" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminOverview /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/vendors" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminVendors /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/buyers" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminBuyers /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/products" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminProducts /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/categories" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminCategories /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/payouts" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminPayoutsCommissions /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/promotions" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminBannersPromotions /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/disputes" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminReviewsDisputes /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/permissions" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminRolesPermissions /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/settings" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminSettings /></AnimatedPage></AdminLayout></RoleRoute>} />
-        <Route path="/admin/audit-logs" element={<RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><AdminAuditLogs /></AnimatedPage></AdminLayout></RoleRoute>} />
+        <Route path="/admin" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminOverview /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/vendors" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminVendors /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/buyers" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminBuyers /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/products" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminProducts /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/categories" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminCategories /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/payouts" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminPayoutsCommissions /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/promotions" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminBannersPromotions /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/disputes" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminReviewsDisputes /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/permissions" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminRolesPermissions /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/settings" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminSettings /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/audit-logs" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminAuditLogs /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

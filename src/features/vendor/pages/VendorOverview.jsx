@@ -24,8 +24,11 @@ export default function VendorOverview() {
   }, [orders, user]);
 
   const totalRevenue = useMemo(() =>
-    vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0),
-    [vendorOrders]
+    vendorOrders.reduce((sum, o) => {
+      const vendorItems = (o.items || []).filter(item => item.vendorId === user?.vendorId);
+      return sum + vendorItems.reduce((s, item) => s + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+    }, 0),
+    [vendorOrders, user]
   );
 
   const totalOrders = vendorOrders.length;

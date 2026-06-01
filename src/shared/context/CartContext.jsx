@@ -1,5 +1,8 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { mockDb } from "@/shared/db/mockDb";
+import { MarketplaceContext } from "@/shared/context/MarketplaceContext";
+
+const CHECKOUT_CONFIG = { taxRate: 0.08, shippingFlat: 15.00 };
 
 export const CartContext = createContext();
 
@@ -13,6 +16,8 @@ export const CartProvider = ({ children }) => {
     return savedWishlist ? JSON.parse(savedWishlist) : [];
   });
   const [loading, setLoading] = useState(false);
+
+  const { reloadFromDb } = useContext(MarketplaceContext);
 
   useEffect(() => { localStorage.setItem('vendex_cart', JSON.stringify(cart)); }, [cart]);
   useEffect(() => { localStorage.setItem('vendex_wishlist', JSON.stringify(wishlist)); }, [wishlist]);
@@ -35,17 +40,34 @@ export const CartProvider = ({ children }) => {
 
   const checkoutAndCommit = (buyerId, shippingDetails, paymentMethod) => {
     const products = mockDb.get('products');
-    cart.forEach(item => { const prod = products.find(p => p.id === item.id); if (prod) prod.stock = Math.max(0, prod.stock - item.quantity); });
-    mockDb.set('products', products);
+
+    for (const item of cart) {
+      const prod = products.find(p => p.id === item.id);
+      if (!prod || prod.stock < item.quantity) {
+        throw new Error(`Insufficient stock for ${item.name}`);
+      }
+    }
+
+    const updatedProducts = products.map(prod => {
+      const cartItem = cart.find(item => item.id === prod.id);
+      if (cartItem) {
+        return { ...prod, stock: prod.stock - cartItem.quantity };
+      }
+      return prod;
+    });
+    mockDb.set('products', updatedProducts);
+
     const orders = mockDb.get('orders');
+    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const newOrder = {
       id: "VX-" + Math.floor(10000 + Math.random() * 90000), buyerId, items: [...cart],
-      total: cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) * 1.08 + 15.00,
+      total: subtotal * (1 + CHECKOUT_CONFIG.taxRate) + CHECKOUT_CONFIG.shippingFlat,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       status: "Processing", shippingDetails, paymentMethod
     };
     mockDb.set('orders', [...orders, newOrder]);
     clearCart();
+    reloadFromDb();
     return newOrder;
   };
 

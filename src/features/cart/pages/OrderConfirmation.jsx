@@ -5,7 +5,18 @@ import Button from '@/shared/components/Button';
 
 export default function OrderConfirmation() {
   const { state } = useLocation();
-  const order = state?.order;
+  const orderFromState = state?.order;
+
+  const [order] = React.useState(() => {
+    if (orderFromState) {
+      sessionStorage.setItem('vendex_last_order', JSON.stringify(orderFromState));
+      return orderFromState;
+    }
+    try {
+      const saved = sessionStorage.getItem('vendex_last_order');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
 
   // If no order data, redirect to home
   if (!order) {

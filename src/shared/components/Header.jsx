@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthContext } from "@/shared/context/AuthContext";
@@ -9,9 +9,34 @@ import Button from '@/shared/components/Button';
 import { cn } from '@/utils/cn';
 
 export default function Header({ onMenuToggle, isPortal, menuOpen }) {
-  const { user, login, logout, switchRole } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { cartCount } = useContext(CartContext);
-  const { auditLogs } = useContext(MarketplaceContext);
+  const { auditLogs, orders } = useContext(MarketplaceContext);
+
+  const notifications = useMemo(() => {
+    if (!user) return [];
+    if (user.role === 'admin') return auditLogs || [];
+    if (user.role === 'vendor') {
+      return (orders || [])
+        .filter(o => o.items?.some(item => item.vendorId === user.vendorId))
+        .map(o => ({
+          id: `order-${o.id}`,
+          action: `Order ${o.status || 'Update'}`,
+          resource: `Order #${o.id} - ${(o.items || []).length} item(s)`,
+          timestamp: o.date || 'Recently',
+          admin: 'System',
+        }));
+    }
+    return (orders || [])
+      .filter(o => o.buyerId === user.id)
+      .map(o => ({
+        id: `order-${o.id}`,
+        action: `Order ${o.status || 'Update'}`,
+        resource: `Order #${o.id} - ${(o.items || []).length} item(s)`,
+        timestamp: o.date || 'Recently',
+        admin: 'System',
+      }));
+  }, [user, auditLogs, orders]);
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,14 +56,6 @@ export default function Header({ onMenuToggle, isPortal, menuOpen }) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
     }
-  };
-
-  const handleRoleChange = (role) => {
-    switchRole(role);
-    setShowProfileMenu(false);
-    if (role === 'admin') navigate('/admin');
-    else if (role === 'vendor') navigate('/vendor');
-    else navigate('/');
   };
 
   const closeAll = () => {
@@ -114,7 +131,7 @@ export default function Header({ onMenuToggle, isPortal, menuOpen }) {
           {/* Search */}
           <div className="relative">
             {searchOpen ? (
-              <div className="fixed inset-x-4 top-[72px] md:absolute md:inset-auto md:right-0 md:top-1/2 md:-translate-y-1/2 flex items-center gap-2 bg-surface-container-lowest border border-outline rounded-xl shadow-xl py-2.5 pl-4 pr-2 md:w-80 animate-in fade-in slide-in-from-top-2 md:slide-in-from-right-2 duration-200 z-50">
+              <div className="fixed inset-x-4 top-header md:absolute md:inset-auto md:right-0 md:top-1/2 md:-translate-y-1/2 flex items-center gap-2 bg-surface-container-lowest border border-outline rounded-xl shadow-xl py-2.5 pl-4 pr-2 md:w-80 animate-in fade-in slide-in-from-top-2 md:slide-in-from-right-2 duration-200 z-50">
                 <span className="material-symbols-outlined text-secondary text-xl shrink-0">search</span>
                 <input
                   autoFocus
@@ -152,7 +169,7 @@ export default function Header({ onMenuToggle, isPortal, menuOpen }) {
               icon={<span className="material-symbols-outlined text-secondary text-2xl">notifications</span>}
               className="relative"
             >
-              {auditLogs && auditLogs.length > 0 && (
+              {notifications && notifications.length > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error rounded-full ring-2 ring-surface-container-lowest z-10"></span>
               )}
             </Button>
@@ -160,10 +177,10 @@ export default function Header({ onMenuToggle, isPortal, menuOpen }) {
               <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-32px)] bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="px-5 py-3 border-b border-outline-variant flex items-center justify-between">
                   <p className="font-semibold text-on-surface text-body-sm">Notifications</p>
-                  <span className="text-meta text-secondary bg-surface-container px-2 py-0.5 rounded-full">{auditLogs?.length || 0} new</span>
+                  <span className="text-meta text-secondary bg-surface-container px-2 py-0.5 rounded-full">{notifications?.length || 0} new</span>
                 </div>
-                {auditLogs && auditLogs.length > 0 ? (
-                  auditLogs.slice(0, 3).map(log => (
+                {notifications && notifications.length > 0 ? (
+                  notifications.slice(0, 3).map(log => (
                     <div key={log.id} className="px-5 py-3 border-b border-outline-variant/50 last:border-0 hover:bg-surface-container-low transition-colors cursor-pointer">
                       <p className="text-body-sm text-on-surface font-medium truncate">{log.action}: {log.resource}</p>
                       <p className="text-meta text-secondary mt-0.5">{log.timestamp} · {log.admin}</p>
@@ -224,15 +241,6 @@ export default function Header({ onMenuToggle, isPortal, menuOpen }) {
                       <span className="material-symbols-outlined text-lg text-secondary">admin_panel_settings</span> Admin Panel
                     </Link>
                   )}
-                  <div className="border-t border-outline-variant my-1"></div>
-                  <div className="px-4 py-1.5">
-                    <p className="text-meta font-bold text-secondary uppercase tracking-wider mb-1">Switch Role</p>
-                    <div className="flex gap-1">
-                      <Button variant={user.role === 'buyer' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('buyer')} className="flex-1">Buyer</Button>
-                      <Button variant={user.role === 'vendor' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('vendor')} className="flex-1">Vendor</Button>
-                      <Button variant={user.role === 'admin' ? 'primary' : 'ghost'} size="sm" onClick={() => handleRoleChange('admin')} className="flex-1">Admin</Button>
-                    </div>
-                  </div>
                   <div className="border-t border-outline-variant my-1"></div>
                   <Button
                     variant="ghost"

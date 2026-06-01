@@ -1,4 +1,14 @@
 // Initial Mock Database Seed File
+
+const PASSWORD_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8';
+
+export async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const seedProducts = [
   {
     id: "p1",
@@ -152,7 +162,7 @@ const seedUsers = [
   {
     id: "u_buyer",
     email: "buyer@vendex.com",
-    password: "password",
+    password: PASSWORD_HASH,
     name: "Alexander Great",
     role: "buyer",
     avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCtv7uh8DDOK8CmpozshtBxthpxPB_FLdvcqAhE6kV834vKsZOB7ZW_4c7XCfxrA_bN8OwEQ1tYjgV_Eme4yU0HxPkrBGWz7G1o5Rb7EzvtH-uKZijHLirL-Pp8vCNncf-rQE9u6REjpVZP_p7voTvOq0fG15VKw5IRyjhOD3pYDYRpj-X989-wDTFth3QxcEIPKboycKN1bxQrJoy3p1UdcI04US2oaY--NYu97WA_V0ZnkMfFb01rVKUqej29abLp92DtGkfmdCyG"
@@ -160,7 +170,7 @@ const seedUsers = [
   {
     id: "u_vendor",
     email: "vendor@vendex.com",
-    password: "password",
+    password: PASSWORD_HASH,
     name: "Urban Goods Co.",
     role: "vendor",
     vendorId: "v_nexus",
@@ -169,7 +179,7 @@ const seedUsers = [
   {
     id: "u_admin",
     email: "admin@vendex.com",
-    password: "password",
+    password: PASSWORD_HASH,
     name: "Platform Administrator",
     role: "admin",
     avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCtv7uh8DDOK8CmpozshtBxthpxPB_FLdvcqAhE6kV834vKsZOB7ZW_4c7XCfxrA_bN8OwEQ1tYjgV_Eme4yU0HxPkrBGWz7G1o5Rb7EzvtH-uKZijHLirL-Pp8vCNncf-rQE9u6REjpVZP_p7voTvOq0fG15VKw5IRyjhOD3pYDYRpj-X989-wDTFth3QxcEIPKboycKN1bxQrJoy3p1UdcI04US2oaY--NYu97WA_V0ZnkMfFb01rVKUqej29abLp92DtGkfmdCyG"
@@ -182,7 +192,7 @@ const seedOrders = [
     buyerId: "u_buyer",
     date: "Oct 24, 2026",
     status: "Shipped",
-    total: 340.00,
+    total: 382.20,
     items: [
       { id: "p7", name: "Leather Weekend Bag", price: 340.00, quantity: 1, vendor: "Vogue Minimal", vendorId: "v_vogue", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCepxAPUA0kVC8EKnRYyzaQtkYga-j_9CB4SFsrdvHM8NTqhtyy_TAQZAMGO-V9CmnE3jSv2zXVhDSZUiBPziczNUjazfBnowF3OjBawX4YIVKKbXxO_uX8MnX18YdWFDPwzGSBbaGYUxj1N-vs8FVWZnFrm5qKYpsg0V9Ty70Dj6mBEE9FhRG8lNXSttk1FcU4_lOosDdoPXhsn2g1l_f8lq383tyj9UMQuV5rGPZ1ubofDSTG0A0SOMj8jdU5nBeZybSvDc0Qj4o1" }
     ],
@@ -204,7 +214,7 @@ const seedOrders = [
     buyerId: "u_buyer",
     date: "Oct 15, 2026",
     status: "Delivered",
-    total: 120.00,
+    total: 111.12,
     items: [
       { id: "p5", name: "Minimalist Desk Lamp", price: 89.00, quantity: 1, vendor: "Elementa", vendorId: "v_elementa", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDYzv-tUWHNjSH_RY9Vz7qB-7pylM2zxI9HGJoVZDh6rwbrs1DZyPWRaMdu_RSDCMnUxIa1bK1q_EEg45ED5tNtgC2MV6kCHLALCdzXRw0I3EAGf92-uTvjMlrGQCn0ZqNIqpdODt-GgVbkmEgb0gxaluuNsj5OaE5w0xkq1vx5VH0oAbMd65SF_vDGDD10rrgMzPtSL0UsHqv1lCw-Y4UZ14n5K1YsTOV0PhzZ5ll-osUfkmTOPPni2DYPrYx--OzKLDAdZQhDidxA" }
     ],

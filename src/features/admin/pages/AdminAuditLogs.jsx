@@ -55,11 +55,11 @@ export default function AdminAuditLogs() {
     return 'bg-surface-container text-on-surface-variant';
   };
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading audit logs..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading audit logs..." /></div>;
 
   return (
     <div className="min-h-screen">
-      <section className="pt-24 pb-xl px-gutter max-w-container-max mx-auto">
+      <section className="pt-header pb-xl px-gutter max-w-container-max mx-auto">
         <div className="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
           <div>
             <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Audit Logs</h2>

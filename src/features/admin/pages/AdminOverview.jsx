@@ -7,6 +7,15 @@ import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import { cn } from '@/utils/cn';
 
+const parseDate = (dateStr) => {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) return d;
+  const parsed = Date.parse(dateStr);
+  if (!isNaN(parsed)) return new Date(parsed);
+  return null;
+};
+
 export default function AdminOverview() {
   const { products, orders, users, loading } = useContext(MarketplaceContext);
   const { user } = useContext(AuthContext);
@@ -24,16 +33,18 @@ export default function AdminOverview() {
   const sparklineData = useMemo(() => {
     const daily = {};
     orders.forEach(o => {
-      const d = new Date(o.createdAt || o.date || Date.now()).toLocaleDateString();
+      const d = (parseDate(o.createdAt || o.date) || new Date()).toLocaleDateString();
       daily[d] = (daily[d] || 0) + (Number(o.total) || 0);
     });
     return Object.entries(daily).slice(-10);
   }, [orders]);
 
   // Recent orders
-  const recentOrders = useMemo(() => [...orders].sort((a, b) =>
-    new Date(b.createdAt || b.date || 0) - new Date(a.createdAt || a.date || 0)
-  ).slice(0, 5), [orders]);
+  const recentOrders = useMemo(() => [...orders].sort((a, b) => {
+    const dateA = parseDate(a.createdAt || a.date);
+    const dateB = parseDate(b.createdAt || b.date);
+    return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
+  }).slice(0, 5), [orders]);
 
   // Revenue sparkline SVG path
   const maxRev = Math.max(1, ...sparklineData.map(([, v]) => v));
@@ -61,7 +72,7 @@ export default function AdminOverview() {
   // Pending (unapproved) vendors
   const pendingVendors = useMemo(() => vendors.filter(v => v.status !== 'approved').slice(0, 3), [vendors]);
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading dashboard..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading dashboard..." /></div>;
 
   const formatCurrency = (val) => {
     if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
@@ -70,7 +81,7 @@ export default function AdminOverview() {
   };
 
   return (
-    <div className="pt-16 min-h-screen p-gutter max-w-container-max mx-auto">
+    <div className="pt-header min-h-screen p-gutter max-w-container-max mx-auto">
 
       {/* Stats cards */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md mb-xl">
@@ -233,7 +244,7 @@ export default function AdminOverview() {
         <div className="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
           <div className="p-md border-b border-outline-variant flex justify-between items-center">
             <h3 className="font-headline-md text-headline-md font-bold">Recent Orders</h3>
-            <Link to="/admin/products" className="text-primary font-label-md text-label-md hover:underline">View All</Link>
+            <Link to="/admin/vendors" className="text-primary font-label-md text-label-md hover:underline">View All Vendors</Link>
           </div>
           {recentOrders.length === 0 ? (
             <EmptyState icon="shopping_cart" title="No orders yet" description="Orders will appear here once buyers start purchasing." />

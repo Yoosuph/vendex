@@ -25,22 +25,17 @@ export default function LoginSignUp() {
      return errs;
    },
    onSubmit: async (vals) => {
-     setErrorMsg('');
-     let selectedRole = 'buyer';
-     if (vals.email === 'admin@vendex.com') {
-       selectedRole = 'admin';
-     } else if (vals.email === 'vendor@vendex.com' || (activeTab === 'signup' && role === 'sell')) {
-       selectedRole = 'vendor';
-     }
+      setErrorMsg('');
+      const selectedRole = activeTab === 'signup' && role === 'sell' ? 'vendor' : undefined;
 
-     try {
-       let authUser;
-       if (activeTab === 'signup') {
-         const name = vals.email.split('@')[0];
-         authUser = signup(name, vals.email, vals.password, selectedRole);
-       } else {
-         authUser = login(vals.email, vals.password, selectedRole);
-       }
+      try {
+        let authUser;
+        if (activeTab === 'signup') {
+          const name = vals.email.split('@')[0];
+          authUser = signup(name, vals.email, vals.password, selectedRole || 'buyer');
+        } else {
+          authUser = login(vals.email, vals.password);
+        }
 
        if (authUser.role === 'admin') {
          navigate('/admin');
@@ -63,7 +58,7 @@ export default function LoginSignUp() {
  setSocialLoading(true);
  setErrorMsg('');
  try {
- const loggedUser = login(demoEmail, 'password', demoRole);
+ const loggedUser = login(demoEmail, 'password');
  if (loggedUser.role === 'admin') {
  navigate('/admin');
  } else if (loggedUser.role === 'vendor') {

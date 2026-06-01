@@ -2,7 +2,8 @@ import React, { useContext, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { CartContext } from '@/shared/context/CartContext';
-import Button from '@/shared/components/Button';
+import { useToast } from '@/shared/context/ToastContext';
+import ProductCard from '@/shared/components/ProductCard';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import { motion } from 'framer-motion';
@@ -11,18 +12,17 @@ import { cn } from '@/utils/cn';
 export default function SearchResults() {
   const { products } = useContext(MarketplaceContext);
   const { addToCart, toggleWishlist, wishlist } = useContext(CartContext);
+  const { addToast } = useToast();
   const [params] = useSearchParams();
   const query = params.get('q') || '';
   const categoryFilter = params.get('category') || '';
 
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [successMessage, setSuccessMessage] = useState('');
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
-    setSuccessMessage(`Added "${product.name}" to cart!`);
-    setTimeout(() => setSuccessMessage(''), 2000);
+    addToast(`Added "${product.name}" to cart!`, 'success');
   };
 
   // Derive unique categories from products
@@ -81,13 +81,6 @@ export default function SearchResults() {
 
   return (
     <>
-      {successMessage && (
-        <div className="fixed top-20 right-4 z-50 bg-green-600 text-white px-md py-sm rounded-xl shadow-lg flex items-center gap-xs animate-bounce">
-          <span className="material-symbols-outlined">check_circle</span>
-          <span>{successMessage}</span>
-        </div>
-      )}
-
       <main className="max-w-container-max mx-auto px-gutter py-lg flex flex-col md:flex-row gap-gutter">
 
         {/* Sidebar Filters */}
@@ -203,69 +196,15 @@ export default function SearchResults() {
             />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
-              {filteredProducts.map((product) => {
-                const isWished = wishlist.some(item => item.id === product.id);
-                const isOutOfStock = product.stock === 0;
-
-                return (
-                  <article key={product.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
-                    <div className="aspect-square bg-surface-container-low relative overflow-hidden">
-                      <Link to={`/product/${product.id}`}>
-                        <img
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          src={product.image}
-                        />
-                      </Link>
-                      {isOutOfStock ? (
-                        <span className="absolute top-3 left-3 bg-primary-container text-white px-2 py-1 rounded text-meta font-bold">Sold Out</span>
-                      ) : product.stock <= 5 && product.stock > 0 ? (
-                        <span className="absolute top-3 left-3 bg-secondary text-white px-2 py-1 rounded text-meta font-bold">Low Stock</span>
-                      ) : null}
-                      <button
-                        className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => toggleWishlist(product)}
-                      >
-                        <span className={cn('material-symbols-outlined text-body-lg', isWished ? 'text-primary icon-filled' : 'text-on-surface-variant')}>
-                          favorite
-                        </span>
-                      </button>
-                    </div>
-                    <div className="p-4 flex flex-col gap-xs">
-                      <Link className="font-label-sm text-label-sm text-primary uppercase font-bold hover:underline" to="/vendor/storefront">
-                        {product.vendor}
-                      </Link>
-                      <Link to={`/product/${product.id}`}>
-                        <h2 className="font-body-md text-body-md font-bold text-on-surface line-clamp-1">{product.name}</h2>
-                      </Link>
-                      <div className="flex items-center gap-1 text-primary">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span
-                            key={star}
-                            className={cn('material-symbols-outlined text-base', star <= Math.round(product.rating || 0) && 'icon-filled')}
-                          >
-                            {star <= Math.round(product.rating || 0) ? 'star' : 'star_outline'}
-                          </span>
-                        ))}
-                        <span className="text-on-surface-variant text-meta font-meta ml-1">({product.reviewsCount || 0})</span>
-                      </div>
-                      <div className="flex items-center justify-between mt-sm">
-                        <span className="font-headline-md text-headline-md text-on-surface">${product.price.toFixed(2)}</span>
- {isOutOfStock ? (
- <Button variant="secondary" size="md" disabled icon={<span className="material-symbols-outlined">shopping_cart</span>} />
- ) : (
- <Button
- variant="primary-container"
- size="md"
- icon={<span className="material-symbols-outlined">shopping_cart</span>}
- onClick={() => handleAddToCart(product)}
- />
- )}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onToggleWishlist={toggleWishlist}
+                  isWishlisted={wishlist.some(item => item.id === product.id)}
+                />
+              ))}
             </div>
           )}
         </div>

@@ -14,5 +14,8 @@ export const RoleRoute = ({ children, allowedRoles }) => {
     const defaultPaths = { admin: '/admin', vendor: '/vendor', buyer: '/' };
     return <Navigate to={defaultPaths[user.role] || '/'} replace />;
   }
+  if (user.role === 'vendor' && (user.status === 'suspended' || user.status === 'pending')) {
+    return <Navigate to="/" replace />;
+  }
   return children;
 };

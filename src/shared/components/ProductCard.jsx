@@ -88,7 +88,7 @@ export default function ProductCard({
               <span
                 className={cn('material-symbols-outlined text-xl', isWishlisted ? 'text-primary' : 'text-on-surface-variant')}
               >
-                favorite
+                {isWishlisted ? 'favorite' : 'favorite_border'}
               </span>
             </button>
           )}
@@ -103,7 +103,7 @@ export default function ProductCard({
           <h3 className={cn(cfg.name, 'text-on-surface line-clamp-2')}>{product.name}</h3>
 
           {product.rating !== undefined && (
-            <StarRating rating={product.rating} count={product.reviewCount} />
+            <StarRating rating={product.rating} count={product.reviewsCount} />
           )}
 
           <p className={cn(cfg.price, 'text-primary')}>

@@ -1,8 +1,10 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { CartContext } from "@/shared/context/CartContext";
+import { useToast } from '@/shared/context/ToastContext';
 import Button from '@/shared/components/Button';
+import ProductCard from '@/shared/components/ProductCard';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import { motion } from 'framer-motion';
@@ -11,9 +13,10 @@ import { cn } from '@/utils/cn';
 export default function Home() {
   const { products } = useContext(MarketplaceContext);
   const { addToCart, toggleWishlist, wishlist } = useContext(CartContext);
-  const [successMessage, setSuccessMessage] = useState('');
+  const { addToast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const storeCarouselRef = useRef(null);
 
   // Derive stores from products (group by vendor)
   const stores = useMemo(() => {
@@ -61,11 +64,10 @@ export default function Home() {
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
-    setSuccessMessage(`Added "${product.name}" to cart!`);
-    setTimeout(() => setSuccessMessage(''), 2000);
+    addToast(`Added "${product.name}" to cart!`, 'success');
   };
 
-  const isLoading = !products || products.length === 0;
+  const isLoading = !products;
 
   if (isLoading) {
     return (
@@ -79,20 +81,13 @@ export default function Home() {
 
   return (
     <>
-      {successMessage && (
-        <div className="fixed top-20 right-4 z-50 bg-success text-white px-md py-sm rounded-xl shadow-lg flex items-center gap-xs animate-bounce">
-          <span className="material-symbols-outlined">check_circle</span>
-          <span>{successMessage}</span>
-        </div>
-      )}
-
       <main>
         {/* Hero Section */}
         <section className="relative min-h-[520px] md:min-h-[600px] flex items-center overflow-hidden">
           {/* Background image from Pexels */}
           <div className="absolute inset-0">
             <img
-              src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=2"
+              src="/images/hero-bg.jpg"
               alt="Premium Marketplace"
               className="w-full h-full object-cover"
             />
@@ -261,11 +256,11 @@ export default function Home() {
                   <p className="text-on-surface-variant font-body-md text-body-md">Discover the most trusted vendors this month.</p>
                 </div>
                 <div className="flex gap-2">
-                  <button className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"><span className="material-symbols-outlined">chevron_left</span></button>
-                  <button className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"><span className="material-symbols-outlined">chevron_right</span></button>
+                  <button onClick={() => storeCarouselRef.current?.scrollBy({ left: -300, behavior: 'smooth' })} className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"><span className="material-symbols-outlined">chevron_left</span></button>
+                  <button onClick={() => storeCarouselRef.current?.scrollBy({ left: 300, behavior: 'smooth' })} className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"><span className="material-symbols-outlined">chevron_right</span></button>
                 </div>
               </div>
-              <div className="flex gap-gutter overflow-x-auto hide-scrollbar pb-gutter">
+              <div ref={storeCarouselRef} className="flex gap-gutter overflow-x-auto hide-scrollbar pb-gutter">
                 {stores.map((store) => (
                   <div key={store.name} className="flex-shrink-0 w-72 bg-surface-container-lowest rounded-xl shadow-card hover:shadow-card-hover transition-all p-6 text-center group">
                     <div className="w-20 h-20 mx-auto bg-surface-container-low rounded-full mb-4 overflow-hidden border-2 border-outline-variant/10 group-hover:border-primary transition-colors">
@@ -302,53 +297,15 @@ export default function Home() {
               />
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
-                {trendingProducts.map((product) => {
-                  const isWished = wishlist.some(item => item.id === product.id);
-                  return (
-                    <div key={product.id} className="group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:border-outline hover:shadow-md transition-all duration-200">
-                      {/* Image */}
-                      <Link to={`/product/${product.id}`} className="block relative bg-surface-container-low overflow-hidden aspect-square">
-                        <img
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          src={product.image}
-                        />
-                        {product.stock === 0 && (
-                          <span className="absolute top-2 left-2 bg-black/60 text-white text-meta font-medium px-2 py-0.5 rounded-full">Sold Out</span>
-                        )}
-                      </Link>
-                      {/* Content */}
-                      <div className="p-2.5 md:p-3">
-                        <p className="text-meta font-semibold text-on-surface-variant uppercase tracking-wider truncate">{product.vendor}</p>
-                        <Link to={`/product/${product.id}`}>
-                          <h3 className="text-body-sm font-semibold text-on-surface mt-0.5 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                            {product.name}
-                          </h3>
-                        </Link>
-                        <div className="flex items-center gap-0.5 mt-1">
-                          <span className="material-symbols-outlined icon-filled text-meta text-warning">star</span>
-                          <span className="text-meta font-medium text-on-surface-variant">{product.rating?.toFixed(1) || '5.0'}</span>
-                          <span className="text-meta text-on-surface-variant ml-0.5">({product.reviewsCount || 0})</span>
-                        </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-body-sm font-bold text-on-surface">${product.price.toFixed(2)}</span>
-                          <button
-                            onClick={(e) => { e.preventDefault(); handleAddToCart(product); }}
-                            disabled={product.stock === 0}
-                            className={cn(
-                              'w-7 h-7 rounded-full flex items-center justify-center transition-all',
-                              product.stock === 0
-                                ? 'bg-surface-container-low text-on-surface-variant cursor-not-allowed'
-                                : 'bg-primary text-white hover:bg-primary-container shadow-sm active:scale-90'
-                            )}
-                          >
-                            <span className="material-symbols-outlined text-body-sm">add</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {trendingProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                    onToggleWishlist={toggleWishlist}
+                    isWishlisted={wishlist.some(item => item.id === product.id)}
+                  />
+                ))}
               </div>
             )}
             <div className="mt-lg text-center">

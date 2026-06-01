@@ -66,11 +66,11 @@ export default function AdminProducts() {
     }
   };
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading products..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading products..." /></div>;
 
   return (
     <>
-      <div className="pt-16 min-h-screen">
+      <div className="pt-header min-h-screen">
         <div className="p-gutter max-w-container-max mx-auto">
           <div className="flex justify-between items-end mb-lg">
             <div>

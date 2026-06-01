@@ -94,6 +94,8 @@ export default {
         "container-max": "1280px",
         sm: "16px",
         lg: "40px",
+        header: "72px",
+        "bottom-nav": "72px",
       },
       maxWidth: {
         "container-max": "1280px",

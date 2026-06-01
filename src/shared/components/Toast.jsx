@@ -72,7 +72,7 @@ function ToastItem({ toast, onClose }) {
         <p className={cn(config.text, 'text-body-sm flex-1')}>{message}</p>
         <button
           onClick={() => onClose(id)}
-          className={cn(`${config.text}/60`, `hover:${config.text}`, 'transition-colors')}
+          className="opacity-60 hover:opacity-100 transition-opacity"
           aria-label="Close"
         >
           <span className="material-symbols-outlined text-lg">close</span>

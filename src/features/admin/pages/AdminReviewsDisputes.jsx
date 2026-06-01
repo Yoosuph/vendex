@@ -30,7 +30,7 @@ export default function AdminReviewsDisputes() {
   const ratingDist = useMemo(() => {
     const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     reviews.forEach(r => {
-      const rating = Math.round(r.rating || 5);
+      const rating = Math.round(r.score || r.rating || 5);
       if (dist[rating] !== undefined) dist[rating]++;
     });
     return dist;
@@ -38,7 +38,7 @@ export default function AdminReviewsDisputes() {
 
   const avgRating = useMemo(() => {
     if (reviews.length === 0) return 0;
-    return (reviews.reduce((s, r) => s + (r.rating || 5), 0) / reviews.length).toFixed(1);
+    return (reviews.reduce((s, r) => s + (r.score || r.rating || 5), 0) / reviews.length).toFixed(1);
   }, [reviews]);
 
   const handleResolve = (dispute) => {
@@ -53,11 +53,11 @@ export default function AdminReviewsDisputes() {
     setSelectedDispute(null);
   };
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading reviews & disputes..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading reviews & disputes..." /></div>;
 
   return (
     <>
-      <div className="mt-16 p-gutter min-h-[calc(100vh-4rem)]">
+      <div className="mt-header p-gutter min-h-[calc(100vh-4rem)]">
         <div className="max-w-container-max mx-auto">
           <div className="flex justify-between items-end mb-lg">
             <div>
@@ -128,10 +128,10 @@ export default function AdminReviewsDisputes() {
                         </td>
                         <td className="px-md py-md">
                           <div className="flex text-primary">
-                            {Array.from({ length: r.rating || 5 }).map((_, j) => (
+                            {Array.from({ length: r.score || r.rating || 5 }).map((_, j) => (
                               <span key={j} className="material-symbols-outlined text-body-lg icon-filled">star</span>
                             ))}
-                            {Array.from({ length: 5 - (r.rating || 5) }).map((_, j) => (
+                            {Array.from({ length: 5 - (r.score || r.rating || 5) }).map((_, j) => (
                               <span key={`e${j}`} className="material-symbols-outlined text-body-lg">star</span>
                             ))}
                           </div>

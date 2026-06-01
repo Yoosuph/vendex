@@ -53,11 +53,11 @@ export default function AdminBuyers() {
     });
   };
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading buyers..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading buyers..." /></div>;
 
   return (
     <>
-      <div className="pt-16 min-h-screen">
+      <div className="pt-header min-h-screen">
         <div className="p-gutter max-w-container-max mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-lg gap-md">
             <div>

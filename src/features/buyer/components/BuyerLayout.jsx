@@ -40,7 +40,7 @@ export default function BuyerLayout({ children }) {
               animate={{ x: 0 }}
               exit={{ x: '-120%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-[72px] left-4 bottom-[72px] z-50 w-72 lg:hidden flex flex-col transform-gpu"
+              className="fixed top-header left-4 bottom-bottom-nav z-50 w-72 lg:hidden flex flex-col transform-gpu"
             >
               <BuyerSidebar mobile />
             </motion.div>

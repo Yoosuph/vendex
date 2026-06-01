@@ -36,12 +36,12 @@ export default function ProductDetail() {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState('');
 
-  // Set initial selected image when product loads
+  // Set initial selected image when product loads or changes
   React.useEffect(() => {
-    if (product && !selectedImage) {
+    if (product) {
       setSelectedImage(product.images && product.images.length > 0 ? product.images[0] : product.image);
     }
-  }, [product, selectedImage]);
+  }, [product?.id]);
 
   const handleAddToCart = () => {
     if (!product) return;

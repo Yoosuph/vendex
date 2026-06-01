@@ -22,8 +22,13 @@ export default function AdminPayoutsCommissions() {
   const payouts = useMemo(() => {
     const vendors = users.filter(u => u.role === 'vendor');
     return vendors.map(v => {
-      const vendorOrders = orders.filter(o => o.vendorId === v.id || o.vendor === v.id || o.sellerId === v.id);
-      const grossSales = vendorOrders.reduce((s, o) => s + (Number(o.total) || 0), 0);
+      const vendorOrders = orders.filter(o =>
+        o.items?.some(item => item.vendorId === v.vendorId || item.vendor === v.name)
+      );
+      const grossSales = vendorOrders.reduce((s, o) => {
+        const vendorItems = (o.items || []).filter(item => item.vendorId === v.vendorId || item.vendor === v.name);
+        return s + vendorItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+      }, 0);
       const rate = commissionSettings.globalRate / 100;
       const fee = grossSales * rate;
       return {
@@ -72,10 +77,10 @@ export default function AdminPayoutsCommissions() {
     }
   };
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading payouts..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading payouts..." /></div>;
 
   return (
-    <div className="pt-16 min-h-screen">
+    <div className="pt-header min-h-screen">
       <div className="p-gutter max-w-container-max mx-auto space-y-md">
         <div className="flex justify-between items-end">
           <div>

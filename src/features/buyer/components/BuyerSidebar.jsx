@@ -18,6 +18,7 @@ const sections = [
   {
     title: 'Account',
     items: [
+      { name: 'Become a Vendor', path: '/vendor/onboarding', icon: 'storefront' },
       { name: 'Followed Stores', path: '#', icon: 'store', disabled: true },
       { name: 'Reviews', path: '#', icon: 'rate_review', disabled: true },
       { name: 'Wallet & Credits', path: '#', icon: 'account_balance_wallet', disabled: true },

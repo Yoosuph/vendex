@@ -31,7 +31,7 @@ export default function AdminVendors() {
   }, [vendors, search, statusFilter]);
 
   const getProductCount = (vendorId) => {
-    return products.filter(p => p.vendorId === vendorId || p.vendor === vendorId).length;
+    return products.filter(p => p.vendorId === vendorId).length;
   };
 
   const handleApprove = (vendor) => {
@@ -61,12 +61,12 @@ export default function AdminVendors() {
     });
   };
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading vendors..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading vendors..." /></div>;
 
   return (
     <>
       <div className="min-h-screen">
-        <div className="mt-16 p-gutter max-w-container-max mx-auto">
+        <div className="mt-header p-gutter max-w-container-max mx-auto">
           <div className="flex justify-between items-end mb-lg">
             <div>
               <h2 className="font-headline-lg text-headline-lg text-on-surface">Vendor Management</h2>
@@ -137,7 +137,7 @@ export default function AdminVendors() {
                         </td>
                         <td className="px-md py-md font-body-md text-body-md text-on-surface-variant">{v.email || 'N/A'}</td>
                         <td className="px-md py-md font-body-md text-body-md">{v.vendorId || v.id}</td>
-                        <td className="px-md py-md font-body-md text-body-md text-center">{getProductCount(v.id)}</td>
+                        <td className="px-md py-md font-body-md text-body-md text-center">{getProductCount(v.vendorId || v.id)}</td>
                         <td className="px-md py-md">
                           <span className={cn(
                             'inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold',

@@ -1,7 +1,9 @@
 import React, { useContext, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
+import { CartContext } from '@/shared/context/CartContext';
 import { AuthContext } from '@/shared/context/AuthContext';
+import ProductCard from '@/shared/components/ProductCard';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
@@ -21,6 +23,7 @@ const statusBadge = (status) => {
 
 export default function BuyerDashboardOverview() {
   const { orders, products, loading } = useContext(MarketplaceContext);
+  const { wishlist } = useContext(CartContext);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -37,7 +40,10 @@ export default function BuyerDashboardOverview() {
   }, [myOrders]);
 
   const recentOrders = useMemo(() => [...myOrders].reverse().slice(0, 5), [myOrders]);
-  const wishlistItems = useMemo(() => products.slice(0, 4), [products]);
+  const wishlistItems = useMemo(() => {
+    if (wishlist && wishlist.length > 0) return wishlist.slice(0, 4);
+    return products.slice(0, 4);
+  }, [products, wishlist]);
 
   if (loading) return <LoadingSpinner text="Loading dashboard..." />;
 
@@ -155,13 +161,12 @@ export default function BuyerDashboardOverview() {
             </div>
             <div className="grid grid-cols-2 gap-sm">
               {wishlistItems.map(product => (
-                <Link key={product.id} to={`/product/${product.id}`} className="group">
-                  <div className="aspect-square rounded-lg bg-surface-container overflow-hidden mb-sm">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  </div>
-                  <p className="text-meta font-medium text-on-surface line-clamp-1 group-hover:text-primary transition-colors">{product.name}</p>
-                  <p className="text-body-sm font-bold text-on-surface mt-base">${(product.price || 0).toFixed(2)}</p>
-                </Link>
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  size="compact"
+                  showVendor={false}
+                />
               ))}
             </div>
           </div>

@@ -1,21 +1,48 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 import { mockDb } from "@/shared/db/mockDb";
 
 export const MarketplaceContext = createContext();
 
 export const MarketplaceProvider = ({ children }) => {
-  const [products, setProducts] = useState(() => mockDb.get('products', []));
-  const [disputes, setDisputes] = useState(() => mockDb.get('disputes', []));
-  const [auditLogs, setAuditLogs] = useState(() => mockDb.get('audit_logs', []));
-  const [orders, setOrders] = useState(() => mockDb.get('orders', []));
-  const [users, setUsers] = useState(() => mockDb.get('users', []));
-  const [loading, setLoading] = useState(false); // data is sync from mockDb, set true for async operations
+  const [products, setProducts] = useState(null);
+  const [disputes, setDisputes] = useState(null);
+  const [auditLogs, setAuditLogs] = useState(null);
+  const [orders, setOrders] = useState(null);
+  const [users, setUsers] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const saveTimerRef = useRef(null);
 
-  useEffect(() => { mockDb.set('products', products); }, [products]);
-  useEffect(() => { mockDb.set('disputes', disputes); }, [disputes]);
-  useEffect(() => { mockDb.set('audit_logs', auditLogs); }, [auditLogs]);
-  useEffect(() => { mockDb.set('orders', orders); }, [orders]);
-  useEffect(() => { mockDb.set('users', users); }, [users]);
+  const loadFromDb = () => {
+    setLoading(true);
+    setProducts(mockDb.get('products', []));
+    setOrders(mockDb.get('orders', []));
+    setUsers(mockDb.get('users', []));
+    setDisputes(mockDb.get('disputes', []));
+    setAuditLogs(mockDb.get('audit_logs', []));
+    setLoading(false);
+  };
+
+  useEffect(() => { loadFromDb(); }, []);
+
+  const reloadFromDb = () => {
+    setProducts(mockDb.get('products', []));
+    setOrders(mockDb.get('orders', []));
+    setUsers(mockDb.get('users', []));
+    setDisputes(mockDb.get('disputes', []));
+    setAuditLogs(mockDb.get('audit_logs', []));
+  };
+
+  useEffect(() => {
+    if (products === null || disputes === null || auditLogs === null || orders === null || users === null) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      mockDb.set('products', products);
+      mockDb.set('disputes', disputes);
+      mockDb.set('audit_logs', auditLogs);
+      mockDb.set('orders', orders);
+      mockDb.set('users', users);
+    }, 300);
+  }, [products, disputes, auditLogs, orders, users]);
 
   const logAdminAction = (adminName, action, resource) => {
     const newLog = {
@@ -65,7 +92,7 @@ export const MarketplaceProvider = ({ children }) => {
   };
 
   const approveVendor = (userId, author) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'approved' } : u));
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'approved', vendorId: u.vendorId || 'v_' + Date.now() } : u));
     logAdminAction(author, "APPROVE_VENDOR", `Approved vendor ${userId}`);
   };
 
@@ -100,7 +127,7 @@ export const MarketplaceProvider = ({ children }) => {
       products, disputes, auditLogs, orders, users, loading,
       addProduct, deleteProduct, updateProductStock, updateProduct,
       resolveDispute, logAdminAction, approveVendor, suspendUser,
-      addReview
+      addReview, reloadFromDb
     }}>
       {children}
     </MarketplaceContext.Provider>

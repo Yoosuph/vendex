@@ -44,11 +44,11 @@ export default function AdminCategories() {
     setNewCategory({ name: '', slug: '', description: '', parent: '' });
   };
 
-  if (loading) return <div className="pt-16"><LoadingSpinner text="Loading categories..." /></div>;
+  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading categories..." /></div>;
 
   return (
     <>
-      <div className="pt-16 min-h-screen">
+      <div className="pt-header min-h-screen">
         <div className="max-w-container-max mx-auto px-gutter py-lg">
           <div className="flex justify-between items-end mb-lg">
             <div>

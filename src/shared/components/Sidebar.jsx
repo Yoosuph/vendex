@@ -4,9 +4,13 @@ import { AuthContext } from '@/shared/context/AuthContext';
 import Button from '@/shared/components/Button';
 import { cn } from '@/utils/cn';
 
-export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile }) {
+export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile, closeDrawer }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const handleNavClick = () => {
+    if (closeDrawer) closeDrawer();
+  };
 
   return (
     <aside className={cn(
@@ -54,6 +58,7 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile })
                     key={item.name}
                     to={item.path}
                     end={item.end}
+                    onClick={handleNavClick}
                     className={({ isActive }) =>
                       cn(
                         'flex items-center px-3 py-2 rounded-lg text-body-sm transition-all duration-150 active:scale-95',
