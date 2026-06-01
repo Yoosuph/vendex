@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect, useRef } from 'react';
-import { mockDb } from "@/shared/db/mockDb";
+import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { apiClient } from '@/shared/api/client';
 
 export const MarketplaceContext = createContext();
 
@@ -10,116 +10,114 @@ export const MarketplaceProvider = ({ children }) => {
   const [orders, setOrders] = useState(null);
   const [users, setUsers] = useState(null);
   const [loading, setLoading] = useState(true);
-  const saveTimerRef = useRef(null);
 
-  const loadFromDb = () => {
+  const loadFromDb = useCallback(async () => {
     setLoading(true);
-    setProducts(mockDb.get('products', []));
-    setOrders(mockDb.get('orders', []));
-    setUsers(mockDb.get('users', []));
-    setDisputes(mockDb.get('disputes', []));
-    setAuditLogs(mockDb.get('audit_logs', []));
+    try {
+      const prodRes = await apiClient('/products?limit=100');
+      setProducts(prodRes.products || []);
+    } catch {
+      setProducts([]);
+    }
+
+    try {
+      const orderRes = await apiClient('/orders?limit=100');
+      setOrders(orderRes.orders || []);
+    } catch {
+      setOrders([]);
+    }
+
+    try {
+      const disputeRes = await apiClient('/disputes?limit=100');
+      setDisputes(disputeRes.disputes || []);
+    } catch {
+      setDisputes([]);
+    }
+
+    try {
+      const vendorRes = await apiClient('/admin/vendors');
+      const buyerRes = await apiClient('/admin/buyers');
+      setUsers([
+        ...(vendorRes.vendors || []).map(v => ({ ...v, role: 'vendor' })),
+        ...(buyerRes.buyers || []).map(b => ({ ...b, role: 'buyer' })),
+      ]);
+    } catch {
+      setUsers([]);
+    }
+
+    try {
+      const auditRes = await apiClient('/admin/audit-logs?limit=100');
+      setAuditLogs(auditRes.logs || auditRes.auditLogs || []);
+    } catch {
+      setAuditLogs([]);
+    }
+
     setLoading(false);
+  }, []);
+
+  useEffect(() => { loadFromDb(); }, [loadFromDb]);
+
+  const reloadFromDb = loadFromDb;
+
+  const addProduct = async (product, author) => {
+    const data = await apiClient('/products', {
+      method: 'POST',
+      body: JSON.stringify(product),
+    });
+    await reloadFromDb();
+    return data;
   };
 
-  useEffect(() => { loadFromDb(); }, []);
-
-  const reloadFromDb = () => {
-    setProducts(mockDb.get('products', []));
-    setOrders(mockDb.get('orders', []));
-    setUsers(mockDb.get('users', []));
-    setDisputes(mockDb.get('disputes', []));
-    setAuditLogs(mockDb.get('audit_logs', []));
+  const deleteProduct = async (productId, author) => {
+    await apiClient(`/products/${productId}`, { method: 'DELETE' });
+    await reloadFromDb();
   };
 
-  useEffect(() => {
-    if (products === null || disputes === null || auditLogs === null || orders === null || users === null) return;
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      mockDb.set('products', products);
-      mockDb.set('disputes', disputes);
-      mockDb.set('audit_logs', auditLogs);
-      mockDb.set('orders', orders);
-      mockDb.set('users', users);
-    }, 300);
-  }, [products, disputes, auditLogs, orders, users]);
-
-  const logAdminAction = (adminName, action, resource) => {
-    const newLog = {
-      id: 'log_' + Date.now(),
-      timestamp: new Date().toLocaleString(),
-      admin: adminName || "System Core",
-      action,
-      resource,
-      status: "Success",
-      ip: "192.168.1." + Math.floor(Math.random() * 254)
-    };
-    setAuditLogs(prev => [newLog, ...prev]);
+  const updateProductStock = async (productId, newStock, author) => {
+    await apiClient(`/products/${productId}/stock`, {
+      method: 'PATCH',
+      body: JSON.stringify({ stock: newStock }),
+    });
+    await reloadFromDb();
   };
 
-  const addProduct = (product, author) => {
-    const newProduct = {
-      ...product,
-      id: 'p_' + Date.now(),
-      rating: 5.0,
-      reviewsCount: 0,
-      reviews: []
-    };
-    setProducts(prev => [newProduct, ...prev]);
-    logAdminAction(author, "ADD_PRODUCT", `Added product "${product.name}"`);
-    return newProduct;
+  const updateProduct = async (productId, updates, author) => {
+    await apiClient(`/products/${productId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+    await reloadFromDb();
   };
 
-  const deleteProduct = (productId, author) => {
-    const prod = products.find(p => p.id === productId);
-    setProducts(prev => prev.filter(p => p.id !== productId));
-    logAdminAction(author, "DELETE_PRODUCT", `Deleted product ID "${productId}" (${prod?.name})`);
+  const resolveDispute = async (disputeId, decision, author) => {
+    await apiClient(`/disputes/${disputeId}/resolve`, {
+      method: 'PATCH',
+      body: JSON.stringify({ decision }),
+    });
+    await reloadFromDb();
   };
 
-  const updateProductStock = (productId, newStock, author) => {
-    setProducts(prev => prev.map(p => p.id === productId ? { ...p, stock: newStock } : p));
-    logAdminAction(author, "UPDATE_STOCK", `Updated stock for product ID "${productId}" to ${newStock}`);
+  const approveVendor = async (userId, author) => {
+    await apiClient(`/vendors/${userId}/approve`, { method: 'PATCH' });
+    await reloadFromDb();
   };
 
-  const updateProduct = (productId, updates, author) => {
-    setProducts(prev => prev.map(p => p.id === productId ? { ...p, ...updates } : p));
-    logAdminAction(author, "UPDATE_PRODUCT", `Updated product ID "${productId}"`);
+  const suspendUser = async (userId, author) => {
+    await apiClient(`/vendors/${userId}/suspend`, { method: 'PATCH' });
+    await reloadFromDb();
   };
 
-  const resolveDispute = (disputeId, decision, author) => {
-    setDisputes(prev => prev.map(d => d.id === disputeId ? { ...d, status: 'Resolved', decision } : d));
-    logAdminAction(author, "RESOLVE_DISPUTE", `Arbitrated Dispute #${disputeId} in favor of ${decision}`);
+  const addReview = async (productId, review, author) => {
+    await apiClient(`/products/${productId}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify(review),
+    });
+    await reloadFromDb();
   };
 
-  const approveVendor = (userId, author) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'approved', vendorId: u.vendorId || 'v_' + Date.now() } : u));
-    logAdminAction(author, "APPROVE_VENDOR", `Approved vendor ${userId}`);
-  };
-
-  const suspendUser = (userId, author) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'suspended' } : u));
-    logAdminAction(author, "SUSPEND_USER", `Suspended user ${userId}`);
-  };
-
-  const addReview = (productId, review, author) => {
-    setProducts(prev => prev.map(p => {
-      if (p.id !== productId) return p;
-      const newReview = {
-        id: 'rev_' + Date.now(),
-        ...review,
-        date: new Date().toISOString(),
-      };
-      const reviews = [...(p.reviews || []), newReview];
-      const totalScore = reviews.reduce((sum, r) => sum + (r.score || 0), 0);
-      const newRating = reviews.length > 0 ? totalScore / reviews.length : 0;
-      return {
-        ...p,
-        reviews,
-        reviewsCount: reviews.length,
-        rating: Math.round(newRating * 10) / 10,
-      };
-    }));
-    logAdminAction(author || review.reviewer, "ADD_REVIEW", `Added review to product ID "${productId}"`);
+  const logAdminAction = async (adminName, action, resource) => {
+    // Backend logs admin actions automatically on mutations
+    console.log(`[Audit] ${adminName}: ${action} — ${resource}`);
   };
 
   return (
