@@ -1,0 +1,562 @@
+// ─────────────────────────────────────────────────────────
+// Vendex Marketplace — Prisma Schema (PostgreSQL)
+// All 22 models + 9 enums from BACKEND_SPEC.md
+// ─────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Enums ────────────────────────────────────────────────
+
+enum UserRole {
+  BUYER
+  VENDOR
+  ADMIN
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum DisputeDecision {
+  BUYER
+  VENDOR
+  REFUND
+  DISMISSED
+}
+
+enum BannerPlacement {
+  HOME_HERO_CAROUSEL
+  CATEGORY_SIDEBAR
+  FOOTER_PROMO
+  MOBILE_APP_SPLASH
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AuditAction {
+  ADD_PRODUCT
+  DELETE_PRODUCT
+  UPDATE_PRODUCT
+  UPDATE_STOCK
+  ADD_REVIEW
+  DELETE_REVIEW
+  APPROVE_VENDOR
+  SUSPEND_USER
+  UNSUSPEND_USER
+  RESOLVE_DISPUTE
+  ORDER_PLACED
+  ORDER_STATUS_CHANGE
+  WITHDRAWAL_REQUESTED
+  LOGIN
+  LOGOUT
+  PROFILE_UPDATE
+  SETTINGS_UPDATE
+  COMMISSION_UPDATE
+  ROLE_UPDATE
+  BANNER_CREATED
+  BANNER_UPDATED
+  BANNER_DELETED
+  CATEGORY_CREATED
+  CATEGORY_UPDATED
+  CATEGORY_DELETED
+}
+
+enum Currency {
+  USD
+  EUR
+  GBP
+  JPY
+  CAD
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+}
+
+// ── Models ───────────────────────────────────────────────
+
+/// Core user account — can be buyer, vendor, or admin.
+model User {
+  id               String       @id @default(cuid())
+  email            String       @unique
+  passwordHash     String
+  name             String
+  role             UserRole     @default(BUYER)
+  avatar           String?
+  vendorId         String?      @unique
+  status           VendorStatus?
+  storeName        String?
+  storeCategory    String?
+  storeDescription String?
+  country          String?
+  city             String?
+  address          String?
+  businessEmail    String?
+  isVerified       Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Relations
+  orders           Order[]             @relation("BuyerOrders")
+  products         Product[]
+  reviews          Review[]
+  disputes         Dispute[]           @relation("ClaimantDisputes")
+  auditLogs        AuditLog[]
+  refreshTokens    RefreshToken[]
+  wishlistItems    WishlistItem[]
+  cartItems        CartItem[]
+  payouts          VendorPayout[]
+  payoutMethods    PayoutMethod[]
+  withdrawals      Withdrawal[]
+  notifications    Notification[]
+  passwordResets        PasswordResetToken[]
+  adminRoleAssignments  AdminRoleAssignment[]
+
+  @@index([email])
+  @@index([role])
+  @@index([vendorId])
+  @@index([status])
+}
+
+/// Refresh token for JWT rotation with reuse detection.
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  familyId  String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([familyId])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Product category hierarchy (self-referencing for subcategories).
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String?
+  icon        String?
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  products    Product[]
+  commission  CommissionSettings?
+
+  @@index([parentId])
+  @@index([slug])
+}
+
+/// Marketplace product listing.
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  vendorId     String
+  vendorName   String
+  categoryId   String
+  categoryName String
+  brand        String?
+  price        Float
+  stock        Int      @default(0)
+  rating       Float    @default(0)
+  reviewsCount Int      @default(0)
+  image        String?
+  images       String[]
+  description  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  vendor        User           @relation(fields: [vendorId], references: [vendorId])
+  category      Category       @relation(fields: [categoryId], references: [id])
+  reviews       Review[]
+  wishlistItems WishlistItem[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@index([name])
+  @@index([categoryId])
+  @@index([vendorId])
+  @@index([price])
+  @@index([rating])
+  @@index([isActive])
+}
+
+/// Product review (one per user per product).
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String?
+  reviewer  String
+  score     Int
+  comment   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@unique([productId, userId])
+  @@index([productId])
+  @@index([score])
+}
+
+/// Server-side cart item (per user).
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+/// Wishlist item (per user).
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+/// Buyer order with snapshot data.
+model Order {
+  id              String      @id @default(cuid())
+  displayId       String      @unique
+  buyerId         String
+  status          OrderStatus @default(PROCESSING)
+  total           Float
+  subtotal        Float
+  shippingCost    Float       @default(15.0)
+  tax             Float
+  taxRate         Float       @default(0.08)
+  shippingDetails Json
+  paymentMethod   Json?
+  trackingNumber  String?
+  carrier         String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  buyer           User        @relation("BuyerOrders", fields: [buyerId], references: [id])
+  items           OrderItem[]
+  disputes        Dispute[]
+
+  @@index([buyerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([displayId])
+}
+
+/// Snapshot of a product at time of purchase.
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+  vendorId  String
+  vendor    String
+  image     String?
+
+  // Relations
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([vendorId])
+  @@index([productId])
+}
+
+/// Buyer dispute filed against an order.
+model Dispute {
+  id            String          @id @default(cuid())
+  displayId     String          @unique
+  orderId       String
+  claimantId    String
+  claimantName  String
+  vendorName    String
+  amount        Float
+  reason        String
+  description   String?
+  status        DisputeStatus   @default(OPEN)
+  decision      DisputeDecision?
+  decisionNotes String?
+  resolvedBy    String?
+  resolvedAt    DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Relations
+  order         Order           @relation(fields: [orderId], references: [id])
+  claimant      User            @relation("ClaimantDisputes", fields: [claimantId], references: [id])
+
+  @@index([status])
+  @@index([orderId])
+  @@index([claimantId])
+}
+
+/// Platform audit trail for admin actions.
+model AuditLog {
+  id        String      @id @default(cuid())
+  timestamp DateTime    @default(now())
+  adminId   String?
+  adminName String
+  action    AuditAction
+  resource  String
+  status    String      @default("Success")
+  ipAddress String?
+  metadata  Json?
+
+  // Relations
+  admin     User?       @relation(fields: [adminId], references: [id])
+
+  @@index([timestamp])
+  @@index([action])
+  @@index([adminId])
+  @@index([adminName])
+}
+
+/// Promotional banner for placements across the storefront.
+model Banner {
+  id        String          @id @default(cuid())
+  title     String
+  placement BannerPlacement @default(HOME_HERO_CAROUSEL)
+  url       String?
+  image     String?
+  active    Boolean         @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([active])
+  @@index([placement])
+}
+
+/// Admin role definition with permission flags stored as JSON.
+model AdminRole {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  icon        String   @default("shield_person")
+  description String?
+  isActive    Boolean  @default(true)
+  permissions Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  assignments AdminRoleAssignment[]
+}
+
+/// Many-to-many assignment of admin users to roles.
+model AdminRoleAssignment {
+  id      String @id @default(cuid())
+  adminId String
+  roleId  String
+
+  // Relations
+  admin   User      @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  role    AdminRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([adminId, roleId])
+}
+
+/// Singleton platform-wide settings.
+model PlatformSettings {
+  id              String   @id @default("platform")
+  platformName    String   @default("Vendex")
+  supportEmail    String   @default("support@vendex.com")
+  commissionRate  Float    @default(10)
+  currency        Currency @default(USD)
+  maintenanceMode Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+}
+
+/// Per-category commission rate override.
+model CommissionSettings {
+  id         String   @id @default(cuid())
+  categoryId String   @unique
+  rate       Float
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+/// Vendor payout record (commission deducted).
+model VendorPayout {
+  id               String       @id @default(cuid())
+  vendorId         String
+  amount           Float
+  commissionRate   Float
+  commissionAmount Float
+  netAmount        Float
+  status           PayoutStatus @default(PENDING)
+  periodStart      DateTime?
+  periodEnd        DateTime?
+  paidAt           DateTime?
+  createdAt        DateTime     @default(now())
+
+  // Relations
+  vendor           User         @relation(fields: [vendorId], references: [vendorId])
+
+  @@index([vendorId])
+  @@index([status])
+}
+
+/// Vendor payout destination (bank account / PayPal).
+model PayoutMethod {
+  id                String   @id @default(cuid())
+  vendorId          String
+  type              String
+  label             String
+  accountHolderName String?
+  maskedAccount     String
+  isDefault         Boolean  @default(false)
+  country           String?
+  createdAt         DateTime @default(now())
+
+  // Relations
+  vendor            User     @relation(fields: [vendorId], references: [vendorId])
+  withdrawals       Withdrawal[]
+
+  @@index([vendorId])
+}
+
+/// Vendor withdrawal request against available balance.
+model Withdrawal {
+  id                String       @id @default(cuid())
+  vendorId          String
+  amount            Float
+  fee               Float        @default(0)
+  netAmount         Float
+  payoutMethodId    String
+  status            PayoutStatus @default(PROCESSING)
+  estimatedDelivery DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime     @default(now())
+
+  // Relations
+  vendor            User         @relation(fields: [vendorId], references: [vendorId])
+  payoutMethod      PayoutMethod @relation(fields: [payoutMethodId], references: [id])
+
+  @@index([vendorId])
+  @@index([status])
+}
+
+/// In-app notification for users.
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String?
+  data      Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+/// Password reset token with expiry.
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([userId])
+}
+
+/// Coupon / discount code for promotions.
+model Coupon {
+  id             String       @id @default(cuid())
+  code           String       @unique
+  type           DiscountType @default(PERCENTAGE)
+  value          Float
+  minPurchase    Float?
+  maxUses        Int?
+  maxUsesPerUser Int?
+  usedCount      Int          @default(0)
+  vendorId       String?
+  productIds     String[]
+  startDate      DateTime?
+  endDate        DateTime?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+
+  @@index([code])
+  @@index([isActive])
+}
