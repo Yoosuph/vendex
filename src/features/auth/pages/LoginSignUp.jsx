@@ -32,9 +32,9 @@ export default function LoginSignUp() {
         let authUser;
         if (activeTab === 'signup') {
           const name = vals.email.split('@')[0];
-          authUser = signup(name, vals.email, vals.password, selectedRole || 'buyer');
+          authUser = await signup(name, vals.email, vals.password, selectedRole || 'buyer');
         } else {
-          authUser = login(vals.email, vals.password);
+          authUser = await login(vals.email, vals.password);
         }
 
        if (authUser.role === 'admin') {
@@ -50,7 +50,7 @@ export default function LoginSignUp() {
    }
  });
 
- const handleSocialLogin = (demoRole) => {
+ const handleSocialLogin = async (demoRole) => {
  let demoEmail = 'buyer@vendex.com';
  if (demoRole === 'vendor') demoEmail = 'vendor@vendex.com';
  if (demoRole === 'admin') demoEmail = 'admin@vendex.com';
@@ -58,7 +58,7 @@ export default function LoginSignUp() {
  setSocialLoading(true);
  setErrorMsg('');
  try {
- const loggedUser = login(demoEmail, 'password');
+ const loggedUser = await login(demoEmail, 'password');
  if (loggedUser.role === 'admin') {
  navigate('/admin');
  } else if (loggedUser.role === 'vendor') {
