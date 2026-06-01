@@ -9,6 +9,7 @@ import { PrismaModule } from "./common/prisma/prisma.module.js";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard.js";
 import { RolesGuard } from "./common/guards/roles.guard.js";
 import { JwtStrategy } from "./common/strategies/jwt.strategy.js";
+import { AuthModule } from "./auth/auth.module.js";
 import { UsersModule } from "./users/users.module.js";
 import { ProductsModule } from "./products/products.module.js";
 import { CategoriesModule } from "./categories/categories.module.js";
@@ -32,6 +33,7 @@ import { AuditModule } from "./audit/audit.module.js";
       secret: process.env.JWT_ACCESS_SECRET || "dev-access-secret",
       signOptions: { expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN as any) || "15m" },
     }),
+    AuthModule,
     UsersModule,
     ProductsModule,
     CategoriesModule,
