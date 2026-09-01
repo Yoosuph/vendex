@@ -210,11 +210,23 @@ export default function VendorProducts() {
                   <tbody className="divide-y divide-outline-variant/30 text-sm">
                     {filteredProducts.map((product) => {
                       const isOutOfStock = product.stock === 0;
+                      const imgSrc = product.image || product.images?.[0];
                       return (
                         <tr key={product.id} className="hover:bg-surface-container-low/50 transition-colors">
                           <td className="px-4 py-3">
-                            <div className="h-12 w-12 rounded-lg bg-surface-container border border-outline-variant/30 overflow-hidden">
-                              <img alt={product.name} src={product.image} className="w-full h-full object-cover" />
+                            <div className="h-12 w-12 rounded-lg bg-surface-container border border-outline-variant/30 overflow-hidden flex items-center justify-center">
+                              {imgSrc ? (
+                                <img
+                                  alt={product.name}
+                                  src={imgSrc}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <span className="material-symbols-outlined text-secondary text-lg">inventory_2</span>
+                              )}
                             </div>
                           </td>
                           <td className="px-4 py-3">

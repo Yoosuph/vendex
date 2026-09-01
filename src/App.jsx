@@ -81,6 +81,7 @@ function AnimatedAppRoutes() {
 
         {/* BUYER PORTAL */}
         <Route path="/buyer" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerDashboardOverview /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/overview" element={<Navigate to="/buyer" replace />} />
         <Route path="/buyer/orders" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><MyOrders /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/buyer/order-detail/:id" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><OrderDetail /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/buyer/wishlist" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><Wishlist /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
@@ -99,7 +100,9 @@ function AnimatedAppRoutes() {
 
         {/* VENDOR CONSOLE */}
         <Route path="/vendor" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorOverview /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/overview" element={<Navigate to="/vendor" replace />} />
         <Route path="/vendor/products" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorProducts /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/products/new" element={<Navigate to="/vendor/add-product" replace />} />
         <Route path="/vendor/add-product" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorAddProduct /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/vendor/orders" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorOrders /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/vendor/payouts" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorPayouts /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
@@ -109,14 +112,17 @@ function AnimatedAppRoutes() {
 
         {/* ADMIN PORTAL */}
         <Route path="/admin" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminOverview /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/overview" element={<Navigate to="/admin" replace />} />
         <Route path="/admin/vendors" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminVendors /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/admin/buyers" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminBuyers /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/admin/products" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminProducts /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/admin/categories" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminCategories /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/admin/payouts" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminPayoutsCommissions /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/admin/promotions" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminBannersPromotions /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/banners" element={<Navigate to="/admin/promotions" replace />} />
         <Route path="/admin/disputes" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminReviewsDisputes /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/admin/permissions" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminRolesPermissions /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/admin/roles" element={<Navigate to="/admin/permissions" replace />} />
         <Route path="/admin/settings" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminSettings /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/admin/audit-logs" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminAuditLogs /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
 

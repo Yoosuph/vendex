@@ -67,7 +67,7 @@ export default function LoginSignUp() {
         } else if (authUser.role === 'vendor') {
           navigate('/vendor');
         } else {
-          navigate('/');
+          navigate('/buyer');
         }
       } catch (err) {
         setErrorMsg(err.message || 'Authentication failed. Please try again.');
@@ -107,7 +107,7 @@ export default function LoginSignUp() {
       } else if (loggedUser.role === 'vendor') {
         navigate('/vendor');
       } else {
-        navigate('/');
+        navigate('/buyer');
       }
     } catch (err) {
       setErrorMsg(err.message || 'Invalid credentials. Please try again.');

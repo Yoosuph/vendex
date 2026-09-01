@@ -54,14 +54,14 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile, c
                     onClick={handleNavClick}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center px-3 py-2 rounded-lg text-body-sm transition-all duration-150 active:scale-95',
+                        'relative flex items-center px-3 py-2 rounded-xl text-body-sm transition-all duration-200 group active:scale-98',
                         isActive
-                          ? 'text-primary font-bold border-r-4 border-primary bg-primary-container/10'
-                          : 'text-secondary hover:bg-surface-container hover:text-on-surface'
+                          ? 'text-primary font-bold bg-primary/10 border-l-2 border-primary shadow-xs'
+                          : 'text-secondary hover:bg-surface-container/70 hover:text-on-surface'
                       )
                     }
                   >
-                    <span className="material-symbols-outlined mr-sm text-body-lg">{item.icon}</span>
+                    <span className="material-symbols-outlined mr-sm text-body-lg group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
                     <span>{item.name}</span>
                   </NavLink>
                 );

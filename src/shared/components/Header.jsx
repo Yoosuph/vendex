@@ -102,7 +102,7 @@ export default function Header({ isPortal }) {
       >
         {/* Left: Brand Identity */}
         <div className="flex items-center gap-3 md:gap-8 min-w-0" onClick={closeAll}>
-          <VendexLogo size="md" badge={user?.role} linkTo="/" />
+          <VendexLogo size="md" showText={false} badge={user?.role} linkTo="/" />
 
           {/* Desktop Links */}
           {!isPortal && (

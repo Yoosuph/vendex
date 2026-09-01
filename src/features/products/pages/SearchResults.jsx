@@ -81,6 +81,41 @@ export default function SearchResults() {
     }
   }, [products, query, categoryFilter, priceRange, selectedBrands, sortBy]);
 
+  const ITEMS_PER_PAGE = 12;
+  const pageParam = parseInt(params.get('page'), 10);
+  const currentPage = !isNaN(pageParam) && pageParam > 0 ? pageParam : 1;
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    const nextParams = new URLSearchParams(params);
+    if (newPage === 1) {
+      nextParams.delete('page');
+    } else {
+      nextParams.set('page', newPage.toString());
+    }
+    setParams(nextParams);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, '...', totalPages];
+    }
+    if (currentPage >= totalPages - 3) {
+      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+  };
+
   const handleAddToCart = (product) => {
     addToCart(product, 1);
     addToast(`Added "${product.name}" to cart!`, 'success');
@@ -105,12 +140,14 @@ export default function SearchResults() {
   const getCategoryLink = (cat) => {
     const nextParams = new URLSearchParams(params);
     nextParams.set('category', cat);
+    nextParams.delete('page');
     return `/search?${nextParams.toString()}`;
   };
 
   const getClearCategoryLink = () => {
     const nextParams = new URLSearchParams(params);
     nextParams.delete('category');
+    nextParams.delete('page');
     const queryString = nextParams.toString();
     return queryString ? `/search?${queryString}` : '/search';
   };
@@ -235,7 +272,7 @@ export default function SearchResults() {
           {/* Desktop Sort Header */}
           <div className="hidden md:flex items-center justify-between mb-6">
             <p className="text-body-sm text-secondary">
-              Showing <span className="font-bold text-on-surface">{filteredProducts.length}</span> products
+              Showing <span className="font-bold text-on-surface">{(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of <span className="font-bold text-on-surface">{filteredProducts.length}</span> products
             </p>
             <div className="flex items-center gap-3">
               <label htmlFor="sort-desktop" className="text-body-sm text-secondary font-medium">Sort by:</label>
@@ -269,17 +306,76 @@ export default function SearchResults() {
               />
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={handleAddToCart}
-                  onToggleWishlist={toggleWishlist}
-                  isWishlisted={wishlist.some((item) => item.id === product.id)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                {paginatedProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                    onToggleWishlist={toggleWishlist}
+                    isWishlisted={wishlist.some((item) => item.id === product.id)}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination Bar */}
+              {totalPages > 1 && (
+                <div className="mt-8 pt-6 border-t border-outline-variant/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-xs sm:text-sm text-secondary font-medium">
+                    Showing <span className="font-bold text-on-surface">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span>–<span className="font-bold text-on-surface">{Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of <span className="font-bold text-on-surface">{filteredProducts.length}</span> products
+                  </p>
+
+                  <div className="flex items-center gap-1 sm:gap-1.5">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1.5 rounded-xl border border-outline-variant/40 bg-surface-container-lowest text-xs font-semibold text-secondary hover:text-on-surface hover:bg-surface-container disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1"
+                      aria-label="Previous page"
+                    >
+                      <span className="material-symbols-outlined text-base">chevron_left</span>
+                      <span className="hidden sm:inline">Previous</span>
+                    </button>
+
+                    {/* Page Numbers */}
+                    {getPageNumbers().map((p, idx) => {
+                      if (p === '...') {
+                        return (
+                          <span key={`ellipsis-${idx}`} className="px-2 py-1 text-xs text-secondary">
+                            ...
+                          </span>
+                        );
+                      }
+                      const isCurrent = p === currentPage;
+                      return (
+                        <button
+                          key={p}
+                          onClick={() => handlePageChange(p)}
+                          className={cn(
+                            'w-8 h-8 rounded-xl text-xs font-bold transition-all',
+                            isCurrent
+                              ? 'bg-primary text-white shadow-sm'
+                              : 'bg-surface-container-lowest border border-outline-variant/40 text-secondary hover:text-on-surface hover:bg-surface-container'
+                          )}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1.5 rounded-xl border border-outline-variant/40 bg-surface-container-lowest text-xs font-semibold text-secondary hover:text-on-surface hover:bg-surface-container disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1"
+                      aria-label="Next page"
+                    >
+                      <span className="hidden sm:inline">Next</span>
+                      <span className="material-symbols-outlined text-base">chevron_right</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </section>
       </main>
@@ -321,6 +417,7 @@ export default function SearchResults() {
                       onClick={() => {
                         const nextParams = new URLSearchParams(params);
                         nextParams.delete('category');
+                        nextParams.delete('page');
                         setParams(nextParams);
                       }}
                       className={cn(
@@ -336,6 +433,7 @@ export default function SearchResults() {
                         onClick={() => {
                           const nextParams = new URLSearchParams(params);
                           nextParams.set('category', cat);
+                          nextParams.delete('page');
                           setParams(nextParams);
                         }}
                         className={cn(

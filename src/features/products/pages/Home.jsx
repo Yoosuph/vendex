@@ -267,18 +267,20 @@ export default function Home() {
         <section className="bg-surface-container-low py-sm border-b border-outline-variant/30">
           <div className="max-w-container-max mx-auto px-gutter flex items-center gap-sm overflow-x-auto hide-scrollbar">
             {categories.map((cat, idx) => (
-              <button
+              <motion.button
                 key={cat}
+                whileHover={{ scale: 1.04, y: -1 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => navigate(idx === 0 ? '/search' : `/search?category=${encodeURIComponent(cat)}`)}
                 className={cn(
                   'whitespace-nowrap px-6 py-2 rounded-full font-label-md text-label-md transition-all border border-outline-variant/20 shadow-sm',
                   idx === 0
-                    ? 'bg-primary-container text-white'
+                    ? 'bg-primary-container text-white shadow-md'
                     : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high'
                 )}
               >
                 {cat}
-              </button>
+              </motion.button>
             ))}
           </div>
         </section>
@@ -293,14 +295,33 @@ export default function Home() {
                   <p className="text-on-surface-variant font-body-md text-body-md">Discover the most trusted vendors this month.</p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => storeCarouselRef.current?.scrollBy({ left: -300, behavior: 'smooth' })} className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"><span className="material-symbols-outlined">chevron_left</span></button>
-                  <button onClick={() => storeCarouselRef.current?.scrollBy({ left: 300, behavior: 'smooth' })} className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"><span className="material-symbols-outlined">chevron_right</span></button>
+                  <motion.button
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => storeCarouselRef.current?.scrollBy({ left: -300, behavior: 'smooth' })}
+                    className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"
+                  >
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => storeCarouselRef.current?.scrollBy({ left: 300, behavior: 'smooth' })}
+                    className="p-2 border border-outline-variant rounded-full hover:bg-surface-container transition-colors"
+                  >
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </motion.button>
                 </div>
               </div>
               <div ref={storeCarouselRef} className="flex gap-gutter overflow-x-auto hide-scrollbar pb-gutter">
                 {stores.map((store) => (
-                  <div key={store.name} className="flex-shrink-0 w-72 bg-surface-container-lowest rounded-xl shadow-card hover:shadow-card-hover transition-all p-6 text-center group">
-                    <div className="w-20 h-20 mx-auto bg-surface-container-low rounded-full mb-4 overflow-hidden border-2 border-outline-variant/10 group-hover:border-primary transition-colors">
+                  <motion.div
+                    key={store.name}
+                    whileHover={{ y: -6 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    className="flex-shrink-0 w-72 bg-surface-container-lowest rounded-2xl shadow-subtle hover:shadow-xl border border-outline-variant/40 transition-all p-6 text-center group"
+                  >
+                    <div className="w-20 h-20 mx-auto bg-surface-container-low rounded-full mb-4 overflow-hidden border-2 border-outline-variant/10 group-hover:border-primary group-hover:scale-105 transition-all">
                       <img alt={store.name} className="w-full h-full object-cover" src={store.avatar} />
                     </div>
                     <h3 className="font-headline-md text-headline-md text-on-surface mb-1">{store.name}</h3>
@@ -309,10 +330,10 @@ export default function Home() {
                       <span className="text-body-sm font-bold text-on-surface">{store.rating}</span>
                       <span className="text-body-sm text-on-surface-variant">({store.reviews})</span>
                     </div>
- <Button variant="primary-container" fullWidth size="sm" to={`/store/${store.vendorId}`}>
- Visit Store
- </Button>
-                  </div>
+                    <Button variant="primary-container" fullWidth size="sm" to={`/store/${store.vendorId}`}>
+                      Visit Store
+                    </Button>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -333,41 +354,66 @@ export default function Home() {
                 description="Check back soon for trending items."
               />
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 md:gap-5">
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.05 },
+                  },
+                }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 md:gap-5"
+              >
                 {trendingProducts.map((product) => (
-                  <ProductCard
+                  <motion.div
                     key={product.id}
-                    product={product}
-                    onAddToCart={handleAddToCart}
-                    onToggleWishlist={toggleWishlist}
-                    isWishlisted={wishlist.some(item => item.id === product.id)}
-                  />
+                    variants={{
+                      hidden: { opacity: 0, y: 15 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+                    }}
+                  >
+                    <ProductCard
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                      onToggleWishlist={toggleWishlist}
+                      isWishlisted={wishlist.some(item => item.id === product.id)}
+                    />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
             <div className="mt-lg text-center">
- <Button variant="outline" onClick={() => navigate('/search')}>
- View All Trending Items
- </Button>
+              <Button variant="outline" onClick={() => navigate('/search')}>
+                View All Trending Items
+              </Button>
             </div>
           </div>
         </section>
 
         {/* Promotional Banner */}
         <section className="max-w-container-max mx-auto px-gutter py-xl">
-          <div className="bg-surface-container-high rounded-2xl overflow-hidden flex flex-col md:flex-row items-center relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-surface-container-high rounded-3xl overflow-hidden flex flex-col md:flex-row items-center relative border border-outline-variant/40 shadow-xl"
+          >
             <div className="p-lg md:p-xl flex-1 text-center md:text-left z-10">
               <h2 className="font-display-lg text-display-lg text-primary-container mb-4">Unmatched Quality. Verified Vendors.</h2>
               <p className="text-on-surface-variant font-body-lg text-body-lg mb-8 max-w-lg">Every store on Vendex undergoes a rigorous vetting process to ensure you receive only the finest products with world-class support.</p>
- <Button variant="primary-container" size="lg" onClick={() => navigate('/vendor/onboarding')}>
- Become a Vendor
- </Button>
+              <Button variant="primary-container" size="lg" onClick={() => navigate('/vendor/onboarding')}>
+                Become a Vendor
+              </Button>
             </div>
             <div className="flex-1 w-full h-64 md:h-full relative overflow-hidden">
               <div className="absolute inset-0 bg-primary/5"></div>
               <img alt="Promo" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSzjLENOhHx_5CeBqPXG-Cbfr9uRqT_rkGZWd2FFfSwYZqiUa-RB2nfWXosW2n51xkJHoU8fn7SoZVjfkK9aSKQQSRWyrfYKBbGRW6sPkE907vqT9B2rZYwfmO0syjXIx5U9kg2K29EWsYIjiAxasiiQ7iSgbHr1M640gCXEauMG7ieemUk5xDiY72DwJ_Dne_v_jqAiXUxSHiJtLMzCMXgGn-MGe9UwC1Q5Z8yMmlrZS1jvwsjDE-a-OBlTWderxxvem70GpV5j6Q" />
             </div>
-          </div>
+          </motion.div>
         </section>
       </main>
     </>

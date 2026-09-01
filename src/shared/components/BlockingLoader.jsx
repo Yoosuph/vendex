@@ -10,39 +10,53 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
 const BlockingLoaderContext = createContext(null);
-const LOADER_MINIMUM_MS = 1200;
-const INITIAL_READY_TIMEOUT_MS = 8000;
+const LOADER_MINIMUM_MS = 1100;
 
 function TypewrittenBrand() {
   const reduced = useReducedMotion();
-  const word = 'Vendex';
-  const [length, setLength] = useState(0);
+  const letters = ['V', 'e', 'n', 'd', 'e', 'x'];
 
-  useEffect(() => {
-    if (reduced) return;
-
-    let index = 0;
-    const timer = window.setInterval(() => {
-      index += 1;
-      setLength(index);
-      if (index >= word.length) window.clearInterval(timer);
-    }, 110);
-
-    return () => window.clearInterval(timer);
-  }, [reduced]);
+  if (reduced) {
+    return (
+      <div className="flex flex-col items-center gap-1 select-none">
+        <p className="font-sans text-xl sm:text-2xl font-black tracking-tight text-white">
+          Vendex
+        </p>
+        <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/50">
+          Curated Commerce
+        </span>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <p
-        aria-hidden
-        className="font-sans text-lg sm:text-xl font-black tracking-tight text-white flex items-center"
+    <div className="flex flex-col items-center gap-1.5 select-none">
+      <div className="flex items-center">
+        {letters.map((char, index) => (
+          <motion.span
+            key={index}
+            initial={{ opacity: 0, y: 3 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              delay: 0.15 + index * 0.08,
+              duration: 0.22,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="font-sans text-xl sm:text-2xl font-black tracking-tight text-white inline-block"
+          >
+            {char}
+          </motion.span>
+        ))}
+        <span className="blocking-loader-caret ml-1" />
+      </div>
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.65, duration: 0.35 }}
+        className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/50"
       >
-        {reduced ? word : word.slice(0, length)}
-        <span className="blocking-loader-caret" />
-      </p>
-      <span className="font-mono text-[10px] tracking-widest uppercase text-white/50">
         Curated Commerce
-      </span>
+      </motion.span>
     </div>
   );
 }
@@ -60,39 +74,47 @@ function BlockingOverlay({ active, statusText }) {
           aria-label="Vendex is loading"
           data-blocking-loader-overlay
           tabIndex={-1}
-          className="fixed inset-0 z-[9999] flex cursor-wait items-center justify-center bg-black/75 px-5 backdrop-blur-md"
-          initial={reduced ? false : { opacity: 0 }}
+          className="fixed inset-0 z-[9999] flex cursor-wait items-center justify-center bg-black/75 backdrop-blur-md px-5 will-change-[opacity,backdrop-filter]"
+          initial={false}
           animate={{ opacity: 1 }}
-          exit={reduced ? undefined : { opacity: 0 }}
-          transition={{ duration: reduced ? 0 : 0.28, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduced ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           <motion.div
-            className="flex flex-col items-center gap-4 bg-surface-container-lowest/40 p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-xl"
-            initial={reduced ? false : { opacity: 0, y: 12, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduced ? undefined : { opacity: 0, y: 6, scale: 0.98 }}
-            transition={{ duration: reduced ? 0 : 0.38, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center gap-4 text-center select-none"
+            initial={reduced ? false : { opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={reduced ? undefined : { opacity: 0, scale: 0.98 }}
+            transition={{ duration: reduced ? 0 : 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* 3D Isolated Metallic V Crest with Pulse Glow (No background box) */}
-            <div className="relative flex items-center justify-center my-1">
-              <div className="absolute inset-0 scale-150 rounded-full bg-primary/35 blur-2xl animate-pulse pointer-events-none" />
-              <div className="w-16 h-16 sm:w-20 sm:h-20 relative z-10 flex items-center justify-center emblem-pulse">
+            {/* 3D Isolated Metallic V Crest (No background box / plate) */}
+            <div className="relative flex items-center justify-center my-2">
+              <motion.div
+                initial={reduced ? false : { scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="w-20 h-20 sm:w-24 sm:h-24 relative z-10 flex items-center justify-center emblem-pulse"
+              >
                 <img
                   src="/brand/logo.png"
                   alt="Vendex Logo"
-                  className="w-full h-full object-contain drop-shadow-[0_8px_24px_rgba(151,0,27,0.6)]"
+                  className="w-full h-full object-contain pointer-events-none"
                 />
-              </div>
+              </motion.div>
             </div>
 
-            {/* Typewriter text */}
+            {/* Staggered Typewriter Text */}
             <TypewrittenBrand />
 
             {/* Optional Status text */}
             {statusText && (
-              <p className="font-mono text-xs text-white/70 animate-pulse">
+              <motion.p
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-mono text-xs text-white/70 animate-pulse mt-1"
+              >
                 {statusText}
-              </p>
+              </motion.p>
             )}
           </motion.div>
         </motion.div>
@@ -164,8 +186,8 @@ export function BlockingLoaderProvider({ children }) {
         ref={contentRef}
         aria-busy={active}
         className={cn(
-          'flex min-h-full flex-1 flex-col transition-[filter,opacity] duration-500 ease-[cubic-bezier(.16,1,.3,1)]',
-          active && 'pointer-events-none select-none blur-[4px] opacity-80'
+          'flex min-h-full flex-1 flex-col',
+          active && 'pointer-events-none select-none'
         )}
       >
         {children}

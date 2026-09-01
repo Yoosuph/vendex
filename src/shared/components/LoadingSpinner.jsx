@@ -19,12 +19,11 @@ export default function LoadingSpinner({ text = 'Loading...', size = 'md' }) {
       transition={{ duration: 0.3 }}
     >
       <div className="relative flex items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-primary/30 blur-lg animate-pulse pointer-events-none" />
         <div className={cn('relative flex items-center justify-center emblem-pulse z-10', iconSize)}>
           <img
             src="/brand/logo.png"
             alt="Vendex Loading"
-            className="w-full h-full object-contain drop-shadow-[0_4px_16px_rgba(151,0,27,0.5)]"
+            className="w-full h-full object-contain"
           />
         </div>
       </div>

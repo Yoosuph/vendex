@@ -1,17 +1,38 @@
 import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '@/shared/context/AuthContext';
+import LoadingSpinner from '@/shared/components/LoadingSpinner';
 
 export const PrivateRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
-  if (!user) return <Navigate to="/login" replace />;
+  const { user, loading } = useContext(AuthContext);
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <LoadingSpinner size="md" text="Authenticating..." />
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
   if (user.status === 'suspended') return <Navigate to="/" replace />;
   return children;
 };
 
 export const RoleRoute = ({ children, allowedRoles }) => {
-  const { user } = useContext(AuthContext);
-  if (!user) return <Navigate to="/login" replace />;
+  const { user, loading } = useContext(AuthContext);
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <LoadingSpinner size="md" text="Authenticating..." />
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
 
   if (user.status === 'suspended') {
     return <Navigate to="/" replace />;

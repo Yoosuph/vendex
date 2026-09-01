@@ -177,11 +177,23 @@ export default function AdminProducts() {
                   <tbody className="divide-y divide-outline-variant/30 text-sm">
                     {filtered.map((p) => {
                       const vName = getVendorName(p);
+                      const imgSrc = p.image || p.images?.[0];
                       return (
                         <tr key={p.id} className="hover:bg-surface-container-low/50 transition-colors">
                           <td className="px-4 py-3">
-                            <div className="w-10 h-10 rounded-lg bg-surface-container overflow-hidden">
-                              <img alt={p.name} src={p.image} className="w-full h-full object-cover" />
+                            <div className="w-10 h-10 rounded-lg bg-surface-container overflow-hidden flex items-center justify-center">
+                              {imgSrc ? (
+                                <img
+                                  alt={p.name}
+                                  src={imgSrc}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <span className="material-symbols-outlined text-secondary text-base">inventory_2</span>
+                              )}
                             </div>
                           </td>
                           <td className="px-4 py-3 font-semibold text-on-surface">{p.name}</td>

@@ -38,7 +38,7 @@ export default function VendexLogo({
       </div>
 
       {/* Brand Typography */}
-      {showText && !iconOnly && (
+      {showText && !iconOnly ? (
         <div className="flex flex-col leading-none">
           <div className="flex items-center gap-1.5">
             <span
@@ -66,7 +66,16 @@ export default function VendexLogo({
             </span>
           ) : null}
         </div>
-      )}
+      ) : badge ? (
+        <span
+          className={cn(
+            'font-mono uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20',
+            currentSize.badge
+          )}
+        >
+          {badge}
+        </span>
+      ) : null}
     </div>
   );
 
