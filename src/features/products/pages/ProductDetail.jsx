@@ -21,10 +21,39 @@ export default function ProductDetail() {
   const { addToast } = useToast();
   const navigate = useNavigate();
 
+  const [fetchedProduct, setFetchedProduct] = useState(null);
+  const [fetching, setFetching] = useState(false);
+
+  React.useEffect(() => {
+    if (!id) return;
+    const found = products?.find(p => p.id === id || p.slug === id);
+    if (!found) {
+      setFetching(true);
+      import('@/shared/api/client').then(({ apiClient }) => {
+        apiClient(`/products/${id}`)
+          .then(data => {
+            if (data && (data.product || data.id)) {
+              const p = data.product || data;
+              setFetchedProduct({
+                ...p,
+                vendor: p.vendorName || p.vendor?.storeName || p.vendor || 'Vendex Merchant',
+                category: p.categoryName || p.category?.name || p.category || '',
+                brand: p.brand || '',
+                reviews: p.reviews || [],
+                image: p.image || p.images?.[0] || null,
+              });
+            }
+          })
+          .catch(() => {})
+          .finally(() => setFetching(false));
+      });
+    }
+  }, [id, products]);
+
   const product = useMemo(() => {
-    if (!products || products.length === 0) return null;
-    return products.find(p => p.id === id) || null;
-  }, [products, id]);
+    if (!products || products.length === 0) return fetchedProduct;
+    return products.find(p => p.id === id || p.slug === id) || fetchedProduct;
+  }, [products, id, fetchedProduct]);
 
   const isWished = product ? wishlist.some(item => item.id === product.id) : false;
 

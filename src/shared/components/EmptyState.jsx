@@ -7,8 +7,11 @@ export default function EmptyState({
   title = 'Nothing here yet',
   description,
   actionLabel,
+  actionText,
   onAction,
 }) {
+  const label = actionLabel || actionText;
+
   return (
     <motion.div
       className="flex flex-col items-center justify-center gap-3 py-16 px-4 text-center"
@@ -28,13 +31,13 @@ export default function EmptyState({
         <p className="text-on-surface/50 text-body-sm max-w-xs">{description}</p>
       )}
 
-      {actionLabel && onAction && (
+      {label && onAction && (
         <Button
           variant="primary"
           onClick={onAction}
           className="mt-3 rounded-full"
         >
-          {actionLabel}
+          {label}
         </Button>
       )}
     </motion.div>
