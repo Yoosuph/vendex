@@ -12,8 +12,19 @@ export class PrismaService
   private pool: Pool;
 
   constructor() {
-    const connectionString =
-      process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+    const rawUrl =
+      process.env.DATABASE_URL_UNPOOLED ||
+      process.env.DATABASE_URL ||
+      process.env.POSTGRES_URL_NON_POOLING ||
+      process.env.POSTGRES_PRISMA_URL ||
+      process.env.POSTGRES_URL ||
+      '';
+
+    // Strip channel_binding=require if present for pure node-postgres compatibility
+    const connectionString = rawUrl
+      .replace(/([?&])channel_binding=require(&?)/g, '$1')
+      .replace(/[?&]$/, '');
+
     const pool = new Pool({
       connectionString,
       ssl: { rejectUnauthorized: false },
