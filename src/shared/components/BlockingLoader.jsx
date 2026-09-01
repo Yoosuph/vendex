@@ -19,10 +19,10 @@ function TypewrittenBrand() {
   if (reduced) {
     return (
       <div className="flex flex-col items-center gap-1 select-none">
-        <p className="font-sans text-xl sm:text-2xl font-black tracking-tight text-white">
+        <p className="font-sans text-xl sm:text-2xl font-black tracking-tight text-on-surface dark:text-white">
           Vendex
         </p>
-        <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/50">
+        <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-secondary dark:text-white/60">
           Curated Commerce
         </span>
       </div>
@@ -42,7 +42,7 @@ function TypewrittenBrand() {
               duration: 0.22,
               ease: [0.16, 1, 0.3, 1],
             }}
-            className="font-sans text-xl sm:text-2xl font-black tracking-tight text-white inline-block"
+            className="font-sans text-xl sm:text-2xl font-black tracking-tight text-on-surface dark:text-white inline-block"
           >
             {char}
           </motion.span>
@@ -53,7 +53,7 @@ function TypewrittenBrand() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.65, duration: 0.35 }}
-        className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/50"
+        className="font-mono text-[10px] tracking-[0.25em] uppercase text-secondary dark:text-white/60"
       >
         Curated Commerce
       </motion.span>
@@ -74,7 +74,7 @@ function BlockingOverlay({ active, statusText }) {
           aria-label="Vendex is loading"
           data-blocking-loader-overlay
           tabIndex={-1}
-          className="fixed inset-0 z-[9999] flex cursor-wait items-center justify-center bg-black/75 backdrop-blur-md px-5 will-change-[opacity,backdrop-filter]"
+          className="fixed inset-0 z-[9999] flex cursor-wait items-center justify-center bg-slate-50/80 dark:bg-[#07090e]/80 backdrop-blur-md px-5 will-change-[opacity,backdrop-filter]"
           initial={false}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -111,7 +111,7 @@ function BlockingOverlay({ active, statusText }) {
               <motion.p
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="font-mono text-xs text-white/70 animate-pulse mt-1"
+                className="font-mono text-xs text-secondary dark:text-white/70 animate-pulse mt-1"
               >
                 {statusText}
               </motion.p>
