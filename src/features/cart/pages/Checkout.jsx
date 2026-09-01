@@ -73,7 +73,7 @@ import { addressesKey, loadJson } from '@/features/buyer/utils';
  if (cart.length === 0) {
    return (
      <main className="max-w-container-max mx-auto px-gutter py-xl">
-       <div className="text-center py-xl bg-white border border-outline-variant/30 rounded-2xl p-lg">
+        <div className="text-center py-xl bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-lg shadow-subtle">
          <span className="material-symbols-outlined text-[64px] text-secondary mb-md">shopping_cart</span>
          <p className="font-body-lg text-body-lg text-secondary mb-lg">Your cart is empty. Add some items before checking out.</p>
          <Button variant="primary" to="/" size="lg">Go Shopping</Button>
@@ -96,8 +96,8 @@ import { addressesKey, loadJson } from '@/features/buyer/utils';
  </div>
 
  <form className="grid grid-cols-1 lg:grid-cols-12 gap-xl" onSubmit={handleSubmit}>
- {/* Shipping and Payment Info */}
- <section className="lg:col-span-8 flex flex-col gap-lg bg-white p-lg rounded-2xl border border-outline-variant/30 shadow-sm">
+  {/* Shipping and Payment Info */}
+  <section className="lg:col-span-8 flex flex-col gap-lg bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-outline-variant/40 shadow-subtle">
  
        {/* Shipping Address */}
        <div>
@@ -227,7 +227,7 @@ import { addressesKey, loadJson } from '@/features/buyer/utils';
 
  {/* Cart Item Summary & Place Order */}
  <section className="lg:col-span-4 flex flex-col gap-md">
- <div className="bg-white rounded-xl p-md border border-outline-variant/30 shadow-sm flex flex-col gap-md">
+ <div className="bg-surface-container-lowest rounded-2xl p-5 sm:p-6 border border-outline-variant/40 shadow-subtle flex flex-col gap-md">
  <h3 className="font-headline-md text-headline-md border-b border-outline-variant pb-xs">Your Order</h3>
  
  <div className="max-h-64 overflow-y-auto space-y-sm pr-xs hide-scrollbar">

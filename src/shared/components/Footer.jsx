@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import VendexLogo from '@/shared/components/VendexLogo';
 
 export default function Footer() {
   return (
@@ -8,12 +9,9 @@ export default function Footer() {
       <div className="max-w-container-max mx-auto px-6 py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
         {/* Brand */}
         <div className="col-span-2 md:col-span-2">
-          <Link to="/" className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">V</span>
-            </div>
-            <span className="font-bold text-xl text-on-surface tracking-tight">Vendex</span>
-          </Link>
+          <div className="mb-4">
+            <VendexLogo size="lg" linkTo="/" />
+          </div>
           <p className="text-secondary text-body-sm leading-relaxed max-w-sm mb-6">
             The premium multi-vendor marketplace connecting discerning buyers with the world's most trusted brands and independent sellers.
           </p>

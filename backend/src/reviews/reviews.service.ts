@@ -60,7 +60,10 @@ export class ReviewsService {
     };
   }
 
-  async create(productId: string, userId: string, dto: CreateReviewDto) {
+  async create(productId: string, user: any, dto: CreateReviewDto) {
+    const userId = user.sub || user.id;
+    const reviewer = user.name || dto.reviewer || 'Verified Buyer';
+
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
     });
@@ -78,7 +81,7 @@ export class ReviewsService {
         data: {
           productId,
           userId,
-          reviewer: dto.reviewer,
+          reviewer,
           score: dto.score,
           comment: dto.comment,
         },
@@ -93,17 +96,8 @@ export class ReviewsService {
       await tx.product.update({
         where: { id: productId },
         data: {
-          rating: agg._avg.score ?? 0,
+          rating: parseFloat((agg._avg.score ?? 0).toFixed(1)),
           reviewsCount: agg._count,
-        },
-      });
-
-      await tx.auditLog.create({
-        data: {
-          adminName: dto.reviewer,
-          action: 'ADD_REVIEW',
-          resource: `Review on ${product.name}`,
-          status: 'Success',
         },
       });
 

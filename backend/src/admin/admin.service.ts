@@ -344,4 +344,216 @@ export class AdminService {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
   }
+
+  async getPlatformSettings() {
+    let settings = await this.prisma.platformSettings.findUnique({
+      where: { id: 'platform' },
+    });
+    if (!settings) {
+      settings = await this.prisma.platformSettings.create({
+        data: {
+          id: 'platform',
+          platformName: 'Vendex Marketplace',
+          supportEmail: 'support@vendex.com',
+          commissionRate: 10,
+          currency: 'USD',
+          maintenanceMode: false,
+        },
+      });
+    }
+    return settings;
+  }
+
+  async updatePlatformSettings(dto: any, adminUser?: any) {
+    const settings = await this.prisma.platformSettings.upsert({
+      where: { id: 'platform' },
+      update: dto,
+      create: {
+        id: 'platform',
+        platformName: dto.platformName || 'Vendex Marketplace',
+        supportEmail: dto.supportEmail || 'support@vendex.com',
+        commissionRate: dto.commissionRate ?? 10,
+        currency: dto.currency || 'USD',
+        maintenanceMode: dto.maintenanceMode ?? false,
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        adminId: adminUser?.sub || adminUser?.id,
+        adminName: adminUser?.name || adminUser?.email || 'Admin',
+        action: 'SETTINGS_UPDATE',
+        resource: 'Platform Settings Updated',
+        status: 'Success',
+      },
+    });
+
+    return settings;
+  }
+
+  async getBanners() {
+    const banners = await this.prisma.banner.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return { banners };
+  }
+
+  async createBanner(dto: any, adminUser?: any) {
+    const banner = await this.prisma.banner.create({
+      data: {
+        title: dto.title,
+        placement: dto.placement || 'HOME_HERO_CAROUSEL',
+        url: dto.url,
+        image: dto.image,
+        active: dto.active ?? true,
+        startDate: dto.startDate ? new Date(dto.startDate) : null,
+        endDate: dto.endDate ? new Date(dto.endDate) : null,
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        adminId: adminUser?.sub || adminUser?.id,
+        adminName: adminUser?.name || adminUser?.email || 'Admin',
+        action: 'SETTINGS_UPDATE',
+        resource: `Banner created: ${banner.title}`,
+        status: 'Success',
+      },
+    });
+
+    return banner;
+  }
+
+  async updateBanner(id: string, dto: any, adminUser?: any) {
+    const banner = await this.prisma.banner.update({
+      where: { id },
+      data: {
+        ...(dto.title ? { title: dto.title } : {}),
+        ...(dto.placement ? { placement: dto.placement } : {}),
+        ...(dto.url !== undefined ? { url: dto.url } : {}),
+        ...(dto.image !== undefined ? { image: dto.image } : {}),
+        ...(dto.active !== undefined ? { active: dto.active } : {}),
+        ...(dto.startDate !== undefined
+          ? { startDate: dto.startDate ? new Date(dto.startDate) : null }
+          : {}),
+        ...(dto.endDate !== undefined
+          ? { endDate: dto.endDate ? new Date(dto.endDate) : null }
+          : {}),
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        adminId: adminUser?.sub || adminUser?.id,
+        adminName: adminUser?.name || adminUser?.email || 'Admin',
+        action: 'SETTINGS_UPDATE',
+        resource: `Banner updated: ${banner.title}`,
+        status: 'Success',
+      },
+    });
+
+    return banner;
+  }
+
+  async deleteBanner(id: string, adminUser?: any) {
+    const banner = await this.prisma.banner.findUnique({ where: { id } });
+    if (!banner) throw new NotFoundException('Banner not found');
+
+    await this.prisma.banner.delete({ where: { id } });
+
+    await this.prisma.auditLog.create({
+      data: {
+        adminId: adminUser?.sub || adminUser?.id,
+        adminName: adminUser?.name || adminUser?.email || 'Admin',
+        action: 'SETTINGS_UPDATE',
+        resource: `Banner deleted: ${banner.title}`,
+        status: 'Success',
+      },
+    });
+
+    return { message: 'Banner deleted' };
+  }
+
+  async getRoles() {
+    const roles = await this.prisma.adminRole.findMany({
+      include: {
+        assignments: {
+          include: { admin: { select: { id: true, name: true, email: true } } },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    return { roles };
+  }
+
+  async createRole(dto: any, adminUser?: any) {
+    const role = await this.prisma.adminRole.create({
+      data: {
+        name: dto.name,
+        icon: dto.icon || 'shield_person',
+        description: dto.description,
+        isActive: dto.isActive ?? true,
+        permissions: dto.permissions || {},
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        adminId: adminUser?.sub || adminUser?.id,
+        adminName: adminUser?.name || adminUser?.email || 'Admin',
+        action: 'SETTINGS_UPDATE',
+        resource: `Admin role created: ${role.name}`,
+        status: 'Success',
+      },
+    });
+
+    return role;
+  }
+
+  async updateRole(id: string, dto: any, adminUser?: any) {
+    const role = await this.prisma.adminRole.update({
+      where: { id },
+      data: {
+        ...(dto.name ? { name: dto.name } : {}),
+        ...(dto.icon ? { icon: dto.icon } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description }
+          : {}),
+        ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+        ...(dto.permissions ? { permissions: dto.permissions } : {}),
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        adminId: adminUser?.sub || adminUser?.id,
+        adminName: adminUser?.name || adminUser?.email || 'Admin',
+        action: 'SETTINGS_UPDATE',
+        resource: `Admin role updated: ${role.name}`,
+        status: 'Success',
+      },
+    });
+
+    return role;
+  }
+
+  async deleteRole(id: string, adminUser?: any) {
+    const role = await this.prisma.adminRole.findUnique({ where: { id } });
+    if (!role) throw new NotFoundException('Role not found');
+
+    await this.prisma.adminRole.delete({ where: { id } });
+
+    await this.prisma.auditLog.create({
+      data: {
+        adminId: adminUser?.sub || adminUser?.id,
+        adminName: adminUser?.name || adminUser?.email || 'Admin',
+        action: 'SETTINGS_UPDATE',
+        resource: `Admin role deleted: ${role.name}`,
+        status: 'Success',
+      },
+    });
+
+    return { message: 'Role deleted' };
+  }
 }
+

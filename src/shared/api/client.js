@@ -51,17 +51,80 @@ export function clearToken() {
   }
 }
 
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+function onRefreshed(newToken) {
+  refreshSubscribers.forEach((cb) => cb(newToken));
+  refreshSubscribers = [];
+}
+
+async function tryRefreshToken() {
+  if (!refreshToken) return null;
+  try {
+    const res = await fetch(`${API_BASE}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+    if (!res.ok) throw new Error('Refresh failed');
+    const data = await res.json();
+    setToken(data.accessToken, data.refreshToken);
+    return data.accessToken;
+  } catch (err) {
+    clearToken();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+    }
+    return null;
+  }
+}
+
 export async function apiClient(path, options = {}) {
-  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  const isFormData =
+    typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+  const headers = {
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
+    ...options.headers,
+  };
 
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+
+  if (res.status === 401 && refreshToken && !path.includes('/auth/')) {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      const newToken = await tryRefreshToken();
+      isRefreshing = false;
+      if (newToken) {
+        onRefreshed(newToken);
+        headers.Authorization = `Bearer ${newToken}`;
+        res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+      }
+    } else {
+      const retryPromise = new Promise((resolve) => {
+        refreshSubscribers.push(async (newToken) => {
+          if (newToken) {
+            headers.Authorization = `Bearer ${newToken}`;
+            resolve(await fetch(`${API_BASE}${path}`, { ...options, headers }));
+          } else {
+            resolve(res);
+          }
+        });
+      });
+      res = await retryPromise;
+    }
+  }
 
   if (res.status === 401) {
     clearToken();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+    }
     throw new Error('Unauthorized — please log in again');
   }
 
@@ -75,11 +138,18 @@ export async function apiClient(path, options = {}) {
 
   if (!res.ok) {
     const msg =
-      (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) ||
+      (Array.isArray(data?.message)
+        ? data.message.join(', ')
+        : data?.message) ||
       data?.error ||
       `Request failed (${res.status})`;
-    throw new Error(msg);
+    const err = new Error(msg);
+    err.data = data;
+    err.status = res.status;
+    err.issues = data?.issues;
+    throw err;
   }
 
   return data;
 }
+

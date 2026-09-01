@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '@/shared/context/AuthContext';
 import Button from '@/shared/components/Button';
+import VendexLogo from '@/shared/components/VendexLogo';
 import { cn } from '@/utils/cn';
 
 export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile, closeDrawer }) {
@@ -16,21 +17,13 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile, c
     <aside className={cn(
       'flex flex-col',
       // Desktop: floating sticky sidebar
-      !mobile && 'w-64 bg-surface-container-lowest/80 backdrop-blur-xl rounded-2xl border border-outline-variant shadow-lg py-md sticky top-[62px] self-start z-40 h-[calc(100vh-94px)] m-4',
+      !mobile && 'w-64 bg-surface-container-lowest/80 backdrop-blur-xl rounded-2xl border border-outline-variant shadow-lg py-md sticky top-24 self-start z-40 h-[calc(100vh-120px)] mx-4 mb-4 mt-0',
       // Mobile: floating card that fills the drawer
       mobile && 'w-full flex-1 min-h-0 bg-surface-container-lowest/80 backdrop-blur-xl rounded-2xl border border-outline-variant shadow-lg overflow-hidden'
     )}>
       {/* Brand header */}
       <div className="px-md mb-lg">
-        <h1
-          className="font-headline-md text-headline-md font-bold text-primary cursor-pointer"
-          onClick={() => navigate('/')}
-        >
-          {brandLabel || 'Vendex'}
-        </h1>
-        {brandSubtitle && (
-          <p className="font-body-sm text-body-sm text-secondary">{brandSubtitle}</p>
-        )}
+        <VendexLogo size="md" badge={brandSubtitle} linkTo="/" />
       </div>
 
       {/* Navigation sections */}

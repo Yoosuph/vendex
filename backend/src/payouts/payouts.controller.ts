@@ -43,8 +43,12 @@ export class PayoutsController {
   @Roles('admin')
   @Patch(':id/process')
   @HttpCode(HttpStatus.OK)
-  processPayout(@Param('id') id: string, @Body() dto: ProcessPayoutDto) {
-    return this.payoutsService.processPayout(id, dto);
+  processPayout(
+    @Param('id') id: string,
+    @Body() dto: ProcessPayoutDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.payoutsService.processPayout(id, dto, user);
   }
 
   @UseGuards(RolesGuard)

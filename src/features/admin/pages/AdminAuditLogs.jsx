@@ -11,203 +11,179 @@ export default function AdminAuditLogs() {
 
   const [search, setSearch] = useState('');
   const [filterAction, setFilterAction] = useState('all');
-  const [sortDir, setSortDir] = useState('desc'); // newest first
+  const [sortDir, setSortDir] = useState('desc');
 
-  // Sort logs
-  const sortedLogs = useMemo(() => {
-    const logs = [...auditLogs];
-    logs.sort((a, b) => {
-      const da = new Date(a.timestamp || 0);
-      const db = new Date(b.timestamp || 0);
-      return sortDir === 'desc' ? db - da : da - db;
-    });
-    return logs;
-  }, [auditLogs, sortDir]);
+  const logs = auditLogs || [];
 
-  // Filter and search
+  const uniqueActions = useMemo(() => {
+    return [...new Set(logs.map((l) => l.action).filter(Boolean))];
+  }, [logs]);
+
   const filteredLogs = useMemo(() => {
-    return sortedLogs.filter(log => {
-      const matchAction = filterAction === 'all' || (log.action || '').toLowerCase().includes(filterAction.toLowerCase());
-      const matchSearch = !search ||
-        (log.admin || '').toLowerCase().includes(search.toLowerCase()) ||
-        (log.action || '').toLowerCase().includes(search.toLowerCase()) ||
-        (log.resource || '').toLowerCase().includes(search.toLowerCase());
-      return matchAction && matchSearch;
-    });
-  }, [sortedLogs, filterAction, search]);
+    return logs
+      .filter((l) => {
+        const matchSearch =
+          !search ||
+          (l.admin || '').toLowerCase().includes(search.toLowerCase()) ||
+          (l.action || '').toLowerCase().includes(search.toLowerCase()) ||
+          (l.resource || '').toLowerCase().includes(search.toLowerCase());
+        const matchAction = filterAction === 'all' || l.action === filterAction;
+        return matchSearch && matchAction;
+      })
+      .sort((a, b) => {
+        const timeA = new Date(a.timestamp || 0).getTime();
+        const timeB = new Date(b.timestamp || 0).getTime();
+        return sortDir === 'desc' ? timeB - timeA : timeA - timeB;
+      });
+  }, [logs, search, filterAction, sortDir]);
 
-  // Stats
-  const totalActions = auditLogs.length;
-  const uniqueActions = useMemo(() => [...new Set(auditLogs.map(l => l.action))], [auditLogs]);
+  const totalActions = logs.length;
   const topAdmin = useMemo(() => {
     const counts = {};
-    auditLogs.forEach(l => { counts[l.admin] = (counts[l.admin] || 0) + 1; });
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    return sorted[0] || ['N/A', 0];
-  }, [auditLogs]);
+    logs.forEach((l) => {
+      if (l.admin) counts[l.admin] = (counts[l.admin] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort(([, a], [, b]) => b - a);
+    return sorted[0] || ['None', 0];
+  }, [logs]);
 
-  // Action type badge
-  const getActionBadge = (action) => {
-    const a = (action || '').toUpperCase();
-    if (a.includes('DELETE') || a.includes('SUSPEND') || a.includes('CRITICAL')) return 'bg-error/10 text-error';
-    if (a.includes('APPROVE') || a.includes('RESOLVE') || a.includes('ADD')) return 'bg-success-container text-on-success-container';
-    if (a.includes('EDIT') || a.includes('UPDATE')) return 'bg-orange-100 text-warning';
-    return 'bg-surface-container text-on-surface-variant';
-  };
-
-  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading audit logs..." /></div>;
+  if (loading) return <LoadingSpinner text="Loading audit trail..." />;
 
   return (
-    <div className="min-h-screen">
-      <section className="pt-header pb-xl px-gutter max-w-container-max mx-auto">
-        <div className="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
-          <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Audit Logs</h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">Track all administrative actions across the Vendex ecosystem.</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-sm">
-            <Button variant="outline"><span className="material-symbols-outlined text-body-lg">download</span>
-              Export CSV</Button>
+    <div className="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl space-y-6 pb-24">
+      {/* Header */}
+      <div>
+        <h1 className="font-headline-lg text-2xl sm:text-headline-lg text-on-surface">System Audit Trail</h1>
+        <p className="font-body-md text-sm sm:text-base text-secondary">
+          Chronological record of administrative operations, security events, and role updates.
+        </p>
+      </div>
+
+      {/* KPI Cards (2-col mobile, 4-col desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-gutter">
+        <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/40 shadow-subtle">
+          <span className="text-xs font-semibold text-secondary uppercase">Total Events</span>
+          <p className="text-xl sm:text-2xl font-bold text-on-surface mt-1">{totalActions.toLocaleString()}</p>
+        </div>
+        <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/40 shadow-subtle">
+          <span className="text-xs font-semibold text-secondary uppercase">Action Types</span>
+          <p className="text-xl sm:text-2xl font-bold text-primary mt-1">{uniqueActions.length}</p>
+        </div>
+        <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/40 shadow-subtle">
+          <span className="text-xs font-semibold text-secondary uppercase">Active Admin</span>
+          <p className="text-xl sm:text-2xl font-bold text-on-surface mt-1 truncate">{topAdmin[0]}</p>
+          <span className="text-[11px] text-secondary mt-0.5 block">{topAdmin[1]} actions</span>
+        </div>
+        <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/40 shadow-subtle">
+          <span className="text-xs font-semibold text-secondary uppercase">Sort Order</span>
+          <div className="flex gap-1.5 mt-2">
+            <button
+              onClick={() => setSortDir('desc')}
+              className={cn(
+                'px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors',
+                sortDir === 'desc' ? 'bg-primary text-white' : 'bg-surface-container-low text-secondary'
+              )}
+            >
+              Newest
+            </button>
+            <button
+              onClick={() => setSortDir('asc')}
+              className={cn(
+                'px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors',
+                sortDir === 'asc' ? 'bg-primary text-white' : 'bg-surface-container-low text-secondary'
+              )}
+            >
+              Oldest
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
-          <div className="bg-white p-md rounded-xl shadow-sm border border-surface-variant">
-            <div className="flex items-center justify-between mb-sm">
-              <span className="font-label-md text-label-md text-secondary">Total Actions</span>
-              <span className="material-symbols-outlined text-primary">history</span>
-            </div>
-            <div className="font-headline-md text-headline-md">{totalActions.toLocaleString()}</div>
-          </div>
-          <div className="bg-white p-md rounded-xl shadow-sm border border-surface-variant">
-            <div className="flex items-center justify-between mb-sm">
-              <span className="font-label-md text-label-md text-secondary">Unique Types</span>
-              <span className="material-symbols-outlined text-error">gpp_maybe</span>
-            </div>
-            <div className="font-headline-md text-headline-md">{uniqueActions.length}</div>
-          </div>
-          <div className="bg-white p-md rounded-xl shadow-sm border border-surface-variant">
-            <div className="flex items-center justify-between mb-sm">
-              <span className="font-label-md text-label-md text-secondary">Top Admin</span>
-              <span className="material-symbols-outlined text-secondary">person_check</span>
-            </div>
-            <div className="font-headline-md text-headline-md">{topAdmin[0]}</div>
-            <div className="font-meta text-meta text-secondary mt-xs">{topAdmin[1]} actions</div>
-          </div>
-          <div className="bg-white p-md rounded-xl shadow-sm border border-surface-variant">
-            <div className="flex items-center justify-between mb-sm">
-              <span className="font-label-md text-label-md text-secondary">Sort</span>
-              <span className="material-symbols-outlined text-secondary">speed</span>
-            </div>
-            <div className="font-headline-md text-headline-md text-sm">
-              <button
-                className={cn('px-3 py-1 rounded-lg text-xs font-bold', sortDir === 'desc' ? 'bg-primary text-on-primary' : 'bg-surface-container')}
-                onClick={() => setSortDir('desc')}
-              >Newest</button>
-              <button
-                className={cn('px-3 py-1 rounded-lg text-xs font-bold ml-2', sortDir === 'asc' ? 'bg-primary text-on-primary' : 'bg-surface-container')}
-                onClick={() => setSortDir('asc')}
-              >Oldest</button>
-            </div>
-          </div>
+      {/* Filter and Search Bar */}
+      <div className="bg-surface-container-lowest p-3.5 rounded-2xl border border-outline-variant/40 shadow-subtle flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 relative">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+          <input
+            type="text"
+            placeholder="Search by administrator, action, or target resource..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary text-on-surface"
+          />
         </div>
+        <select
+          value={filterAction}
+          onChange={(e) => setFilterAction(e.target.value)}
+          className="bg-surface-container-low border border-outline-variant/40 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary text-on-surface"
+        >
+          <option value="all">All Action Types</option>
+          {uniqueActions.map((a) => (
+            <option key={a} value={a}>{a}</option>
+          ))}
+        </select>
+      </div>
 
-        {/* Search and Filters */}
-        <div className="bg-white p-sm rounded-xl border border-outline-variant shadow-sm mb-md flex flex-wrap gap-md items-center">
-          <div className="flex-1 min-w-[250px] relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-            <input
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 focus:ring-1 focus:ring-primary outline-none text-label-md"
-              placeholder="Search by admin, action, or resource..."
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-          <select
-            className="bg-white border border-outline-variant rounded-lg px-md py-2 text-label-md focus:ring-1 focus:ring-primary outline-none"
-            value={filterAction}
-            onChange={e => setFilterAction(e.target.value)}
-          >
-            <option value="all">All Actions</option>
-            {uniqueActions.map(a => (
-              <option key={a} value={a}>{a}</option>
+      {/* Table / Mobile Cards */}
+      {filteredLogs.length === 0 ? (
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-8 text-center shadow-subtle">
+          <EmptyState icon="history" title="No audit records" description={search ? 'Try adjusting your search criteria.' : 'No audit events recorded.'} />
+        </div>
+      ) : (
+        <>
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {filteredLogs.map((log) => (
+              <div key={log.id} className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-subtle flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-sm text-on-surface">{log.action}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success-container text-success uppercase">
+                    {log.status || 'Success'}
+                  </span>
+                </div>
+                <p className="text-xs text-secondary">{log.resource}</p>
+                <div className="flex items-center justify-between border-t border-outline-variant/30 pt-2 text-[11px] text-secondary">
+                  <span>By: <strong className="text-on-surface">{log.admin}</strong></span>
+                  <span>{log.timestamp}</span>
+                </div>
+              </div>
             ))}
-          </select>
-        </div>
-
-        {/* Log Table */}
-        {filteredLogs.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-surface-variant overflow-hidden">
-            <EmptyState icon="history" title="No logs found" description={search || filterAction !== 'all' ? 'Try adjusting your filters.' : 'No audit logs recorded yet.'} />
           </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-surface-variant overflow-hidden">
-            <div className="hide-scrollbar overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-surface-container-low border-b border-outline-variant">
-                    <th className="px-md py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Timestamp</th>
-                    <th className="px-md py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Administrator</th>
-                    <th className="px-md py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Action Type</th>
-                    <th className="px-md py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Resource</th>
-                    <th className="px-md py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Status</th>
-                    <th className="px-md py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">IP Address</th>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-surface-container-lowest rounded-2xl shadow-subtle border border-outline-variant/40 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-surface-container-low text-secondary text-xs uppercase tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Timestamp</th>
+                    <th className="px-4 py-3 font-semibold">Administrator</th>
+                    <th className="px-4 py-3 font-semibold">Action</th>
+                    <th className="px-4 py-3 font-semibold">Resource</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold text-right">IP Address</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant">
-                  {filteredLogs.map((log, i) => {
-                    const isFailed = (log.status || '').toLowerCase() === 'failed' || (log.status || '').toLowerCase() === 'critical';
-                    return (
-                      <tr key={log.id || i} className={cn('hover:bg-surface-container-lowest transition-colors group', isFailed && 'bg-error/5')}>
-                        <td className="px-md py-4">
-                          <div className="flex flex-col">
-                            <span className="font-body-md text-body-md">{log.timestamp || 'N/A'}</span>
-                          </div>
-                        </td>
-                        <td className="px-md py-4">
-                          <div className="flex items-center gap-sm">
-                            <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-label-md text-primary">
-                              {log.admin ? log.admin.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'SC'}
-                            </div>
-                            <span className="font-body-md text-body-md">{log.admin || 'System Core'}</span>
-                          </div>
-                        </td>
-                        <td className="px-md py-4">
-                          <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold', getActionBadge(log.action))}>
-                            {log.action || 'UNKNOWN'}
-                          </span>
-                        </td>
-                        <td className="px-md py-4">
-                          <div className="flex items-center gap-xs">
-                            <span className="material-symbols-outlined text-on-surface-variant text-body-lg">
-                              {isFailed ? 'dns' : 'inventory_2'}
-                            </span>
-                            <span className={cn('font-body-sm text-body-sm', isFailed && 'text-error font-bold')}>
-                              {log.resource || 'N/A'}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-md py-4">
-                          <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface">
-                            <span className={cn('w-1.5 h-1.5 rounded-full', isFailed ? 'bg-error' : 'bg-success')}></span>
-                            {log.status || 'Success'}
-                          </span>
-                        </td>
-                        <td className="px-md py-4 font-meta text-meta text-secondary">{log.ip || 'N/A'}</td>
-                      </tr>
-                    );
-                  })}
+                <tbody className="divide-y divide-outline-variant/30 text-sm">
+                  {filteredLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-surface-container-low/50 transition-colors">
+                      <td className="px-4 py-3 text-secondary text-xs">{log.timestamp}</td>
+                      <td className="px-4 py-3 font-semibold text-on-surface">{log.admin}</td>
+                      <td className="px-4 py-3 font-medium text-primary">{log.action}</td>
+                      <td className="px-4 py-3 text-on-surface truncate max-w-xs">{log.resource}</td>
+                      <td className="px-4 py-3">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success-container text-success">
+                          {log.status || 'Success'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono text-secondary text-xs">{log.ip || '127.0.0.1'}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-            <div className="bg-surface-container-lowest px-md py-sm border-t border-outline-variant flex items-center justify-between">
-              <span className="font-label-sm text-label-sm text-secondary">Showing {filteredLogs.length} of {totalActions} entries</span>
-            </div>
           </div>
-        )}
-      </section>
+        </>
+      )}
     </div>
   );
 }

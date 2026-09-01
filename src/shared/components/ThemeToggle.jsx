@@ -43,8 +43,10 @@ export default function ThemeToggle() {
     const next = !isDark;
     if (next) {
       root.classList.add('dark');
+      root.classList.remove('light');
     } else {
       root.classList.remove('dark');
+      root.classList.add('light');
     }
     localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light');
     setIsDark(next);

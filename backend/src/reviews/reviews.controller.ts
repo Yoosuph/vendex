@@ -36,7 +36,7 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('buyer')
+  @Roles('buyer', 'admin')
   @Post('products/:productId/reviews')
   @HttpCode(HttpStatus.CREATED)
   create(
@@ -44,7 +44,7 @@ export class ReviewsController {
     @CurrentUser() user: any,
     @Body() dto: CreateReviewDto,
   ) {
-    return this.reviewsService.create(productId, user.sub, dto);
+    return this.reviewsService.create(productId, user, dto);
   }
 
   @UseGuards(JwtAuthGuard)

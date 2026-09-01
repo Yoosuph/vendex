@@ -1,6 +1,5 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
@@ -11,104 +10,157 @@ import { cn } from '@/utils/cn';
 export default function VendorOrders() {
   const { orders, loading } = useContext(MarketplaceContext);
   const { user } = useContext(AuthContext);
+  const [filter, setFilter] = useState('All');
 
   const vendorOrders = useMemo(() => {
     if (!user?.vendorId) return [];
-    return orders.filter(o =>
-      o.items?.some(item => item.vendorId === user.vendorId)
+    return (orders || []).filter((o) =>
+      o.items?.some((item) => item.vendorId === user.vendorId)
     );
   }, [orders, user]);
+
+  const filteredOrders = useMemo(() => {
+    if (filter === 'All') return vendorOrders;
+    return vendorOrders.filter((o) => o.status === filter);
+  }, [vendorOrders, filter]);
 
   if (loading) return <LoadingSpinner text="Loading orders..." />;
 
   const statusBadgeColor = (status) => {
     switch (status) {
-      case 'Urgent': return 'bg-error-container text-on-error-container';
-      case 'Processing': return 'bg-secondary-container text-on-secondary-container';
-      case 'Delayed': return 'bg-error-container text-on-error-container';
-      case 'Shipped': return 'bg-outline-variant/30 text-on-surface-variant';
-      default: return 'bg-surface-container-high text-on-surface-variant';
+      case 'Delivered':
+        return 'bg-success-container text-success';
+      case 'Processing':
+      case 'In Transit':
+      case 'Shipped':
+        return 'bg-primary/10 text-primary';
+      case 'Cancelled':
+      case 'Delayed':
+        return 'bg-error-container text-error';
+      default:
+        return 'bg-surface-container text-secondary';
     }
   };
 
   return (
-    <div className="max-w-container-max mx-auto px-gutter py-xl min-h-[calc(100vh-64px)]">
-      <div className="flex-1 transition-all duration-300">
-        <div className="flex justify-between items-end mb-lg">
-          <div>
-            <h1 className="font-headline-lg text-headline-lg text-on-surface">Order Management</h1>
-            <p className="text-on-surface-variant font-body-md text-body-md mt-base">Manage vendor fulfillments and track shipping status.</p>
-          </div>
-          <div className="flex gap-sm">
-            <Button variant="primary"><span className="material-symbols-outlined text-body-lg">filter_list</span>
-              Filters</Button>
-            <Button variant="primary-container"><span className="material-symbols-outlined text-body-lg">download</span>
-              Export CSV</Button>
-          </div>
+    <div className="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl space-y-6 pb-24 overflow-x-hidden w-full">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-headline-lg text-2xl sm:text-headline-lg text-on-surface">Order Management</h1>
+          <p className="font-body-md text-sm sm:text-base text-secondary">
+            Manage vendor fulfillments and track customer shipping status.
+          </p>
         </div>
+      </div>
 
-        {vendorOrders.length === 0 ? (
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar">
+        {['All', 'Processing', 'In Transit', 'Delivered', 'Cancelled'].map((s) => {
+          const count = s === 'All' ? vendorOrders.length : vendorOrders.filter((o) => o.status === s).length;
+          return (
+            <button
+              key={s}
+              onClick={() => setFilter(s)}
+              className={cn(
+                'px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors',
+                filter === s
+                  ? 'bg-primary text-white'
+                  : 'bg-surface-container-lowest text-secondary border border-outline-variant/40'
+              )}
+            >
+              {s} ({count})
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredOrders.length === 0 ? (
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-8 text-center shadow-subtle">
           <EmptyState
             icon="receipt_long"
-            title="No orders yet"
+            title="No orders found"
             description="Orders containing your products will appear here."
           />
-        ) : (
-          <div className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-surface-container-low border-b border-outline-variant">
-                <tr>
-                  <th className="px-sm py-4 font-label-md text-label-md text-on-surface-variant">Order ID</th>
-                  <th className="px-sm py-4 font-label-md text-label-md text-on-surface-variant">Customer</th>
-                  <th className="px-sm py-4 font-label-md text-label-md text-on-surface-variant">Date</th>
-                  <th className="px-sm py-4 font-label-md text-label-md text-on-surface-variant">Total</th>
-                  <th className="px-sm py-4 font-label-md text-label-md text-on-surface-variant">Status</th>
-                  <th className="px-sm py-4 font-label-md text-label-md text-on-surface-variant">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant">
-                {vendorOrders.map(order => {
-                  const ship = order.shippingDetails || {};
-                  const initials = (ship.firstName?.[0] || '') + (ship.lastName?.[0] || '');
-                  return (
-                    <tr key={order.id} className="hover:bg-surface-container-low transition-colors cursor-pointer">
-                      <td className="px-sm py-4 font-body-md text-body-md font-bold text-primary">#{order.id}</td>
-                      <td className="px-sm py-4">
-                        <div className="flex items-center gap-xs">
-                          <div className="h-8 w-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-label-sm text-label-sm">
-                            {initials || '?'}
-                          </div>
-                          <span className="font-body-md text-body-md text-on-surface">
-                            {ship.firstName && ship.lastName ? `${ship.firstName} ${ship.lastName}` : 'Customer'}
+        </div>
+      ) : (
+        <>
+          {/* Dedicated Mobile Order Cards (Mobile Only) */}
+          <div className="md:hidden space-y-3">
+            {filteredOrders.map((order) => {
+              const ship = order.shippingDetails || {};
+              const customerName = ship.firstName && ship.lastName ? `${ship.firstName} ${ship.lastName}` : 'Customer';
+              const vendorItems = (order.items || []).filter((i) => i.vendorId === user?.vendorId);
+              return (
+                <div
+                  key={order.id}
+                  className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-subtle flex flex-col gap-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-primary text-sm">#{order.displayId || order.id}</span>
+                    <span className={cn('px-2.5 py-0.5 rounded-full text-[11px] font-bold', statusBadgeColor(order.status))}>
+                      {order.status || 'Pending'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-secondary border-t border-outline-variant/30 pt-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-base">person</span>
+                      <span className="font-semibold text-on-surface">{customerName}</span>
+                    </div>
+                    <span>{order.date || 'Recent'}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-outline-variant/30 pt-2">
+                    <span className="text-xs text-secondary font-medium">
+                      {vendorItems.length} item{vendorItems.length !== 1 ? 's' : ''}
+                    </span>
+                    <span className="font-bold text-base text-on-surface buyer-price">
+                      ${(order.total || 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-surface-container-lowest rounded-2xl shadow-subtle border border-outline-variant/40 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-surface-container-low text-secondary text-xs uppercase tracking-wider">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Order ID</th>
+                    <th className="px-4 py-3 font-semibold">Customer</th>
+                    <th className="px-4 py-3 font-semibold">Date</th>
+                    <th className="px-4 py-3 font-semibold text-right">Total</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/30 text-sm">
+                  {filteredOrders.map((order) => {
+                    const ship = order.shippingDetails || {};
+                    const customerName = ship.firstName && ship.lastName ? `${ship.firstName} ${ship.lastName}` : 'Customer';
+                    return (
+                      <tr key={order.id} className="hover:bg-surface-container-low/50 transition-colors">
+                        <td className="px-4 py-3 font-mono font-bold text-primary">#{order.displayId || order.id}</td>
+                        <td className="px-4 py-3 font-medium text-on-surface">{customerName}</td>
+                        <td className="px-4 py-3 text-secondary">{order.date || 'Recent'}</td>
+                        <td className="px-4 py-3 text-right font-mono font-bold text-on-surface">${(order.total || 0).toFixed(2)}</td>
+                        <td className="px-4 py-3">
+                          <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-semibold', statusBadgeColor(order.status))}>
+                            {order.status || 'Pending'}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-sm py-4 font-body-md text-body-md text-on-surface-variant">{order.date}</td>
-                      <td className="px-sm py-4 font-body-md text-body-md font-medium text-on-surface">${(order.total || 0).toFixed(2)}</td>
-                      <td className="px-sm py-4">
-                        <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-label-sm', statusBadgeColor(order.status))}>
-                          <span className={cn('w-1.5 h-1.5 rounded-full mr-1.5', order.status === 'Shipped' ? 'bg-outline' : 'bg-error')}></span>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-sm py-4">
-                        <Button variant="ghost">View Details</Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <div className="px-sm py-4 flex items-center justify-between bg-surface-container-low border-t border-outline-variant">
-              <span className="font-body-sm text-body-sm text-on-surface-variant">Showing 1-{vendorOrders.length} of {vendorOrders.length} orders</span>
-              <div className="flex gap-xs">
-                <Button variant="primary"><span className="material-symbols-outlined">chevron_left</span></Button>
-                <Button variant="primary"><span className="material-symbols-outlined">chevron_right</span></Button>
-              </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

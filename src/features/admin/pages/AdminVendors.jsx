@@ -16,13 +16,14 @@ export default function AdminVendors() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dialog, setDialog] = useState({ open: false, title: '', message: '', action: null });
   const [selectedVendor, setSelectedVendor] = useState(null);
-  const [expandedVendor, setExpandedVendor] = useState(null);
 
-  const vendors = useMemo(() => users.filter(u => u.role === 'vendor'), [users]);
+  const vendors = useMemo(() => (users || []).filter((u) => u.role === 'vendor'), [users]);
 
   const filtered = useMemo(() => {
-    return vendors.filter(v => {
-      const matchSearch = !search || (v.name || '').toLowerCase().includes(search.toLowerCase()) ||
+    return vendors.filter((v) => {
+      const matchSearch =
+        !search ||
+        (v.name || '').toLowerCase().includes(search.toLowerCase()) ||
         (v.email || '').toLowerCase().includes(search.toLowerCase()) ||
         (v.vendorId || '').toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === 'all' || (v.status || 'pending') === statusFilter;
@@ -31,7 +32,7 @@ export default function AdminVendors() {
   }, [vendors, search, statusFilter]);
 
   const getProductCount = (vendorId) => {
-    return products.filter(p => p.vendorId === vendorId).length;
+    return (products || []).filter((p) => p.vendorId === vendorId).length;
   };
 
   const handleApprove = (vendor) => {
@@ -43,7 +44,7 @@ export default function AdminVendors() {
       action: () => {
         approveVendor(vendor.id, user?.name || 'Admin');
         setDialog({ open: false, title: '', message: '', action: null });
-      }
+      },
     });
   };
 
@@ -57,132 +58,193 @@ export default function AdminVendors() {
         suspendUser(vendor.id, user?.name || 'Admin');
         setDialog({ open: false, title: '', message: '', action: null });
       },
-      variant: 'danger'
+      variant: 'danger',
     });
   };
 
-  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading vendors..." /></div>;
+  if (loading) return <LoadingSpinner text="Loading vendors..." />;
 
   return (
     <>
-      <div className="min-h-screen">
-        <div className="mt-header p-gutter max-w-container-max mx-auto">
-          <div className="flex justify-between items-end mb-lg">
-            <div>
-              <h2 className="font-headline-lg text-headline-lg text-on-surface">Vendor Management</h2>
-              <p className="font-body-md text-body-md text-on-surface-variant">Manage your multi-vendor marketplace partners and their performance.</p>
-            </div>
-            <div className="flex gap-sm">
-              <button className="flex items-center gap-xs px-md py-sm bg-white border border-outline-variant rounded-lg text-secondary hover:bg-surface-container transition-all font-label-md text-label-md">
-                <span className="material-symbols-outlined">download</span>
-                Export CSV
-              </button>
-            </div>
+      <div className="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl space-y-6 pb-24">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="font-headline-lg text-2xl sm:text-headline-lg text-on-surface">Vendor Management</h1>
+            <p className="font-body-md text-sm sm:text-base text-secondary">
+              Review marketplace partners, approve onboarding requests, and monitor compliance.
+            </p>
           </div>
+        </div>
 
-          <div className="bg-white p-sm rounded-xl border border-outline-variant shadow-sm mb-md flex flex-wrap gap-md items-center">
-            <div className="flex-1 min-w-[300px] relative">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-              <input
-                className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 focus:ring-1 focus:ring-primary focus:border-primary outline-none text-label-md"
-                placeholder="Search by vendor name or ID..."
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-sm">
-              <select
-                className="bg-white border border-outline-variant rounded-lg px-md py-2 text-label-md focus:ring-1 focus:ring-primary outline-none min-w-[140px]"
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-              >
-                <option value="all">All Statuses</option>
-                <option value="approved">Active</option>
-                <option value="pending">Pending</option>
-                <option value="suspended">Suspended</option>
-              </select>
-            </div>
+        {/* Search & Filter Bar */}
+        <div className="bg-surface-container-lowest p-3.5 rounded-2xl border border-outline-variant/40 shadow-subtle flex flex-col sm:flex-row gap-3 items-center">
+          <div className="flex-1 w-full relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+            <input
+              className="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary"
+              placeholder="Search vendor name, email, or ID..."
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
+          <div className="w-full sm:w-auto">
+            <select
+              className="w-full sm:w-auto bg-surface-container-low border border-outline-variant/40 rounded-xl px-3 py-2 text-sm font-semibold outline-none"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="approved">Active</option>
+              <option value="pending">Pending Review</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+        </div>
 
-          {filtered.length === 0 ? (
-            <EmptyState icon="storefront" title="No vendors found" description={search ? 'Try adjusting your search or filter.' : 'No vendors are registered yet.'} />
-          ) : (
-            <div className="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-8 text-center shadow-subtle">
+            <EmptyState
+              icon="storefront"
+              title="No vendors found"
+              description={search ? 'Try adjusting your search or filter.' : 'No vendors are registered yet.'}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Dedicated Mobile Cards (Mobile Only) */}
+            <div className="md:hidden space-y-3">
+              {filtered.map((v) => {
+                const pCount = getProductCount(v.vendorId || v.id);
+                return (
+                  <div
+                    key={v.id}
+                    className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-subtle flex flex-col gap-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                          {v.name ? v.name.slice(0, 2).toUpperCase() : 'VN'}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-sm text-on-surface">{v.name || 'Store'}</h3>
+                          <p className="text-xs text-secondary">{v.email || 'No email'}</p>
+                        </div>
+                      </div>
+                      <span
+                        className={cn(
+                          'text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider',
+                          v.status === 'approved'
+                            ? 'bg-success-container text-success'
+                            : v.status === 'suspended'
+                            ? 'bg-error-container text-error'
+                            : 'bg-warning-container text-warning'
+                        )}
+                      >
+                        {v.status || 'Pending'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-secondary border-t border-outline-variant/30 pt-2">
+                      <span>Products: <strong className="text-on-surface font-mono">{pCount}</strong></span>
+                      <span className="font-mono text-[11px]">ID: {v.vendorId || v.id}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 border-t border-outline-variant/30 pt-2">
+                      {v.status !== 'approved' && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          fullWidth
+                          onClick={() => handleApprove(v)}
+                        >
+                          Approve
+                        </Button>
+                      )}
+                      {v.status !== 'suspended' && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          fullWidth
+                          onClick={() => handleSuspend(v)}
+                        >
+                          Suspend
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View (Tablet & Desktop Only) */}
+            <div className="hidden md:block bg-surface-container-lowest rounded-2xl shadow-subtle border border-outline-variant/40 overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-surface-container-low border-b border-outline-variant">
-                      <th className="px-md py-sm font-label-md text-label-md text-secondary uppercase tracking-wider">Vendor</th>
-                      <th className="px-md py-sm font-label-md text-label-md text-secondary uppercase tracking-wider">Email</th>
-                      <th className="px-md py-sm font-label-md text-label-md text-secondary uppercase tracking-wider">ID</th>
-                      <th className="px-md py-sm font-label-md text-label-md text-secondary uppercase tracking-wider text-center">Products</th>
-                      <th className="px-md py-sm font-label-md text-label-md text-secondary uppercase tracking-wider">Status</th>
-                      <th className="px-md py-sm font-label-md text-label-md text-secondary uppercase tracking-wider text-center">Actions</th>
+                <table className="w-full text-left">
+                  <thead className="bg-surface-container-low text-secondary text-xs uppercase tracking-wider">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">Vendor</th>
+                      <th className="px-4 py-3 font-semibold">Email</th>
+                      <th className="px-4 py-3 font-semibold">Vendor ID</th>
+                      <th className="px-4 py-3 font-semibold text-center">Products</th>
+                      <th className="px-4 py-3 font-semibold">Status</th>
+                      <th className="px-4 py-3 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant">
-                    {filtered.map(v => (
-                      <tr key={v.id} className="hover:bg-surface-container-lowest transition-colors group">
-                        <td className="px-md py-md">
-                          <div className="flex items-center gap-sm">
-                            <div className="h-10 w-10 rounded-lg bg-surface-container flex items-center justify-center font-bold text-primary">
-                              {v.name ? v.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'VN'}
+                  <tbody className="divide-y divide-outline-variant/30 text-sm">
+                    {filtered.map((v) => {
+                      const pCount = getProductCount(v.vendorId || v.id);
+                      return (
+                        <tr key={v.id} className="hover:bg-surface-container-low/50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                                {v.name ? v.name.slice(0, 2).toUpperCase() : 'VN'}
+                              </div>
+                              <span className="font-semibold text-on-surface">{v.name || 'Store'}</span>
                             </div>
-                            <div>
-                              <div className="font-label-md text-label-md text-on-surface">{v.name || 'Unknown'}</div>
-                              <div className="font-meta text-meta text-on-surface-variant">ID: {v.vendorId || v.id}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-md py-md font-body-md text-body-md text-on-surface-variant">{v.email || 'N/A'}</td>
-                        <td className="px-md py-md font-body-md text-body-md">{v.vendorId || v.id}</td>
-                        <td className="px-md py-md font-body-md text-body-md text-center">{getProductCount(v.vendorId || v.id)}</td>
-                        <td className="px-md py-md">
-                          <span className={cn(
-                            'inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold',
-                            v.status === 'approved' ? 'bg-success-container text-on-success-container' :
-                            v.status === 'suspended' ? 'bg-error-container text-on-error-container' :
-                            'bg-info-container text-on-info-container'
-                          )}>
-                            <span className={cn(
-                              'w-1.5 h-1.5 rounded-full',
-                              v.status === 'approved' ? 'bg-green-600' :
-                              v.status === 'suspended' ? 'bg-red-600' :
-                              'bg-blue-600'
-                            )}></span>
-                            {(v.status || 'PENDING').toUpperCase()}
-                          </span>
-                        </td>
-                        <td className="px-md py-md text-center">
-                          <div className="flex justify-center gap-xs">
-                            {v.status !== 'approved' && (
-                              <Button variant="primary" size="sm" onClick={() => handleApprove(v)}>Approve</Button>
-                            )}
-                            {v.status !== 'suspended' && (
-                              <Button variant="danger" size="sm" onClick={() => handleSuspend(v)}>Suspend</Button>
-                            )}
-                            <button
-                              className="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant"
-                              onClick={() => setExpandedVendor(expandedVendor === v.id ? null : v.id)}
+                          </td>
+                          <td className="px-4 py-3 text-secondary">{v.email || 'N/A'}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-secondary">{v.vendorId || v.id}</td>
+                          <td className="px-4 py-3 text-center font-mono font-semibold">{pCount}</td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={cn(
+                                'px-2.5 py-0.5 rounded-full text-xs font-semibold',
+                                v.status === 'approved'
+                                  ? 'bg-success-container text-success'
+                                  : v.status === 'suspended'
+                                  ? 'bg-error-container text-error'
+                                  : 'bg-warning-container text-warning'
+                              )}
                             >
-                              <span className="material-symbols-outlined text-body-lg">
-                                {expandedVendor === v.id ? 'expand_less' : 'visibility'}
-                              </span>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                              {(v.status || 'Pending').toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {v.status !== 'approved' && (
+                                <Button variant="primary" size="sm" onClick={() => handleApprove(v)}>
+                                  Approve
+                                </Button>
+                              )}
+                              {v.status !== 'suspended' && (
+                                <Button variant="danger" size="sm" onClick={() => handleSuspend(v)}>
+                                  Suspend
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-              <div className="px-md py-sm border-t border-outline-variant flex justify-between items-center bg-surface-container-low">
-                <div className="font-meta text-meta text-on-surface-variant">Showing {filtered.length} of {vendors.length} vendors</div>
-              </div>
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
 
       <ConfirmDialog

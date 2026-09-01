@@ -1,5 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
@@ -15,17 +15,29 @@ export default function AdminBuyers() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
   const [dialog, setDialog] = useState({ open: false, title: '', message: '', action: null });
+  const [search, setSearch] = useState('');
 
-  const buyers = useMemo(() => users.filter(u => u.role === 'buyer'), [users]);
+  const buyers = useMemo(() => (users || []).filter((u) => u.role === 'buyer'), [users]);
 
   // Compute stats per buyer
   const buyerStats = useMemo(() => {
-    return buyers.map(b => {
-      const buyerOrders = orders.filter(o => o.buyerId === b.id || o.userId === b.id);
+    return buyers.map((b) => {
+      const buyerOrders = (orders || []).filter((o) => o.buyerId === b.id || o.userId === b.id);
       const totalSpent = buyerOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
       return { ...b, orderCount: buyerOrders.length, totalSpent, buyerOrders };
     });
   }, [buyers, orders]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return buyerStats;
+    const q = search.toLowerCase();
+    return buyerStats.filter(
+      (b) =>
+        (b.name || '').toLowerCase().includes(q) ||
+        (b.email || '').toLowerCase().includes(q) ||
+        (b.id || '').toLowerCase().includes(q)
+    );
+  }, [buyerStats, search]);
 
   const totalBuyers = buyers.length;
   const avgSpend = useMemo(() => {
@@ -49,177 +61,241 @@ export default function AdminBuyers() {
         setDialog({ open: false, title: '', message: '', action: null });
         setDrawerOpen(false);
       },
-      variant: 'danger'
+      variant: 'danger',
     });
   };
 
-  if (loading) return <div className="pt-header"><LoadingSpinner text="Loading buyers..." /></div>;
+  if (loading) return <LoadingSpinner text="Loading buyers..." />;
 
   return (
     <>
-      <div className="pt-header min-h-screen">
-        <div className="p-gutter max-w-container-max mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-lg gap-md">
-            <div>
-              <h2 className="font-headline-lg text-headline-lg text-on-surface">Buyer Management</h2>
-              <p className="font-body-md text-body-md text-on-surface-variant mt-1">Review and manage your marketplace ecosystem buyers.</p>
-            </div>
-            <div className="flex gap-sm">
-              <Button variant="secondary"><span className="material-symbols-outlined text-body-lg">filter_list</span>
-                Filter</Button>
-              <Button variant="secondary"><span className="material-symbols-outlined text-body-lg">file_download</span>
-                Export</Button>
-            </div>
-          </div>
+      <div className="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl space-y-6 pb-24">
+        {/* Header */}
+        <div>
+          <h1 className="font-headline-lg text-2xl sm:text-headline-lg text-on-surface">Buyer Management</h1>
+          <p className="font-body-md text-sm sm:text-base text-secondary">
+            Review customer activity, lifetime spend, and manage buyer account standing.
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-lg">
-            <div className="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm">
-              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total Buyers</p>
-              <div className="flex items-end justify-between mt-xs">
-                <span className="font-headline-md text-headline-md text-on-surface">{totalBuyers.toLocaleString()}</span>
-              </div>
-            </div>
-            <div className="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm">
-              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Avg. Spend</p>
-              <div className="flex items-end justify-between mt-xs">
-                <span className="font-headline-md text-headline-md text-on-surface">${avgSpend.toFixed(2)}</span>
-              </div>
-            </div>
-            <div className="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm">
-              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Risk Flagged</p>
-              <div className="flex items-end justify-between mt-xs">
-                <span className="font-headline-md text-headline-md text-on-surface">{buyers.filter(b => b.status === 'suspended' || b.status === 'flagged').length}</span>
-                <span className="text-error text-sm flex items-center font-medium">
-                  <span className="material-symbols-outlined text-sm mr-1">warning</span>Critical
-                </span>
-              </div>
-            </div>
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-gutter">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/40 shadow-subtle">
+            <span className="text-secondary text-xs font-semibold uppercase tracking-wider">Total Buyers</span>
+            <p className="text-xl sm:text-2xl font-bold text-on-surface mt-1">{totalBuyers.toLocaleString()}</p>
           </div>
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/40 shadow-subtle">
+            <span className="text-secondary text-xs font-semibold uppercase tracking-wider">Avg. Spend</span>
+            <p className="text-xl sm:text-2xl font-bold text-primary buyer-price mt-1">${avgSpend.toFixed(2)}</p>
+          </div>
+          <div className="col-span-2 sm:col-span-1 bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/40 shadow-subtle">
+            <span className="text-secondary text-xs font-semibold uppercase tracking-wider">Suspended</span>
+            <p className="text-xl sm:text-2xl font-bold text-error mt-1">
+              {buyers.filter((b) => b.status === 'suspended').length}
+            </p>
+          </div>
+        </div>
 
-          {buyerStats.length === 0 ? (
-            <EmptyState icon="group" title="No buyers yet" description="Buyers will appear once they register on the platform." />
-          ) : (
-            <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+        {/* Search */}
+        <div className="bg-surface-container-lowest p-3.5 rounded-2xl border border-outline-variant/40 shadow-subtle">
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+            <input
+              type="text"
+              placeholder="Search by buyer name, email, or ID..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary"
+            />
+          </div>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-8 text-center shadow-subtle">
+            <EmptyState
+              icon="group"
+              title="No buyers found"
+              description={search ? 'Try adjusting your search query.' : 'Buyers will appear once they register on the platform.'}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Dedicated Mobile Buyer Cards */}
+            <div className="md:hidden space-y-3">
+              {filtered.map((b) => (
+                <div
+                  key={b.id}
+                  onClick={() => openDrawer(b)}
+                  className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/40 shadow-subtle flex flex-col gap-3 active:scale-[0.99] transition-transform cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                        {b.name ? b.name.slice(0, 2).toUpperCase() : 'BU'}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-sm text-on-surface">{b.name || 'Buyer'}</h3>
+                        <p className="text-xs text-secondary">{b.email || 'No email'}</p>
+                      </div>
+                    </div>
+                    <span
+                      className={cn(
+                        'text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase',
+                        b.status === 'suspended' ? 'bg-error-container text-error' : 'bg-success-container text-success'
+                      )}
+                    >
+                      {b.status || 'Active'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-outline-variant/30 pt-2 text-xs">
+                    <span className="text-secondary">
+                      Orders: <strong className="text-on-surface font-mono">{b.orderCount}</strong>
+                    </span>
+                    <span className="text-primary font-bold buyer-price text-sm">
+                      ${b.totalSpent.toFixed(2)} spent
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-surface-container-lowest rounded-2xl shadow-subtle border border-outline-variant/40 overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-surface-container-low border-b border-outline-variant">
-                      <th className="px-md py-4 font-label-md text-label-md text-on-surface-variant">Buyer Details</th>
-                      <th className="px-md py-4 font-label-md text-label-md text-on-surface-variant">Email</th>
-                      <th className="px-md py-4 font-label-md text-label-md text-on-surface-variant">Orders</th>
-                      <th className="px-md py-4 font-label-md text-label-md text-on-surface-variant">Spent</th>
-                      <th className="px-md py-4 font-label-md text-label-md text-on-surface-variant">Status</th>
-                      <th className="px-md py-4 font-label-md text-label-md text-on-surface-variant">Joined</th>
-                      <th className="px-md py-4 font-label-md text-label-md text-on-surface-variant text-right">Actions</th>
+                <table className="w-full text-left">
+                  <thead className="bg-surface-container-low text-secondary text-xs uppercase tracking-wider">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">Buyer</th>
+                      <th className="px-4 py-3 font-semibold">Email</th>
+                      <th className="px-4 py-3 font-semibold text-center">Orders</th>
+                      <th className="px-4 py-3 font-semibold text-right">Spent</th>
+                      <th className="px-4 py-3 font-semibold">Status</th>
+                      <th className="px-4 py-3 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-outline-variant">
-                    {buyerStats.map(b => (
-                      <tr key={b.id} className="table-row-hover cursor-pointer hover:bg-surface-container-low" onClick={() => openDrawer(b)}>
-                        <td className="px-md py-4">
-                          <div className="flex items-center gap-sm">
-                            <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-bold text-primary">
-                              {b.name ? b.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'BU'}
+                  <tbody className="divide-y divide-outline-variant/30 text-sm">
+                    {filtered.map((b) => (
+                      <tr key={b.id} className="hover:bg-surface-container-low/50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                              {b.name ? b.name.slice(0, 2).toUpperCase() : 'BU'}
                             </div>
-                            <div>
-                              <p className="font-body-md text-body-md font-bold text-on-surface">{b.name || 'Unknown'}</p>
-                              <p className="font-meta text-meta text-on-surface-variant">ID: {b.id}</p>
-                            </div>
+                            <span className="font-semibold text-on-surface">{b.name || 'Buyer'}</span>
                           </div>
                         </td>
-                        <td className="px-md py-4 font-body-sm text-body-sm text-on-surface-variant">{b.email || 'N/A'}</td>
-                        <td className="px-md py-4 font-body-sm text-body-sm text-on-surface">{b.orderCount}</td>
-                        <td className="px-md py-4 font-body-sm text-body-sm font-bold text-on-surface">${b.totalSpent.toFixed(2)}</td>
-                        <td className="px-md py-4">
-                          <span className={cn('px-2 py-1 rounded-full text-meta font-bold',
-                            b.status === 'suspended' ? 'bg-error-container text-error' :
-                            b.status === 'flagged' ? 'bg-surface-variant text-on-surface-variant' :
-                            'bg-success-container text-success'
-                          )}>{b.status || 'Active'}</span>
+                        <td className="px-4 py-3 text-secondary">{b.email || 'N/A'}</td>
+                        <td className="px-4 py-3 text-center font-mono font-semibold">{b.orderCount}</td>
+                        <td className="px-4 py-3 text-right font-mono font-bold text-primary">${b.totalSpent.toFixed(2)}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={cn(
+                              'px-2.5 py-0.5 rounded-full text-xs font-semibold',
+                              b.status === 'suspended' ? 'bg-error-container text-error' : 'bg-success-container text-success'
+                            )}
+                          >
+                            {b.status || 'Active'}
+                          </span>
                         </td>
-                        <td className="px-md py-4 font-body-sm text-body-sm text-on-surface-variant">{b.joinedAt || b.createdAt || 'N/A'}</td>
-                        <td className="px-md py-4 text-right">
-                          <Button variant="ghost" onClick={(e) => { e.stopPropagation(); openDrawer(b); }} icon={<span className="material-symbols-outlined">more_vert</span>} />
+                        <td className="px-4 py-3 text-right">
+                          <Button variant="ghost" size="sm" onClick={() => openDrawer(b)}>
+                            View Profile
+                          </Button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="px-md py-4 bg-surface-container-low flex items-center justify-between border-t border-outline-variant">
-                <p className="font-meta text-meta text-on-surface-variant">Showing {buyerStats.length} buyers</p>
-              </div>
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
 
       {/* Drawer */}
-      {drawerOpen && selectedBuyer && (
-        <>
-          <div className="fixed inset-0 bg-black/20 z-[60] backdrop-blur-sm transition-opacity duration-300" onClick={() => setDrawerOpen(false)}></div>
-          <div className="fixed top-0 right-0 h-full w-[450px] bg-surface-container-lowest z-[70] translate-x-0 transition-transform duration-300 ease-in-out drawer-shadow flex flex-col">
-            <div className="p-md border-b border-outline-variant flex items-center justify-between">
-              <h3 className="font-headline-md text-headline-md text-on-surface">Buyer Profile</h3>
-              <Button variant="ghost" onClick={() => setDrawerOpen(false)} icon={<span className="material-symbols-outlined">close</span>} />
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <div className="p-md text-center border-b border-outline-variant bg-surface-container-low/30">
-                <div className="relative inline-block">
-                  <div className="w-24 h-24 rounded-full border-4 border-surface shadow-md mx-auto mb-sm bg-surface-container flex items-center justify-center text-3xl font-bold text-primary">
-                    {selectedBuyer.name ? selectedBuyer.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'BU'}
-                  </div>
-                </div>
-                <h4 className="font-headline-md text-headline-md text-on-surface mt-xs">{selectedBuyer.name || 'Unknown'}</h4>
-                <p className="font-body-md text-body-md text-on-surface-variant">ID: {selectedBuyer.id} • {selectedBuyer.email}</p>
+      <AnimatePresence>
+        {drawerOpen && selectedBuyer && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+              onClick={() => setDrawerOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-full sm:w-[450px] bg-surface-container-lowest z-50 shadow-2xl flex flex-col"
+            >
+              <div className="p-4 sm:p-5 border-b border-outline-variant/40 flex items-center justify-between">
+                <h3 className="font-bold text-lg text-on-surface">Buyer Profile</h3>
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container transition-colors"
+                >
+                  <span className="material-symbols-outlined text-xl">close</span>
+                </button>
               </div>
 
-              <div className="px-md py-sm">
-                <div className="grid grid-cols-2 gap-sm">
-                  <div className="p-sm bg-surface-container-low rounded-lg border border-outline-variant">
-                    <p className="font-meta text-meta text-on-surface-variant uppercase">Lifetime Spent</p>
-                    <p className="font-headline-md text-headline-md text-on-surface">${selectedBuyer.totalSpent.toFixed(2)}</p>
+              <div className="flex-1 overflow-y-auto p-5 space-y-6">
+                <div className="text-center">
+                  <div className="w-20 h-20 rounded-full bg-primary/10 text-primary font-bold text-2xl flex items-center justify-center mx-auto mb-3">
+                    {selectedBuyer.name ? selectedBuyer.name.slice(0, 2).toUpperCase() : 'BU'}
                   </div>
-                  <div className="p-sm bg-surface-container-low rounded-lg border border-outline-variant">
-                    <p className="font-meta text-meta text-on-surface-variant uppercase">Total Orders</p>
-                    <p className="font-headline-md text-headline-md text-on-surface">{selectedBuyer.orderCount}</p>
+                  <h4 className="font-bold text-lg text-on-surface">{selectedBuyer.name || 'Buyer'}</h4>
+                  <p className="text-xs text-secondary">{selectedBuyer.email}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/40 text-center">
+                    <span className="text-xs text-secondary font-semibold uppercase">Total Spent</span>
+                    <p className="text-lg font-bold text-primary buyer-price mt-0.5">${selectedBuyer.totalSpent.toFixed(2)}</p>
+                  </div>
+                  <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/40 text-center">
+                    <span className="text-xs text-secondary font-semibold uppercase">Orders</span>
+                    <p className="text-lg font-bold text-on-surface mt-0.5">{selectedBuyer.orderCount}</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-md border-t border-outline-variant mt-sm">
-                <h5 className="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-md">Recent Order History</h5>
-                {selectedBuyer.buyerOrders.length === 0 ? (
-                  <p className="text-on-surface-variant text-body-sm">No orders yet.</p>
-                ) : (
-                  <div className="space-y-md">
-                    {selectedBuyer.buyerOrders.slice(0, 5).map(o => (
-                      <div key={o.id} className="flex justify-between items-center group">
-                        <div className="flex gap-sm">
-                          <div className="w-10 h-10 bg-surface-container rounded flex items-center justify-center">
-                            <span className="material-symbols-outlined text-on-surface-variant">shopping_bag</span>
-                          </div>
+                <div>
+                  <h5 className="font-bold text-xs uppercase tracking-wider text-secondary mb-3">Recent Orders</h5>
+                  {selectedBuyer.buyerOrders?.length === 0 ? (
+                    <p className="text-sm text-secondary">No orders recorded.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedBuyer.buyerOrders.slice(0, 5).map((o) => (
+                        <div key={o.id} className="p-3 bg-surface-container-low rounded-xl flex items-center justify-between text-xs">
                           <div>
-                            <p className="font-body-sm text-body-sm font-bold text-on-surface">Order {o.id}</p>
-                            <p className="font-meta text-meta text-on-surface-variant">{o.status || 'Pending'}</p>
+                            <p className="font-mono font-bold text-primary">#{o.displayId || o.id}</p>
+                            <span className="text-secondary">{o.date || 'Recent'}</span>
                           </div>
+                          <span className="font-bold text-on-surface buyer-price">${(o.total || 0).toFixed(2)}</span>
                         </div>
-                        <p className="font-body-sm text-body-sm font-bold text-on-surface">${Number(o.total || 0).toFixed(2)}</p>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-outline-variant/40 bg-surface-container-lowest">
+                {selectedBuyer.status !== 'suspended' && (
+                  <Button
+                    variant="danger"
+                    fullWidth
+                    onClick={() => handleSuspend(selectedBuyer)}
+                  >
+                    Suspend Buyer Account
+                  </Button>
                 )}
               </div>
-            </div>
-
-            <div className="p-md border-t border-outline-variant bg-surface-container-lowest">
-              <Button variant="danger" onClick={() => handleSuspend(selectedBuyer)} icon={<span className="material-symbols-outlined text-body-lg">block</span>} fullWidth>
-                Suspend Account
-              </Button>
-            </div>
-          </div>
-        </>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <ConfirmDialog
         open={dialog.open}

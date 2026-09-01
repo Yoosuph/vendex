@@ -1,4 +1,8 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 
 @Injectable()
@@ -12,10 +16,21 @@ export class WishlistService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return { items: items.map((i) => i.product) };
+    return {
+      items: items
+        .filter((i) => i.product && i.product.isActive)
+        .map((i) => i.product),
+    };
   }
 
   async addItem(userId: string, productId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!product || !product.isActive) {
+      throw new NotFoundException('Product not found');
+    }
+
     const existing = await this.prisma.wishlistItem.findUnique({
       where: { userId_productId: { userId, productId } },
     });
@@ -38,3 +53,4 @@ export class WishlistService {
     return { message: 'Removed from wishlist' };
   }
 }
+

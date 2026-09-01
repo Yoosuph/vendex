@@ -15,53 +15,33 @@ export default function useForm({ initialValues = {}, validate, onSubmit }) {
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const runValidation = useCallback(
-    (vals) => {
-      if (validate) {
-        const validationErrors = validate(vals);
-        setErrors(validationErrors || {});
-        return validationErrors;
+  const handleChange = useCallback((e) => {
+    const { name, value, type, checked } = e.target;
+    const fieldValue = type === 'checkbox' ? checked : value;
+    setValues((prev) => ({ ...prev, [name]: fieldValue }));
+    setErrors((prev) => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
       }
-      return {};
-    },
-    [validate]
-  );
-
-  const handleChange = useCallback(
-    (e) => {
-      const { name, value, type, checked } = e.target;
-      const fieldValue = type === 'checkbox' ? checked : value;
-      setValues((prev) => ({ ...prev, [name]: fieldValue }));
-      // Clear error for this field on change
-      setErrors((prev) => {
-        if (prev[name]) {
-          const next = { ...prev };
-          delete next[name];
-          return next;
-        }
-        return prev;
-      });
-    },
-    []
-  );
+      return prev;
+    });
+  }, []);
 
   const handleBlur = useCallback(
     (e) => {
       const { name } = e.target;
       setTouched((prev) => ({ ...prev, [name]: true }));
-      // Run validation for this field on blur
       if (validate) {
-        setValues((currentValues) => {
-          const validationErrors = validate(currentValues);
-          setErrors((prev) => ({
-            ...prev,
-            ...(validationErrors ? { [name]: validationErrors[name] || '' } : {}),
-          }));
-          return currentValues;
-        });
+        const validationErrors = validate(values);
+        setErrors((prev) => ({
+          ...prev,
+          ...(validationErrors ? { [name]: validationErrors[name] || '' } : {}),
+        }));
       }
     },
-    [validate]
+    [validate, values],
   );
 
   const setFieldValue = useCallback((name, value) => {
@@ -76,23 +56,13 @@ export default function useForm({ initialValues = {}, validate, onSubmit }) {
     });
   }, []);
 
-  const isRequired = useCallback(
-    (name) => {
-      // A field is considered "required" if initialValues has it defined (even as empty string)
-      return Object.prototype.hasOwnProperty.call(initialValues, name);
-    },
-    [initialValues]
-  );
-
   const isValid = useMemo(() => {
-    const hasErrors = Object.keys(errors).some((key) => errors[key]);
-    if (hasErrors) return false;
-    // Check that all required fields are filled
-    const hasEmptyRequired = Object.keys(initialValues).some(
-      (key) => !values[key] && values[key] !== 0 && values[key] !== false
-    );
-    return !hasEmptyRequired;
-  }, [errors, values, initialValues]);
+    if (validate) {
+      const validationErrors = validate(values);
+      return !validationErrors || Object.keys(validationErrors).length === 0;
+    }
+    return !Object.keys(errors).some((key) => errors[key]);
+  }, [errors, values, validate]);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -100,14 +70,12 @@ export default function useForm({ initialValues = {}, validate, onSubmit }) {
         e.preventDefault();
       }
 
-      // Mark all fields as touched
       const allTouched = {};
       Object.keys(initialValues).forEach((key) => {
         allTouched[key] = true;
       });
       setTouched(allTouched);
 
-      // Run full validation
       const validationErrors = validate ? validate(values) : {};
       setErrors(validationErrors || {});
 
@@ -122,7 +90,7 @@ export default function useForm({ initialValues = {}, validate, onSubmit }) {
         setIsSubmitting(false);
       }
     },
-    [values, validate, onSubmit, initialValues]
+    [values, validate, onSubmit, initialValues],
   );
 
   return {
@@ -137,3 +105,4 @@ export default function useForm({ initialValues = {}, validate, onSubmit }) {
     isSubmitting,
   };
 }
+

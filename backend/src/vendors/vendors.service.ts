@@ -1,11 +1,13 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ForbiddenException,
-  BadRequestException,
 } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { UpdateVendorDto } from './dto/vendor.dto.js';
+
 
 @Injectable()
 export class VendorsService {
@@ -113,7 +115,10 @@ export class VendorsService {
 
   async updateProfile(vendorId: string, userId: string, dto: UpdateVendorDto) {
     const vendor = await this.prisma.user.findFirst({
-      where: { vendorId, role: 'VENDOR' },
+      where: {
+        OR: [{ id: userId }, { vendorId: vendorId || undefined }],
+        role: 'VENDOR',
+      },
     });
     if (!vendor) throw new NotFoundException('Vendor not found');
     if (vendor.id !== userId) throw new ForbiddenException('FORBIDDEN');
@@ -135,27 +140,31 @@ export class VendorsService {
   }
 
   async approve(vendorUserId: string, adminUser: any) {
-    const vendor = await this.prisma.user.findUnique({
-      where: { id: vendorUserId },
+    const vendor = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ id: vendorUserId }, { vendorId: vendorUserId }],
+      },
     });
     if (!vendor) throw new NotFoundException('Vendor not found');
     if (vendor.role !== 'VENDOR') throw new BadRequestException('Not a vendor');
-    if (vendor.status === 'APPROVED') {
+    if (vendor.status === 'APPROVED' && vendor.vendorId) {
       throw new BadRequestException('Vendor already approved');
     }
 
-    const vendorId = `v_${Math.random().toString(36).substring(2, 10)}`;
+    const vendorId =
+      vendor.vendorId ||
+      `v_${vendor.storeName ? vendor.storeName.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 8) + '_' : ''}${crypto.randomBytes(3).toString('hex')}`;
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const u = await tx.user.update({
-        where: { id: vendorUserId },
+        where: { id: vendor.id },
         data: { status: 'APPROVED', vendorId },
       });
 
       await tx.auditLog.create({
         data: {
-          adminId: adminUser.sub,
-          adminName: adminUser.name || adminUser.email,
+          adminId: adminUser.sub || adminUser.id,
+          adminName: adminUser.name || adminUser.email || 'Admin',
           action: 'APPROVE_VENDOR',
           resource: `Vendor ${vendor.name} (${vendorId})`,
           status: 'Success',
@@ -169,21 +178,23 @@ export class VendorsService {
   }
 
   async suspend(vendorUserId: string, adminUser: any) {
-    const vendor = await this.prisma.user.findUnique({
-      where: { id: vendorUserId },
+    const vendor = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ id: vendorUserId }, { vendorId: vendorUserId }],
+      },
     });
     if (!vendor) throw new NotFoundException('Vendor not found');
 
     await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
-        where: { id: vendorUserId },
+        where: { id: vendor.id },
         data: { status: 'SUSPENDED' },
       });
 
       await tx.auditLog.create({
         data: {
-          adminId: adminUser.sub,
-          adminName: adminUser.name || adminUser.email,
+          adminId: adminUser.sub || adminUser.id,
+          adminName: adminUser.name || adminUser.email || 'Admin',
           action: 'SUSPEND_USER',
           resource: `Vendor ${vendor.name}`,
           status: 'Success',
@@ -195,21 +206,23 @@ export class VendorsService {
   }
 
   async unsuspend(vendorUserId: string, adminUser: any) {
-    const vendor = await this.prisma.user.findUnique({
-      where: { id: vendorUserId },
+    const vendor = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ id: vendorUserId }, { vendorId: vendorUserId }],
+      },
     });
     if (!vendor) throw new NotFoundException('Vendor not found');
 
     await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
-        where: { id: vendorUserId },
+        where: { id: vendor.id },
         data: { status: 'APPROVED' },
       });
 
       await tx.auditLog.create({
         data: {
-          adminId: adminUser.sub,
-          adminName: adminUser.name || adminUser.email,
+          adminId: adminUser.sub || adminUser.id,
+          adminName: adminUser.name || adminUser.email || 'Admin',
           action: 'UNSUSPEND_USER',
           resource: `Vendor ${vendor.name}`,
           status: 'Success',
@@ -220,62 +233,79 @@ export class VendorsService {
     return { message: 'Vendor reinstated' };
   }
 
-  async getDashboard(vendorId: string) {
+  async getDashboard(vendorIdOrUserId: string) {
     const vendor = await this.prisma.user.findFirst({
-      where: { vendorId, role: 'VENDOR' },
+      where: {
+        OR: [{ vendorId: vendorIdOrUserId }, { id: vendorIdOrUserId }],
+        role: 'VENDOR',
+      },
     });
     if (!vendor) throw new NotFoundException('Vendor not found');
+
+    const effectiveVendorId = vendor.vendorId || vendor.id;
 
     const [
       totalProducts,
       activeProducts,
       lowStockProducts,
-      ordersWithVendorItems,
-      revenueAgg,
+      orderItemsWithOrder,
       recentOrders,
       reviewsAgg,
     ] = await Promise.all([
-      this.prisma.product.count({ where: { vendorId } }),
-      this.prisma.product.count({ where: { vendorId, isActive: true } }),
+      this.prisma.product.count({ where: { vendorId: effectiveVendorId } }),
       this.prisma.product.count({
-        where: { vendorId, stock: { lte: 5 }, isActive: true },
+        where: { vendorId: effectiveVendorId, isActive: true },
+      }),
+      this.prisma.product.count({
+        where: { vendorId: effectiveVendorId, stock: { lte: 5 }, isActive: true },
       }),
       this.prisma.orderItem.findMany({
-        where: { vendorId },
+        where: {
+          vendorId: effectiveVendorId,
+          order: {
+            status: { notIn: ['CANCELLED', 'REFUNDED'] },
+          },
+        },
         select: { orderId: true, price: true, quantity: true },
       }),
-      this.prisma.orderItem.aggregate({
-        where: { vendorId },
-        _sum: { price: true },
-      }),
       this.prisma.order.findMany({
-        where: { items: { some: { vendorId } } },
-        take: 4,
+        where: { items: { some: { vendorId: effectiveVendorId } } },
+        take: 5,
         orderBy: { createdAt: 'desc' },
-        include: { items: true },
+        include: {
+          items: {
+            where: { vendorId: effectiveVendorId },
+          },
+        },
       }),
       this.prisma.review.aggregate({
-        where: { product: { vendorId } },
+        where: { product: { vendorId: effectiveVendorId } },
         _avg: { score: true },
         _count: true,
       }),
     ]);
 
     const uniqueOrderIds = [
-      ...new Set(ordersWithVendorItems.map((i) => i.orderId)),
+      ...new Set(orderItemsWithOrder.map((i) => i.orderId)),
     ];
     const totalOrders = uniqueOrderIds.length;
-    const totalRevenue = revenueAgg._sum.price ?? 0;
+    const totalRevenue = orderItemsWithOrder.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
 
     return {
-      totalRevenue,
+      totalRevenue: parseFloat(totalRevenue.toFixed(2)),
       totalOrders,
       totalProducts,
       activeProducts,
       lowStockProducts,
-      storeRating: reviewsAgg._avg.score ?? 0,
+      storeRating: reviewsAgg._avg.score
+        ? parseFloat(reviewsAgg._avg.score.toFixed(1))
+        : 5.0,
       reviewsCount: reviewsAgg._count,
       recentOrders,
     };
   }
 }
+

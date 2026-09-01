@@ -5,6 +5,7 @@ import { AuthContext } from '@/shared/context/AuthContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import Button from '@/shared/components/Button';
+import { OrdersListSkeleton } from '@/shared/components/SkeletonLoader';
 import BuyerPageHeader from '../components/BuyerPageHeader';
 import {
   ORDER_STATUSES,
@@ -46,7 +47,18 @@ export default function MyOrders() {
     return list;
   }, [myOrders, filter, query]);
 
-  if (loading) return <LoadingSpinner text="Loading orders..." />;
+  if (loading && (!orders || orders.length === 0)) {
+    return (
+      <div className="space-y-xl">
+        <BuyerPageHeader
+          eyebrow="02  /  Orders"
+          title="My orders"
+          description="Track purchases across every vendor on Vendex."
+        />
+        <OrdersListSkeleton count={3} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-xl">

@@ -28,9 +28,10 @@ const sections = [
     ],
   },
   {
-    title: 'Store',
+    title: 'Store & Settings',
     items: [
       { name: 'Storefront', path: '/vendor/storefront', icon: 'storefront' },
+      { name: 'Settings', path: '/vendor/settings', icon: 'settings' },
     ],
   },
 ];

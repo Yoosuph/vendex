@@ -2,19 +2,22 @@ import React, { useState, useContext, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
 import { CartContext } from "@/shared/context/CartContext";
+import { AuthContext } from '@/shared/context/AuthContext';
 import Button from '@/shared/components/Button';
 import { useToast } from '@/shared/context/ToastContext';
 import StarRating from '@/shared/components/StarRating';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import ErrorState from '@/shared/components/ErrorState';
 import EmptyState from '@/shared/components/EmptyState';
+import { ProductDetailSkeleton } from '@/shared/components/SkeletonLoader';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const { products, addReview } = useContext(MarketplaceContext);
+  const { products, addReview, loading } = useContext(MarketplaceContext);
   const { addToCart, toggleWishlist, wishlist } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -32,7 +35,7 @@ export default function ProductDetail() {
   // Review form state
   const [reviewScore, setReviewScore] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
-  const [reviewName, setReviewName] = useState('');
+  const [reviewName, setReviewName] = useState(user?.name || '');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState('');
 
@@ -42,6 +45,12 @@ export default function ProductDetail() {
       setSelectedImage(product.images && product.images.length > 0 ? product.images[0] : product.image);
     }
   }, [product?.id]);
+
+  React.useEffect(() => {
+    if (user?.name && !reviewName) {
+      setReviewName(user.name);
+    }
+  }, [user, reviewName]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -59,52 +68,63 @@ export default function ProductDetail() {
   const handleToggleWishlist = () => {
     if (!product) return;
     toggleWishlist(product);
+    addToast(isWished ? 'Removed from wishlist' : 'Added to wishlist', 'info');
   };
 
-  const handleReviewSubmit = (e) => {
+  const handleReviewSubmit = async (e) => {
     e.preventDefault();
     setReviewError('');
 
-    if (!reviewScore) {
+    if (!user) {
+      setReviewError('Please sign in to submit a review.');
+      addToast('Please sign in to leave a review', 'error');
+      navigate('/login');
+      return;
+    }
+
+    if (reviewScore === 0) {
       setReviewError('Please select a star rating.');
       return;
     }
     if (!reviewComment.trim()) {
-      setReviewError('Please write a review comment.');
-      return;
-    }
-    if (!reviewName.trim()) {
-      setReviewError('Please enter your name.');
+      setReviewError('Please enter a review comment.');
       return;
     }
 
     setReviewSubmitting(true);
-    addReview(product.id, {
-      reviewer: reviewName.trim(),
-      score: reviewScore,
-      comment: reviewComment.trim(),
-    });
-    addToast('Review submitted successfully!', 'success');
-    setReviewScore(0);
-    setReviewComment('');
-    setReviewName('');
-    setReviewSubmitting(false);
+    try {
+      await addReview(product.id, {
+        reviewer: (reviewName || user.name || '').trim(),
+        score: reviewScore,
+        comment: reviewComment.trim(),
+      });
+      addToast('Review submitted successfully!', 'success');
+      setReviewScore(0);
+      setReviewComment('');
+      setReviewError('');
+    } catch (err) {
+      setReviewError(err.message || 'Failed to submit review');
+      addToast(err.message || 'Failed to submit review', 'error');
+    } finally {
+      setReviewSubmitting(false);
+    }
   };
 
   // Loading state: products array not yet available
-  if (!products || products.length === 0) {
-    return (
-      <main className="max-w-container-max mx-auto px-gutter py-xl">
-        <LoadingSpinner text="Loading product details..." size="lg" />
-      </main>
-    );
+  if (loading && (!products || products.length === 0)) {
+    return <ProductDetailSkeleton />;
   }
 
   // Error state: product not found
   if (!product) {
     return (
       <main className="max-w-container-max mx-auto px-gutter py-xl">
-        <ErrorState message="Product not found" />
+        <EmptyState
+          title="Product not found"
+          message="The product you are looking for does not exist or has been removed."
+          actionText="Browse Products"
+          actionPath="/"
+        />
       </main>
     );
   }
@@ -116,7 +136,7 @@ export default function ProductDetail() {
 
   return (
     <>
-      <main className="max-w-container-max mx-auto px-gutter py-xl">
+      <main className="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl overflow-x-hidden">
         {addedMessage && (
           <div className="fixed top-20 right-4 z-50 bg-green-600 text-white px-md py-sm rounded-xl shadow-lg flex items-center gap-xs animate-bounce">
             <span className="material-symbols-outlined">check_circle</span>
@@ -124,10 +144,10 @@ export default function ProductDetail() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-xl items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-12 items-start">
           {/* Left Column: Image Gallery */}
           <section className="md:col-span-7 flex flex-col gap-md">
-            <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/30">
+            <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-subtle border border-outline-variant/40">
               <img
                 alt={product.name}
                 className="w-full aspect-square object-cover transition-all duration-300"
@@ -190,7 +210,7 @@ export default function ProductDetail() {
             )}
 
             <div className="flex flex-col gap-md">
-              <div className="flex flex-col gap-xs p-md bg-white border border-outline-variant rounded-xl shadow-sm">
+              <div className="flex flex-col gap-xs p-md bg-surface-container-lowest border border-outline-variant/40 rounded-2xl shadow-subtle">
                 <div className="flex items-center gap-sm">
                   <span className="material-symbols-outlined text-secondary">local_shipping</span>
                   <span className="text-body-md font-medium">Estimated Delivery: <span className="text-on-surface">3-5 Business Days</span></span>
@@ -250,31 +270,31 @@ export default function ProductDetail() {
         </div>
 
         {/* Content Tabs */}
-        <section className="mt-xl">
-          <div className="border-b border-outline-variant flex gap-xl overflow-x-auto">
+        <section className="mt-8 sm:mt-12 overflow-hidden">
+          <div className="border-b border-outline-variant/40 flex gap-4 sm:gap-8 overflow-x-auto hide-scrollbar">
             <button
-              className={cn('pb-md text-headline-md whitespace-nowrap transition-all', activeTab === 'description' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary')}
+              className={cn('pb-3 text-sm sm:text-base font-bold whitespace-nowrap transition-all', activeTab === 'description' ? 'border-b-2 border-primary text-primary' : 'text-secondary hover:text-primary')}
               onClick={() => setActiveTab('description')}
             >
               Description
             </button>
             <button
-              className={cn('pb-md text-headline-md whitespace-nowrap transition-all', activeTab === 'specs' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary')}
+              className={cn('pb-3 text-sm sm:text-base font-bold whitespace-nowrap transition-all', activeTab === 'specs' ? 'border-b-2 border-primary text-primary' : 'text-secondary hover:text-primary')}
               onClick={() => setActiveTab('specs')}
             >
-              Specs
+              Specifications
             </button>
             <button
-              className={cn('pb-md text-headline-md whitespace-nowrap transition-all', activeTab === 'reviews' ? 'border-bottom-2 border-primary text-primary font-bold border-b-2' : 'text-secondary hover:text-primary')}
+              className={cn('pb-3 text-sm sm:text-base font-bold whitespace-nowrap transition-all', activeTab === 'reviews' ? 'border-b-2 border-primary text-primary' : 'text-secondary hover:text-primary')}
               onClick={() => setActiveTab('reviews')}
             >
               Reviews ({product.reviewsCount || 0})
             </button>
           </div>
 
-          <div className="py-xl">
+          <div className="py-6 sm:py-10">
             {activeTab === 'description' && (
-              <div className="tab-content grid grid-cols-1 md:grid-cols-2 gap-xl" id="content-description">
+              <div className="tab-content grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-12" id="content-description">
                 <div className="flex flex-col gap-md">
                   <h3 className="text-headline-md">About this product</h3>
                   <p className="text-body-lg text-on-surface-variant">
@@ -307,7 +327,7 @@ export default function ProductDetail() {
 
             {activeTab === 'specs' && (
               <div className="tab-content flex flex-col gap-md" id="content-specs">
-                <div className="bg-white rounded-xl border border-outline-variant overflow-hidden">
+                <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 overflow-hidden shadow-subtle">
                   <table className="w-full text-left border-collapse">
                     <tbody>
                       <tr className="border-b border-outline-variant/30">
@@ -320,15 +340,15 @@ export default function ProductDetail() {
                       </tr>
                       <tr className="border-b border-outline-variant/30">
                         <td className="p-md font-bold text-on-surface bg-surface-container-low">Vendor</td>
-                        <td className="p-md text-on-surface-variant">{product.vendor || 'N/A'}</td>
+                        <td className="p-md text-on-surface-variant">{product.vendorName || (typeof product.vendor === 'object' ? product.vendor.name : product.vendor) || 'Unknown'}</td>
                       </tr>
                       <tr className="border-b border-outline-variant/30">
-                        <td className="p-md font-bold text-on-surface bg-surface-container-low">Stock</td>
-                        <td className="p-md text-on-surface-variant">{product.stock ?? 'N/A'}</td>
+                        <td className="p-md font-bold text-on-surface bg-surface-container-low">Stock Level</td>
+                        <td className="p-md text-on-surface-variant">{product.stock > 0 ? `${product.stock} units available` : 'Out of Stock'}</td>
                       </tr>
                       <tr>
-                        <td className="p-md font-bold text-on-surface bg-surface-container-low">Warranty</td>
-                        <td className="p-md text-on-surface-variant">1 Year Worldwide Limited</td>
+                        <td className="p-md font-bold text-on-surface bg-surface-container-low">SKU</td>
+                        <td className="p-md font-mono text-on-surface-variant">{product.id}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -338,6 +358,42 @@ export default function ProductDetail() {
 
             {activeTab === 'reviews' && (
               <div className="tab-content flex flex-col gap-lg" id="content-reviews">
+                {/* Write Review Form */}
+                <form className="p-md bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-subtle space-y-md" onSubmit={handleAddReview}>
+                  <h4 className="font-headline-md text-headline-md text-on-surface">Write a Review</h4>
+                  <div className="space-y-sm">
+                    <div>
+                      <label className="font-label-md text-label-md text-on-surface-variant mb-xs block">Rating</label>
+                      <StarRating interactive onChange={setReviewRating} value={reviewRating} />
+                    </div>
+
+                    <div className="space-y-xs">
+                      <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="review-comment">Your Review</label>
+                      <textarea
+                        id="review-comment"
+                        className="w-full px-sm py-sm border border-outline-variant/50 rounded-xl bg-surface-container-low focus:ring-1 focus:ring-primary outline-none resize-none text-on-surface"
+                        rows="3"
+                        placeholder="Share your experience with this product..."
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                      ></textarea>
+                    </div>
+
+                    <div className="space-y-xs">
+                      <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="review-name">Your Name</label>
+                      <input
+                        id="review-name"
+                        className="w-full px-sm py-sm border border-outline-variant/50 rounded-xl bg-surface-container-low focus:ring-1 focus:ring-primary outline-none text-on-surface"
+                        type="text"
+                        placeholder="Enter your name"
+                        value={reviewName}
+                        onChange={(e) => setReviewName(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <Button variant="primary-container" type="submit" loading={reviewSubmitting}>Submit Review</Button>
+                </form>
+
                 {product.reviews && product.reviews.length > 0 ? (
                   <div className="flex flex-col gap-md">
                     {product.reviews.map((review) => (
@@ -424,6 +480,37 @@ export default function ProductDetail() {
           </div>
         </section>
       </main>
+
+      {/* Dedicated Mobile Sticky Action Bar */}
+      <aside className="fixed bottom-20 inset-x-3 z-30 lg:hidden pointer-events-auto">
+        <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant/60 shadow-xl">
+          <div className="flex flex-col min-w-0 pl-1">
+            <span className="text-[10px] font-semibold text-secondary uppercase tracking-wider">Price</span>
+            <span className="text-lg font-bold text-primary buyer-price leading-tight">${product.price.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleToggleWishlist}
+              aria-label="Save to Wishlist"
+              className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center border border-outline-variant/60 transition-colors",
+                isWished ? "bg-primary/10 text-primary" : "text-secondary hover:text-on-surface"
+              )}
+            >
+              <span className={cn("material-symbols-outlined text-xl", isWished && "icon-filled")}>favorite</span>
+            </button>
+            <Button
+              variant="primary"
+              size="md"
+              disabled={isOutOfStock}
+              onClick={handleAddToCart}
+              className="rounded-xl px-4 font-semibold text-xs sm:text-sm shadow-md"
+            >
+              {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
+            </Button>
+          </div>
+        </div>
+      </aside>
     </>
   );
 }

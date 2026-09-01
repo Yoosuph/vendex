@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { AddCartItemDto, UpdateCartItemDto } from './dto/cart.dto.js';
 
@@ -10,6 +14,7 @@ export class CartService {
     const items = await this.prisma.cartItem.findMany({
       where: { userId },
       include: { product: true },
+      orderBy: { createdAt: 'asc' },
     });
 
     let subtotal = 0;
@@ -18,11 +23,15 @@ export class CartService {
 
     const cartItems = items.map((item) => {
       const product = item.product;
-      const outOfStock = product.stock < item.quantity;
+      const outOfStock = product.stock < item.quantity || !product.isActive;
       const priceChanged = false;
 
       if (outOfStock) {
-        issues.push(`${product.name} is out of stock`);
+        issues.push(
+          !product.isActive
+            ? `${product.name} is no longer available`
+            : `${product.name} is out of stock (only ${product.stock} available)`,
+        );
         valid = false;
       }
 
@@ -49,29 +58,43 @@ export class CartService {
     const product = await this.prisma.product.findUnique({
       where: { id: dto.productId },
     });
-    if (!product) throw new Error('Product not found');
-
-    const existing = await this.prisma.cartItem.findUnique({
-      where: { userId_productId: { userId, productId: dto.productId } },
-    });
-
-    if (existing) {
-      return this.prisma.cartItem.update({
-        where: { id: existing.id },
-        data: { quantity: existing.quantity + dto.quantity },
-      });
+    if (!product || !product.isActive) {
+      throw new NotFoundException('Product not found or unavailable');
     }
 
-    return this.prisma.cartItem.create({
-      data: { userId, productId: dto.productId, quantity: dto.quantity },
+    if (dto.quantity <= 0) {
+      throw new BadRequestException('Quantity must be greater than 0');
+    }
+
+    return this.prisma.cartItem.upsert({
+      where: { userId_productId: { userId, productId: dto.productId } },
+      update: {
+        quantity: { increment: dto.quantity },
+      },
+      create: {
+        userId,
+        productId: dto.productId,
+        quantity: dto.quantity,
+      },
     });
   }
 
   async updateItem(userId: string, productId: string, dto: UpdateCartItemDto) {
+    if (dto.quantity <= 0) {
+      return this.removeItem(userId, productId);
+    }
+
     const item = await this.prisma.cartItem.findUnique({
       where: { userId_productId: { userId, productId } },
+      include: { product: true },
     });
-    if (!item) throw new Error('Cart item not found');
+    if (!item) throw new NotFoundException('Cart item not found');
+
+    if (item.product && item.product.stock < dto.quantity) {
+      throw new BadRequestException(
+        `Requested quantity exceeds available stock (${item.product.stock})`,
+      );
+    }
 
     return this.prisma.cartItem.update({
       where: { id: item.id },
@@ -83,7 +106,7 @@ export class CartService {
     const item = await this.prisma.cartItem.findUnique({
       where: { userId_productId: { userId, productId } },
     });
-    if (!item) throw new Error('Cart item not found');
+    if (!item) throw new NotFoundException('Cart item not found');
 
     await this.prisma.cartItem.delete({ where: { id: item.id } });
     return { message: 'Item removed from cart' };
@@ -94,3 +117,4 @@ export class CartService {
     return { message: 'Cart cleared' };
   }
 }
+

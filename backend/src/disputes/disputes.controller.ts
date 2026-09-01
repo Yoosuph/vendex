@@ -36,8 +36,8 @@ export class DisputesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.disputesService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.disputesService.findOne(id, user);
   }
 
   @UseGuards(RolesGuard)

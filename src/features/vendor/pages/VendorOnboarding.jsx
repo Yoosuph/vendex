@@ -98,8 +98,8 @@ export default function VendorOnboarding() {
     try {
       await signup(formData.name, formData.email, formData.password, 'vendor', {
         storeName: formData.storeName,
-        category: formData.category,
-        description: formData.description,
+        storeCategory: formData.category,
+        storeDescription: formData.description,
         country: formData.country,
         city: formData.city,
         address: formData.address,

@@ -81,6 +81,15 @@ export class CategoriesService {
     });
   }
 
+  private async isDescendant(potentialParentId: string, currentId: string): Promise<boolean> {
+    let curr = await this.prisma.category.findUnique({ where: { id: potentialParentId } });
+    while (curr && curr.parentId) {
+      if (curr.parentId === currentId) return true;
+      curr = await this.prisma.category.findUnique({ where: { id: curr.parentId } });
+    }
+    return false;
+  }
+
   async update(id: string, dto: UpdateCategoryDto) {
     const category = await this.prisma.category.findUnique({ where: { id } });
     if (!category) throw new NotFoundException('Category not found');
@@ -95,6 +104,9 @@ export class CategoriesService {
       });
       if (!parent) {
         throw new NotFoundException('Parent category not found');
+      }
+      if (await this.isDescendant(dto.parentId, id)) {
+        throw new BadRequestException('Circular hierarchy detected: cannot set a descendant as parent');
       }
     }
 

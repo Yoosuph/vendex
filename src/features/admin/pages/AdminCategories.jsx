@@ -1,48 +1,97 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { MarketplaceContext } from '@/shared/context/MarketplaceContext';
+import { useToast } from '@/shared/context/ToastContext';
 import LoadingSpinner from '@/shared/components/LoadingSpinner';
 import EmptyState from '@/shared/components/EmptyState';
 import ConfirmDialog from '@/shared/components/ConfirmDialog';
 import Button from '@/shared/components/Button';
 
 export default function AdminCategories() {
-  const { products, loading, addProduct } = useContext(MarketplaceContext);
+  const {
+    products,
+    categories: rawCategories,
+    loading,
+    addCategory,
+    deleteCategory,
+  } = useContext(MarketplaceContext);
+  const { addToast } = useToast();
 
   const [newCategoryOpen, setNewCategoryOpen] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: '', slug: '', description: '', parent: '' });
-  const [dialog, setDialog] = useState({ open: false, title: '', message: '', action: null });
+  const [newCategory, setNewCategory] = useState({
+    name: '',
+    slug: '',
+    description: '',
+    parent: '',
+  });
+  const [dialog, setDialog] = useState({
+    open: false,
+    title: '',
+    message: '',
+    action: null,
+  });
 
-  // Extract unique categories from products
   const categories = useMemo(() => {
+    if (rawCategories && rawCategories.length > 0) {
+      return rawCategories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        description: c.description,
+        productCount: c.productCount ?? 0,
+      }));
+    }
     const catMap = {};
-    products.forEach(p => {
+    products.forEach((p) => {
       const cat = p.category || 'Uncategorized';
-      if (!catMap[cat]) catMap[cat] = { name: cat, productCount: 0, slug: cat.toLowerCase().replace(/\s+/g, '-') };
+      if (!catMap[cat])
+        catMap[cat] = {
+          name: cat,
+          productCount: 0,
+          slug: cat.toLowerCase().replace(/\s+/g, '-'),
+        };
       catMap[cat].productCount++;
     });
     return Object.values(catMap).sort((a, b) => b.productCount - a.productCount);
-  }, [products]);
+  }, [rawCategories, products]);
 
   const handleDeleteCategory = (cat) => {
     setDialog({
       open: true,
       title: 'Delete Category',
-      message: `Delete "${cat.name}"? This only removes the category label (${cat.productCount} products will become uncategorized).`,
-      action: () => {
-        // In a real app, we'd update all products in this category
-        setDialog({ open: false, title: '', message: '', action: null });
+      message: `Delete "${cat.name}"? Products in this category will be preserved under General/Uncategorized.`,
+      action: async () => {
+        try {
+          if (cat.id) {
+            await deleteCategory(cat.id);
+            addToast(`Category "${cat.name}" deleted successfully`, 'success');
+          }
+        } catch (err) {
+          addToast(err.message || 'Failed to delete category', 'error');
+        } finally {
+          setDialog({ open: false, title: '', message: '', action: null });
+        }
       },
-      variant: 'danger'
+      variant: 'danger',
     });
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategory.name.trim()) return;
-    // Store as state since we don't have a dedicated category store
-    setNewCategoryOpen(false);
-    setNewCategory({ name: '', slug: '', description: '', parent: '' });
+    try {
+      await addCategory({
+        name: newCategory.name.trim(),
+        slug: newCategory.slug.trim() || undefined,
+        description: newCategory.description.trim() || undefined,
+      });
+      addToast(`Category "${newCategory.name}" created successfully`, 'success');
+      setNewCategoryOpen(false);
+      setNewCategory({ name: '', slug: '', description: '', parent: '' });
+    } catch (err) {
+      addToast(err.message || 'Failed to create category', 'error');
+    }
   };
+
 
   if (loading) return <div className="pt-header"><LoadingSpinner text="Loading categories..." /></div>;
 
@@ -102,7 +151,7 @@ export default function AdminCategories() {
                       <div>
                         <label className="block text-sm font-bold text-on-surface-variant mb-xs">Category Name</label>
                         <input
-                          className="w-full bg-white border border-[#DEDEDA] rounded-lg px-sm py-sm focus:border-on-surface focus:ring-0 transition-colors"
+                          className="w-full bg-surface-container-low border border-outline-variant/60 rounded-xl px-sm py-sm focus:border-primary focus:ring-0 transition-colors text-on-surface"
                           type="text"
                           value={newCategory.name}
                           onChange={e => setNewCategory({ ...newCategory, name: e.target.value })}
@@ -111,10 +160,10 @@ export default function AdminCategories() {
                       </div>
                       <div>
                         <label className="block text-sm font-bold text-on-surface-variant mb-xs">Slug</label>
-                        <div className="flex rounded-lg border border-[#DEDEDA] overflow-hidden">
-                          <span className="bg-surface-container-low px-sm py-sm text-secondary text-sm border-r border-[#DEDEDA]">vendex.com/c/</span>
+                        <div className="flex rounded-xl border border-outline-variant/60 overflow-hidden">
+                          <span className="bg-surface-container px-sm py-sm text-secondary text-sm border-r border-outline-variant/60">vendex.com/c/</span>
                           <input
-                            className="w-full bg-white border-none px-sm py-sm focus:ring-0 text-sm"
+                            className="w-full bg-surface-container-low border-none px-sm py-sm focus:ring-0 text-sm text-on-surface"
                             type="text"
                             value={newCategory.slug}
                             onChange={e => setNewCategory({ ...newCategory, slug: e.target.value })}
@@ -125,7 +174,7 @@ export default function AdminCategories() {
                       <div>
                         <label className="block text-sm font-bold text-on-surface-variant mb-xs">Description</label>
                         <textarea
-                          className="w-full bg-white border border-[#DEDEDA] rounded-lg px-sm py-sm focus:border-on-surface focus:ring-0 transition-colors"
+                          className="w-full bg-surface-container-low border border-outline-variant/60 rounded-xl px-sm py-sm focus:border-primary focus:ring-0 transition-colors text-on-surface"
                           rows="4"
                           value={newCategory.description}
                           onChange={e => setNewCategory({ ...newCategory, description: e.target.value })}
@@ -137,7 +186,7 @@ export default function AdminCategories() {
                       <div>
                         <label className="block text-sm font-bold text-on-surface-variant mb-xs">Parent Category</label>
                         <select
-                          className="w-full bg-white border border-[#DEDEDA] rounded-lg px-sm py-sm focus:border-on-surface focus:ring-0 transition-colors"
+                          className="w-full bg-surface-container-low border border-outline-variant/60 rounded-xl px-sm py-sm focus:border-primary focus:ring-0 transition-colors text-on-surface"
                           value={newCategory.parent}
                           onChange={e => setNewCategory({ ...newCategory, parent: e.target.value })}
                         >

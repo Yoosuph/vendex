@@ -10,11 +10,15 @@ import EmptyState from '@/shared/components/EmptyState';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 
+import { ProductGridSkeleton } from '@/shared/components/SkeletonLoader';
+import LiveSearchPlate from '@/shared/components/LiveSearchPlate';
+
 export default function Home() {
-  const { products } = useContext(MarketplaceContext);
+  const { products, loading: isLoading } = useContext(MarketplaceContext);
   const { addToCart, toggleWishlist, wishlist } = useContext(CartContext);
   const { addToast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
+  const [heroSearchOpen, setHeroSearchOpen] = useState(false);
   const navigate = useNavigate();
   const storeCarouselRef = useRef(null);
 
@@ -22,7 +26,7 @@ export default function Home() {
   const stores = useMemo(() => {
     if (!products || products.length === 0) return [];
     const vendorMap = {};
-    products.forEach(p => {
+    products.forEach((p) => {
       if (!vendorMap[p.vendor]) {
         vendorMap[p.vendor] = {
           name: p.vendor,
@@ -36,45 +40,60 @@ export default function Home() {
       vendorMap[p.vendor].totalRating += p.rating || 0;
       vendorMap[p.vendor].totalReviews += p.reviewsCount || 0;
     });
-    return Object.values(vendorMap).map(v => ({
+    return Object.values(vendorMap).map((v) => ({
       name: v.name,
       vendorId: v.vendorId,
-      rating: (v.totalRating / v.products.length).toFixed(1),
+      productCount: v.products.length,
+      rating: v.totalReviews > 0 ? (v.totalRating / v.products.length).toFixed(1) : '5.0',
       reviews: v.totalReviews >= 1000
         ? `${(v.totalReviews / 1000).toFixed(1)}k`
-        : String(v.totalReviews),
-      avatar: v.products[0]?.image || '',
-      productCount: v.products.length,
+        : String(v.totalReviews || 0),
+      avatar: v.products[0]?.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300',
+      category: v.products[0]?.category || 'General',
+      image: v.products[0]?.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300',
     }));
   }, [products]);
 
-  // Derive trending products (top 8 by rating * reviewsCount)
+  const featuredProducts = useMemo(() => {
+    return [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 8);
+  }, [products]);
+
   const trendingProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
     return [...products]
       .sort((a, b) => ((b.rating || 0) * (b.reviewsCount || 0)) - ((a.rating || 0) * (a.reviewsCount || 0)))
-      .slice(0, 12);
+      .slice(0, 10);
   }, [products]);
 
-  // Derive unique categories
+  const newArrivals = useMemo(() => {
+    return [...products].reverse().slice(0, 8);
+  }, [products]);
+
   const categories = useMemo(() => {
     if (!products || products.length === 0) return [];
     return ['All Categories', ...new Set(products.map(p => p.category).filter(Boolean))];
   }, [products]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
     addToast(`Added "${product.name}" to cart!`, 'success');
   };
 
-  const isLoading = !products;
-
-  if (isLoading) {
+  if (isLoading && (!products || products.length === 0)) {
     return (
-      <main>
-        <section className="hero-gradient relative overflow-hidden py-xl md:py-24">
-          <LoadingSpinner text="Loading marketplace..." size="lg" />
-        </section>
+      <main className="max-w-container-max mx-auto px-4 sm:px-gutter py-8 md:py-12 space-y-12">
+        <div className="h-64 sm:h-96 rounded-2xl bg-surface-container-high/60 animate-pulse" />
+        <div className="space-y-6">
+          <div className="h-8 w-48 bg-surface-container-high/60 rounded animate-pulse" />
+          <ProductGridSkeleton count={8} />
+        </div>
       </main>
     );
   }
@@ -139,7 +158,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.45 }}
-                className="flex flex-col sm:flex-row gap-3 max-w-xl mb-10"
+                className="flex flex-col sm:flex-row gap-3 max-w-xl mb-10 relative z-20"
               >
                 <div className="flex-1 relative group">
                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-headline-md group-focus-within:text-white/80 transition-colors">
@@ -149,19 +168,37 @@ export default function Home() {
                     type="text"
                     placeholder="Search products, brands, or categories..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setHeroSearchOpen(true)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setHeroSearchOpen(true);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && searchQuery.trim()) {
+                        setHeroSearchOpen(false);
                         navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
                       }
                     }}
                     className="w-full bg-white/10 backdrop-blur-md border border-white/15 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-white/40 text-body-md focus:outline-none focus:border-white/30 focus:bg-white/15 transition-all"
                   />
+
+                  {/* Live Results Plate */}
+                  <LiveSearchPlate
+                    query={searchQuery}
+                    isOpen={heroSearchOpen && !!searchQuery.trim()}
+                    onClose={() => setHeroSearchOpen(false)}
+                    className="top-full mt-2"
+                  />
                 </div>
                 <Button
                   variant="primary-container"
                   size="lg"
-                  onClick={() => searchQuery.trim() && navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)}
+                  onClick={() => {
+                    if (searchQuery.trim()) {
+                      setHeroSearchOpen(false);
+                      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                    }
+                  }}
                   icon={<span className="material-symbols-outlined">search</span>}
                 >
                   Search

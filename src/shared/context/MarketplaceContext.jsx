@@ -28,13 +28,12 @@ const DISPUTE_STATUS_MAP = {
 };
 
 function normalizeOrder(order) {
-  const dbId = order.id;
   const displayId = order.displayId || order.id;
   return {
     ...order,
-    dbId,
-    id: displayId,
+    id: order.id,
     displayId,
+    orderId: displayId,
     status: ORDER_STATUS_MAP[order.status] || order.status,
     date: order.createdAt,
   };
@@ -75,6 +74,7 @@ function normalizeDispute(d) {
 
 export const MarketplaceProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [disputes, setDisputes] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -88,23 +88,34 @@ export const MarketplaceProvider = ({ children }) => {
 
     // Public / auth-agnostic — always safe
     try {
-      const prodRes = await apiClient('/products?limit=200');
+      const [prodRes, catRes] = await Promise.all([
+        apiClient('/products?limit=100'),
+        apiClient('/categories'),
+      ]);
       setProducts((prodRes.products || []).map(normalizeProduct));
+      setCategories(catRes.categories || []);
     } catch {
       setProducts([]);
+      setCategories([]);
     }
 
-    try {
-      const orderRes = await apiClient('/orders?limit=100');
-      setOrders((orderRes.orders || []).map(normalizeOrder));
-    } catch {
+    // Authenticated data — only query if user is logged in
+    if (user) {
+      try {
+        const orderRes = await apiClient('/orders?limit=100');
+        setOrders((orderRes.orders || []).map(normalizeOrder));
+      } catch {
+        setOrders([]);
+      }
+
+      try {
+        const disputeRes = await apiClient('/disputes?limit=100');
+        setDisputes((disputeRes.disputes || []).map(normalizeDispute));
+      } catch {
+        setDisputes([]);
+      }
+    } else {
       setOrders([]);
-    }
-
-    try {
-      const disputeRes = await apiClient('/disputes?limit=100');
-      setDisputes((disputeRes.disputes || []).map(normalizeDispute));
-    } catch {
       setDisputes([]);
     }
 
@@ -133,7 +144,7 @@ export const MarketplaceProvider = ({ children }) => {
     }
 
     setLoading(false);
-  }, [isAdmin]);
+  }, [isAdmin, user]);
 
   // Reload catalog + role-scoped data when auth changes
   useEffect(() => {
@@ -143,15 +154,18 @@ export const MarketplaceProvider = ({ children }) => {
   const reloadFromDb = loadFromDb;
 
   const addProduct = async (product, author) => {
-    // Resolve category name to categoryId if needed
     let categoryId = product.categoryId;
     if (!categoryId && product.category) {
       try {
         const catRes = await apiClient('/categories');
         const cats = catRes.categories || [];
-        const match = cats.find(c => c.name.toLowerCase() === (product.category || '').toLowerCase());
+        const match = cats.find(
+          (c) => c.name.toLowerCase() === (product.category || '').toLowerCase(),
+        );
         categoryId = match?.id;
-      } catch { /* fall through — backend will validate */ }
+      } catch {
+        /* fall through */
+      }
     }
 
     const dto = {
@@ -187,25 +201,70 @@ export const MarketplaceProvider = ({ children }) => {
   };
 
   const updateProduct = async (productId, updates, author) => {
-    // Resolve category name to categoryId if needed
     const dto = { ...updates };
+    const stockUpdate = dto.stock;
+    delete dto.stock;
+
     if (dto.category && !dto.categoryId) {
       try {
         const catRes = await apiClient('/categories');
         const cats = catRes.categories || [];
-        const match = cats.find(c => c.name.toLowerCase() === dto.category.toLowerCase());
-        if (match) { dto.categoryId = match.id; delete dto.category; }
-      } catch { /* fall through */ }
+        const match = cats.find(
+          (c) => c.name.toLowerCase() === dto.category.toLowerCase(),
+        );
+        if (match) {
+          dto.categoryId = match.id;
+          delete dto.category;
+        }
+      } catch {
+        /* fall through */
+      }
     }
-    // Strip frontend-only fields
+
     delete dto.vendor;
     delete dto.vendorId;
 
-    await apiClient(`/products/${productId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(dto),
+    if (Object.keys(dto).length > 0) {
+      await apiClient(`/products/${productId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(dto),
+      });
+    }
+
+    if (stockUpdate !== undefined) {
+      await apiClient(`/products/${productId}/stock`, {
+        method: 'PATCH',
+        body: JSON.stringify({ stock: stockUpdate }),
+      });
+    }
+
+    await reloadFromDb();
+  };
+
+  const addCategory = async (categoryData) => {
+    const data = await apiClient('/categories', {
+      method: 'POST',
+      body: JSON.stringify(categoryData),
     });
     await reloadFromDb();
+    return data;
+  };
+
+  const updateCategory = async (id, categoryData) => {
+    const data = await apiClient(`/categories/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(categoryData),
+    });
+    await reloadFromDb();
+    return data;
+  };
+
+  const deleteCategory = async (id) => {
+    const data = await apiClient(`/categories/${id}`, {
+      method: 'DELETE',
+    });
+    await reloadFromDb();
+    return data;
   };
 
   const resolveDispute = async (disputeId, decision, author) => {
@@ -239,13 +298,32 @@ export const MarketplaceProvider = ({ children }) => {
   };
 
   return (
-    <MarketplaceContext.Provider value={{
-      products, disputes, auditLogs, orders, users, loading,
-      addProduct, deleteProduct, updateProductStock, updateProduct,
-      resolveDispute, logAdminAction, approveVendor, suspendUser,
-      addReview, reloadFromDb
-    }}>
+    <MarketplaceContext.Provider
+      value={{
+        products,
+        categories,
+        disputes,
+        auditLogs,
+        orders,
+        users,
+        loading,
+        addProduct,
+        deleteProduct,
+        updateProductStock,
+        updateProduct,
+        addCategory,
+        updateCategory,
+        deleteCategory,
+        resolveDispute,
+        logAdminAction,
+        approveVendor,
+        suspendUser,
+        addReview,
+        reloadFromDb,
+      }}
+    >
       {children}
     </MarketplaceContext.Provider>
   );
 };
+

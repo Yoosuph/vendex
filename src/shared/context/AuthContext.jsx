@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import * as authApi from '@/shared/api/auth';
+import { getProfile } from '@/shared/api/users';
 import { getToken } from '@/shared/api/client';
 
 export const AuthContext = createContext();
@@ -22,7 +23,6 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       try {
-        const { getProfile } = await import('@/shared/api/users');
         const profile = await getProfile();
         if (profile) setUser(normalizeRole(profile));
       } catch {
@@ -32,6 +32,15 @@ export const AuthProvider = ({ children }) => {
       }
     };
     restore();
+
+    const handleUnauthorized = () => {
+      setUser(null);
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
   }, []);
 
   const login = useCallback(async (email, password) => {
@@ -46,20 +55,23 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const signup = useCallback(async (name, email, password, role = 'buyer') => {
-    setLoading(true);
-    try {
-      const u = await authApi.register(name, email, password, role);
-      const normalized = normalizeRole(u);
-      setUser(normalized);
-      return normalized;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const signup = useCallback(
+    async (name, email, password, role = 'buyer', storeData = {}) => {
+      setLoading(true);
+      try {
+        const u = await authApi.register(name, email, password, role, storeData);
+        const normalized = normalizeRole(u);
+        setUser(normalized);
+        return normalized;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
-  const logout = useCallback(() => {
-    authApi.logout();
+  const logout = useCallback(async () => {
+    await authApi.logout();
     setUser(null);
   }, []);
 
@@ -68,8 +80,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading, updateUser, initialized }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        signup,
+        logout,
+        loading,
+        updateUser,
+        initialized,
+      }}
+    >
       {initialized ? children : null}
     </AuthContext.Provider>
   );
 };
+

@@ -1,9 +1,10 @@
 import {
-  Injectable,
   BadRequestException,
-  NotFoundException,
   ForbiddenException,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto.js';
 
@@ -21,7 +22,16 @@ export class OrdersService {
       throw new BadRequestException('EMPTY_CART');
     }
 
-    const productIds = dto.items.map((i) => i.id);
+    // Consolidate quantities for duplicate items
+    const quantityMap = new Map<string, number>();
+    for (const item of dto.items) {
+      quantityMap.set(
+        item.id,
+        (quantityMap.get(item.id) || 0) + (item.quantity || 1),
+      );
+    }
+
+    const productIds = Array.from(quantityMap.keys());
     const products = await this.prisma.product.findMany({
       where: { id: { in: productIds } },
     });
@@ -29,21 +39,21 @@ export class OrdersService {
     const productMap = new Map(products.map((p) => [p.id, p]));
 
     const stockIssues: any[] = [];
-    for (const item of dto.items) {
-      const product = productMap.get(item.id);
-      if (!product) {
+    for (const [productId, requestedQty] of quantityMap.entries()) {
+      const product = productMap.get(productId);
+      if (!product || !product.isActive) {
         stockIssues.push({
-          id: item.id,
-          name: 'Unknown',
+          id: productId,
+          name: product?.name || 'Unavailable Item',
           available: 0,
-          requested: item.quantity,
+          requested: requestedQty,
         });
-      } else if (product.stock < item.quantity) {
+      } else if (product.stock < requestedQty) {
         stockIssues.push({
-          id: item.id,
+          id: productId,
           name: product.name,
           available: product.stock,
-          requested: item.quantity,
+          requested: requestedQty,
         });
       }
     }
@@ -57,14 +67,14 @@ export class OrdersService {
 
     let subtotal = 0;
     const orderItemsData: any[] = [];
-    for (const item of dto.items) {
-      const product = productMap.get(item.id)!;
-      subtotal += product.price * item.quantity;
+    for (const [productId, requestedQty] of quantityMap.entries()) {
+      const product = productMap.get(productId)!;
+      subtotal += product.price * requestedQty;
       orderItemsData.push({
         productId: product.id,
         name: product.name,
         price: product.price,
-        quantity: item.quantity,
+        quantity: requestedQty,
         vendorId: product.vendorId,
         vendor: product.vendorName,
         image: product.image,
@@ -76,17 +86,18 @@ export class OrdersService {
       (subtotal + tax + CHECKOUT_CONFIG.shippingFlat).toFixed(2),
     );
 
-    const displayId = `VX-${Math.random().toString(36).substring(2, 6).toUpperCase()}${Date.now().toString(36).substring(-4).toUpperCase()}`;
+    const randomSuffix = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const timeSuffix = Date.now().toString(36).slice(-4).toUpperCase();
+    const displayId = `VX-${randomSuffix}${timeSuffix}`;
 
     const order = await this.prisma.$transaction(async (tx) => {
-      for (const item of dto.items) {
-        const product = productMap.get(item.id)!;
+      for (const [productId, requestedQty] of quantityMap.entries()) {
         const updated = await tx.product.updateMany({
           where: {
-            id: item.id,
-            stock: { gte: item.quantity },
+            id: productId,
+            stock: { gte: requestedQty },
           },
-          data: { stock: { decrement: item.quantity } },
+          data: { stock: { decrement: requestedQty } },
         });
         if (updated.count === 0) {
           throw new BadRequestException('STOCK_CONTENTION');
@@ -120,9 +131,15 @@ export class OrdersService {
         include: { items: true },
       });
 
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { name: true },
+      });
+
       await tx.auditLog.create({
         data: {
-          adminName: 'System',
+          adminId: userId,
+          adminName: user?.name || 'Customer',
           action: 'ORDER_PLACED',
           resource: `Order ${displayId}`,
           status: 'Success',
@@ -163,7 +180,7 @@ export class OrdersService {
         : { createdAt: 'desc' as const };
     const skip = (page - 1) * limit;
 
-    const [orders, total] = await Promise.all([
+    const [rawOrders, total] = await Promise.all([
       this.prisma.order.findMany({
         where,
         orderBy,
@@ -173,6 +190,17 @@ export class OrdersService {
       }),
       this.prisma.order.count({ where }),
     ]);
+
+    // For vendors, isolate items to only their own products
+    const orders = rawOrders.map((o) => {
+      if (userRole === 'VENDOR' && userVendorId) {
+        return {
+          ...o,
+          items: o.items.filter((i) => i.vendorId === userVendorId),
+        };
+      }
+      return o;
+    });
 
     return {
       orders,
@@ -186,8 +214,8 @@ export class OrdersService {
     userRole: string,
     userVendorId: string | null,
   ) {
-    const order = await this.prisma.order.findUnique({
-      where: { id },
+    const order = await this.prisma.order.findFirst({
+      where: { OR: [{ id }, { displayId: id }] },
       include: { items: true },
     });
     if (!order) throw new NotFoundException('Order not found');
@@ -196,32 +224,72 @@ export class OrdersService {
       throw new ForbiddenException('FORBIDDEN');
     }
 
-    if (userRole === 'VENDOR' && (!userVendorId || !order.items.some((i) => i.vendorId === userVendorId))) {
+    if (
+      userRole === 'VENDOR' &&
+      (!userVendorId || !order.items.some((i) => i.vendorId === userVendorId))
+    ) {
       throw new ForbiddenException('FORBIDDEN');
+    }
+
+    if (userRole === 'VENDOR' && userVendorId) {
+      return {
+        ...order,
+        items: order.items.filter((i) => i.vendorId === userVendorId),
+      };
     }
 
     return order;
   }
 
-  async updateStatus(id: string, dto: UpdateOrderStatusDto) {
-    const order = await this.prisma.order.findUnique({ where: { id } });
-    if (!order) throw new NotFoundException('Order not found');
-
-    const updated = await this.prisma.order.update({
-      where: { id },
-      data: { status: dto.status.toUpperCase() as any },
+  async updateStatus(
+    id: string,
+    dto: UpdateOrderStatusDto,
+    user?: any,
+  ) {
+    const order = await this.prisma.order.findFirst({
+      where: { OR: [{ id }, { displayId: id }] },
       include: { items: true },
     });
+    if (!order) throw new NotFoundException('Order not found');
 
-    await this.prisma.auditLog.create({
-      data: {
-        adminName: 'System',
-        action: 'ORDER_STATUS_CHANGE',
-        resource: `Order ${order.displayId} → ${dto.status}`,
-        status: 'Success',
-      },
+    const newStatus = dto.status.toUpperCase() as any;
+    const previousStatus = order.status;
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      // Restock inventory if cancelling or refunding an active order
+      if (
+        (newStatus === 'CANCELLED' || newStatus === 'REFUNDED') &&
+        previousStatus !== 'CANCELLED' &&
+        previousStatus !== 'REFUNDED'
+      ) {
+        for (const item of order.items) {
+          await tx.product.updateMany({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+        }
+      }
+
+      const res = await tx.order.update({
+        where: { id: order.id },
+        data: { status: newStatus },
+        include: { items: true },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          adminId: user?.sub || user?.id,
+          adminName: user?.name || 'Admin',
+          action: 'ORDER_STATUS_CHANGE',
+          resource: `Order ${order.displayId} (${previousStatus} → ${newStatus})`,
+          status: 'Success',
+        },
+      });
+
+      return res;
     });
 
     return updated;
   }
 }
+

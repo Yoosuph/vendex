@@ -110,13 +110,13 @@ export default function BuyerWallet() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-        <div className="md:col-span-2 buyer-panel p-lg relative overflow-hidden bg-inverse-surface text-inverse-on-surface">
-          <div className="absolute inset-0 opacity-20 pattern-bg pointer-events-none" />
-          <p className="buyer-eyebrow text-inverse-on-surface/70 relative">Available balance</p>
-          <p className="buyer-price text-4xl md:text-5xl mt-sm relative">
+        <div className="md:col-span-2 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-surface-container border border-outline-variant/50 relative overflow-hidden shadow-xl">
+          <div className="absolute right-0 top-0 w-64 h-full bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+          <p className="text-[11px] font-mono font-bold tracking-wider uppercase text-secondary relative z-10">Available Loyalty Balance</p>
+          <p className="text-4xl md:text-5xl font-black font-mono text-primary mt-2 relative z-10">
             {formatMoney(wallet.balance)}
           </p>
-          <p className="buyer-mono text-[11px] tracking-widest uppercase mt-md text-inverse-on-surface/60 relative">
+          <p className="text-[11px] font-mono tracking-widest uppercase mt-4 text-secondary relative z-10">
             Vendex credits · {wallet.currency}
           </p>
         </div>

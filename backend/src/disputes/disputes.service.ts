@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { CreateDisputeDto, ResolveDisputeDto } from './dto/dispute.dto.js';
 
@@ -37,6 +39,11 @@ export class DisputesService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
+        include: {
+          order: {
+            include: { items: true },
+          },
+        },
       }),
       this.prisma.dispute.count({ where }),
     ]);
@@ -47,15 +54,35 @@ export class DisputesService {
     };
   }
 
-  async findOne(id: string) {
-    const dispute = await this.prisma.dispute.findUnique({ where: { id } });
+  async findOne(id: string, user: any) {
+    const dispute = await this.prisma.dispute.findFirst({
+      where: { OR: [{ id }, { displayId: id }] },
+      include: {
+        order: {
+          include: { items: true },
+        },
+      },
+    });
     if (!dispute) throw new NotFoundException('Dispute not found');
+
+    if (user.role === 'BUYER' && dispute.claimantId !== user.sub) {
+      throw new ForbiddenException('FORBIDDEN');
+    }
+
+    if (
+      user.role === 'VENDOR' &&
+      (!user.vendorId ||
+        !dispute.order.items.some((i) => i.vendorId === user.vendorId))
+    ) {
+      throw new ForbiddenException('FORBIDDEN');
+    }
+
     return dispute;
   }
 
   async create(userId: string, userName: string, dto: CreateDisputeDto) {
-    const order = await this.prisma.order.findUnique({
-      where: { id: dto.orderId },
+    const order = await this.prisma.order.findFirst({
+      where: { OR: [{ id: dto.orderId }, { displayId: dto.orderId }] },
       include: { items: true },
     });
     if (!order) throw new NotFoundException('Order not found');
@@ -65,7 +92,7 @@ export class DisputesService {
     }
 
     const existing = await this.prisma.dispute.findFirst({
-      where: { orderId: dto.orderId, status: { not: 'RESOLVED' } },
+      where: { orderId: order.id, status: { not: 'RESOLVED' } },
     });
     if (existing) {
       throw new BadRequestException(
@@ -73,17 +100,25 @@ export class DisputesService {
       );
     }
 
-    const vendorNames = [...new Set(order.items.map((i) => i.vendor))];
+    if (dto.amount > order.total) {
+      throw new BadRequestException(
+        `Dispute amount cannot exceed order total ($${order.total})`,
+      );
+    }
 
-    const displayId = `DIS-${Math.random().toString(36).substring(2, 6).toUpperCase()}${Date.now().toString(36).substring(-4).toUpperCase()}`;
+    const vendorNames = [...new Set(order.items.map((i) => i.vendor).filter(Boolean))];
+
+    const randomSuffix = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const timeSuffix = Date.now().toString(36).slice(-4).toUpperCase();
+    const displayId = `DIS-${randomSuffix}${timeSuffix}`;
 
     return this.prisma.dispute.create({
       data: {
         displayId,
-        orderId: dto.orderId,
+        orderId: order.id,
         claimantId: userId,
         claimantName: userName,
-        vendorName: vendorNames.join(', '),
+        vendorName: vendorNames.join(', ') || 'Marketplace Vendor',
         amount: dto.amount,
         reason: dto.reason,
         description: dto.description,
@@ -92,7 +127,10 @@ export class DisputesService {
   }
 
   async resolve(id: string, dto: ResolveDisputeDto, adminUser: any) {
-    const dispute = await this.prisma.dispute.findUnique({ where: { id } });
+    const dispute = await this.prisma.dispute.findFirst({
+      where: { OR: [{ id }, { displayId: id }] },
+      include: { order: { include: { items: true } } },
+    });
     if (!dispute) throw new NotFoundException('Dispute not found');
 
     if (dispute.status === 'RESOLVED') {
@@ -103,12 +141,12 @@ export class DisputesService {
 
     return this.prisma.$transaction(async (tx) => {
       const updated = await tx.dispute.update({
-        where: { id },
+        where: { id: dispute.id },
         data: {
           status: 'RESOLVED',
           decision: decision as any,
           decisionNotes: dto.notes,
-          resolvedBy: adminUser.name || adminUser.email,
+          resolvedBy: adminUser.name || adminUser.email || 'Admin',
           resolvedAt: new Date(),
         },
       });
@@ -119,11 +157,8 @@ export class DisputesService {
           data: { status: 'REFUNDED' },
         });
 
-        const orderItems = await tx.orderItem.findMany({
-          where: { orderId: dispute.orderId },
-        });
-        for (const item of orderItems) {
-          await tx.product.update({
+        for (const item of dispute.order.items) {
+          await tx.product.updateMany({
             where: { id: item.productId },
             data: { stock: { increment: item.quantity } },
           });
@@ -132,10 +167,10 @@ export class DisputesService {
 
       await tx.auditLog.create({
         data: {
-          adminId: adminUser.sub,
-          adminName: adminUser.name || adminUser.email,
+          adminId: adminUser.sub || adminUser.id,
+          adminName: adminUser.name || adminUser.email || 'Admin',
           action: 'RESOLVE_DISPUTE',
-          resource: `Dispute ${dispute.displayId} in favor of ${dto.decision}`,
+          resource: `Dispute ${dispute.displayId} resolved (${dto.decision})`,
           status: 'Success',
         },
       });
@@ -144,3 +179,4 @@ export class DisputesService {
     });
   }
 }
+

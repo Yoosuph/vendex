@@ -1,16 +1,21 @@
 import {
+  Body,
   Controller,
-  Get,
   Delete,
-  Param,
-  Query,
-  UseGuards,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { AdminService } from './admin.service.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { JwtAuthGuard, RolesGuard } from '../common/guards/index.js';
+import { AdminService } from './admin.service.js';
+
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -116,4 +121,65 @@ export class AdminController {
       limit: limit ? parseInt(limit, 10) : 20,
     });
   }
+
+  @Get('settings')
+  getSettings() {
+    return this.adminService.getPlatformSettings();
+  }
+
+  @Patch('settings')
+  updateSettings(@Body() dto: any, @CurrentUser() user: any) {
+    return this.adminService.updatePlatformSettings(dto, user);
+  }
+
+  @Get('banners')
+  getBanners() {
+    return this.adminService.getBanners();
+  }
+
+  @Post('banners')
+  @HttpCode(HttpStatus.CREATED)
+  createBanner(@Body() dto: any, @CurrentUser() user: any) {
+    return this.adminService.createBanner(dto, user);
+  }
+
+  @Patch('banners/:id')
+  updateBanner(
+    @Param('id') id: string,
+    @Body() dto: any,
+    @CurrentUser() user: any,
+  ) {
+    return this.adminService.updateBanner(id, dto, user);
+  }
+
+  @Delete('banners/:id')
+  deleteBanner(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.adminService.deleteBanner(id, user);
+  }
+
+  @Get('roles')
+  getRoles() {
+    return this.adminService.getRoles();
+  }
+
+  @Post('roles')
+  @HttpCode(HttpStatus.CREATED)
+  createRole(@Body() dto: any, @CurrentUser() user: any) {
+    return this.adminService.createRole(dto, user);
+  }
+
+  @Patch('roles/:id')
+  updateRole(
+    @Param('id') id: string,
+    @Body() dto: any,
+    @CurrentUser() user: any,
+  ) {
+    return this.adminService.updateRole(id, dto, user);
+  }
+
+  @Delete('roles/:id')
+  deleteRole(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.adminService.deleteRole(id, user);
+  }
 }
+

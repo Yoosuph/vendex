@@ -13,6 +13,8 @@ import VendorLayout from "@/features/vendor/components/VendorLayout";
 import AdminLayout from "@/features/admin/components/AdminLayout";
 import AnimatedPage from "@/shared/components/AnimatedPage";
 import ErrorBoundary from "@/shared/components/ErrorBoundary";
+import LoadingSpinner from "@/shared/components/LoadingSpinner";
+import BlockingLoaderProvider from "@/shared/components/BlockingLoader";
 
 const Home = React.lazy(() => import("@/features/products/pages/Home"));
 const SearchResults = React.lazy(() => import("@/features/products/pages/SearchResults"));
@@ -42,6 +44,7 @@ const VendorOrders = React.lazy(() => import("@/features/vendor/pages/VendorOrde
 const VendorPayouts = React.lazy(() => import("@/features/vendor/pages/VendorPayouts"));
 const VendorAnalytics = React.lazy(() => import("@/features/vendor/pages/VendorAnalytics"));
 const VendorStorefront = React.lazy(() => import("@/features/vendor/pages/VendorStorefront"));
+const VendorSettings = React.lazy(() => import("@/features/vendor/pages/VendorSettings"));
 
 const AdminOverview = React.lazy(() => import("@/features/admin/pages/AdminOverview"));
 const AdminVendors = React.lazy(() => import("@/features/admin/pages/AdminVendors"));
@@ -56,8 +59,8 @@ const AdminSettings = React.lazy(() => import("@/features/admin/pages/AdminSetti
 const AdminAuditLogs = React.lazy(() => import("@/features/admin/pages/AdminAuditLogs"));
 
 const PageFallback = (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <LoadingSpinner size="md" text="Loading experience..." />
   </div>
 );
 
@@ -102,6 +105,7 @@ function AnimatedAppRoutes() {
         <Route path="/vendor/payouts" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorPayouts /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/vendor/analytics" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorAnalytics /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/vendor/storefront" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorStorefront /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/vendor/settings" element={<ErrorBoundary><RoleRoute allowedRoles={['vendor']}><VendorLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorSettings /></Suspense></AnimatedPage></VendorLayout></RoleRoute></ErrorBoundary>} />
 
         {/* ADMIN PORTAL */}
         <Route path="/admin" element={<ErrorBoundary><RoleRoute allowedRoles={['admin']}><AdminLayout><AnimatedPage><Suspense fallback={PageFallback}><AdminOverview /></Suspense></AnimatedPage></AdminLayout></RoleRoute></ErrorBoundary>} />
@@ -128,9 +132,11 @@ export default function App() {
       <MarketplaceProvider>
         <CartProvider>
           <ToastProvider>
-            <Router>
-              <AnimatedAppRoutes />
-            </Router>
+            <BlockingLoaderProvider>
+              <Router>
+                <AnimatedAppRoutes />
+              </Router>
+            </BlockingLoaderProvider>
           </ToastProvider>
         </CartProvider>
       </MarketplaceProvider>

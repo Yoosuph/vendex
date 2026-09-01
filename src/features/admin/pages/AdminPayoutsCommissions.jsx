@@ -80,95 +80,179 @@ export default function AdminPayoutsCommissions() {
   if (loading) return <div className="pt-header"><LoadingSpinner text="Loading payouts..." /></div>;
 
   return (
-    <div className="pt-header min-h-screen">
-      <div className="p-gutter max-w-container-max mx-auto space-y-md">
-        <div className="flex justify-between items-end">
-          <div>
-            <h2 className="font-display-lg text-display-lg text-on-surface">Payouts & Commissions</h2>
-            <p className="text-on-surface-variant text-body-lg">Manage multi-vendor disbursements and commission structures.</p>
+    <div className="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl space-y-6 pb-24 overflow-x-hidden w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-headline-lg text-2xl sm:text-headline-lg text-on-surface">Payouts & Commissions</h1>
+          <p className="font-body-md text-sm sm:text-base text-secondary">
+            Manage multi-vendor disbursements and commission structures.
+          </p>
+        </div>
+        <div className="flex gap-2 self-start sm:self-auto">
+          <Button variant="outline" size="sm" icon={<span className="material-symbols-outlined text-base">file_download</span>}>Export CSV</Button>
+        </div>
+      </div>
+
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-gutter">
+        <div className="bg-surface-container-lowest p-4 sm:p-md rounded-2xl shadow-subtle border border-outline-variant/30">
+          <div className="flex justify-between items-start">
+            <span className="text-xs font-semibold text-secondary uppercase">Disbursed</span>
+            <div className="h-7 w-7 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-base">verified</span>
+            </div>
           </div>
-          <div className="flex gap-sm">
-            <Button variant="outline" icon={<span className="material-symbols-outlined text-body-lg">file_download</span>}>Export CSV</Button>
+          <div className="text-xl sm:text-2xl font-bold text-on-surface mt-1 buyer-price">{formatCurrency(totalDisbursed)}</div>
+          <div className="text-xs text-secondary mt-0.5">{payouts.length} vendors</div>
+        </div>
+        <div className="bg-surface-container-lowest p-4 sm:p-md rounded-2xl shadow-subtle border border-outline-variant/30">
+          <div className="flex justify-between items-start">
+            <span className="text-xs font-semibold text-secondary uppercase">Pending Payouts</span>
+            <div className="h-7 w-7 bg-warning/10 rounded-full flex items-center justify-center text-warning">
+              <span className="material-symbols-outlined text-base">hourglass_empty</span>
+            </div>
           </div>
+          <div className="text-xl sm:text-2xl font-bold text-on-surface mt-1 buyer-price">{formatCurrency(pendingAmount)}</div>
+          <div className="text-xs text-secondary mt-0.5">{pendingPayouts.length} pending</div>
+        </div>
+        <div className="bg-surface-container-lowest p-4 sm:p-md rounded-2xl shadow-subtle border border-outline-variant/30">
+          <div className="flex justify-between items-start">
+            <span className="text-xs font-semibold text-secondary uppercase">Total Commissions</span>
+            <div className="h-7 w-7 bg-info/10 rounded-full flex items-center justify-center text-info">
+              <span className="material-symbols-outlined text-base">account_balance_wallet</span>
+            </div>
+          </div>
+          <div className="text-xl sm:text-2xl font-bold text-primary mt-1 buyer-price">{formatCurrency(totalCommissions)}</div>
+          <div className="text-xs text-secondary mt-0.5">Avg. rate {commissionSettings.globalRate}%</div>
+        </div>
+      </section>
+
+      <div className="bg-surface-container-lowest rounded-2xl shadow-subtle border border-outline-variant/40 overflow-hidden">
+        <div className="flex border-b border-outline-variant/40 p-2 gap-2">
+          <button
+            onClick={() => setActiveTab('payouts')}
+            className={cn(
+              'px-4 py-2 rounded-xl text-xs font-semibold transition-colors',
+              activeTab === 'payouts' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container'
+            )}
+          >
+            Payouts
+          </button>
+          <button
+            onClick={() => setActiveTab('commissions')}
+            className={cn(
+              'px-4 py-2 rounded-xl text-xs font-semibold transition-colors',
+              activeTab === 'commissions' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container'
+            )}
+          >
+            Commission Settings
+          </button>
         </div>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-md">
-          <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-outline-variant/30">
-            <div className="flex justify-between items-start">
-              <span className="text-label-md font-label-md text-secondary uppercase">Disbursed</span>
-              <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined text-body-lg">verified</span>
-              </div>
-            </div>
-            <div className="text-headline-lg font-headline-lg text-on-surface">{formatCurrency(totalDisbursed)}</div>
-            <div className="text-label-sm font-label-sm text-on-surface-variant">{payouts.length} vendors</div>
-          </div>
-          <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-outline-variant/30">
-            <div className="flex justify-between items-start">
-              <span className="text-label-md font-label-md text-secondary uppercase">Pending Payouts</span>
-              <div className="h-8 w-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-700">
-                <span className="material-symbols-outlined text-body-lg">hourglass_empty</span>
-              </div>
-            </div>
-            <div className="text-headline-lg font-headline-lg text-on-surface">{formatCurrency(pendingAmount)}</div>
-            <div className="text-label-sm font-label-sm text-on-surface-variant">{pendingPayouts.length} pending</div>
-          </div>
-          <div className="bg-surface-container-lowest p-md rounded-xl shadow-card border border-outline-variant/30">
-            <div className="flex justify-between items-start">
-              <span className="text-label-md font-label-md text-secondary uppercase">Total Commissions</span>
-              <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
-                <span className="material-symbols-outlined text-body-lg">account_balance_wallet</span>
-              </div>
-            </div>
-            <div className="text-headline-lg font-headline-lg text-on-surface text-primary">{formatCurrency(totalCommissions)}</div>
-            <div className="text-label-sm font-label-sm text-on-surface-variant">Avg. rate {commissionSettings.globalRate}%</div>
-          </div>
-        </section>
+        {activeTab === 'payouts' && (
+          <>
+            {/* Dedicated Mobile Settlement Cards (Mobile Only) */}
+            <div className="md:hidden p-3 space-y-3">
+              {payouts.map((p) => (
+                <div
+                  key={p.id}
+                  className="bg-surface-container-low rounded-xl p-3.5 border border-outline-variant/30 flex flex-col gap-2.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary text-xs">
+                        {p.vendorName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </div>
+                      <span className="font-semibold text-sm text-on-surface">{p.vendorName}</span>
+                    </div>
+                    <span
+                      className={cn(
+                        'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase',
+                        p.status === 'pending'
+                          ? 'bg-warning-container text-warning'
+                          : 'bg-success-container text-success'
+                      )}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
 
-        <div className="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant/30 overflow-hidden">
-          <div className="flex border-b border-outline-variant">
-            <Button variant={activeTab === 'payouts' ? 'primary' : 'ghost'} onClick={() => setActiveTab('payouts')}>Payouts</Button>
-            <Button variant={activeTab === 'commissions' ? 'primary' : 'ghost'} onClick={() => setActiveTab('commissions')}>Commissions</Button>
-          </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs border-t border-outline-variant/20 pt-2 text-secondary">
+                    <div>
+                      <span>Orders: </span>
+                      <span className="font-semibold text-on-surface">{p.orderCount}</span>
+                    </div>
+                    <div>
+                      <span>Gross: </span>
+                      <span className="font-semibold text-on-surface">${p.grossSales.toFixed(2)}</span>
+                    </div>
+                    <div>
+                      <span>Fee ({commissionSettings.globalRate}%): </span>
+                      <span className="font-semibold text-error">-${p.fee.toFixed(2)}</span>
+                    </div>
+                    <div>
+                      <span>Net Payout: </span>
+                      <span className="font-bold text-primary buyer-price text-sm">${p.net.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {payouts.length === 0 && (
+                <div className="p-6 text-center text-secondary text-sm">No payout data available.</div>
+              )}
+            </div>
 
-          {activeTab === 'payouts' && (
-            <div className="overflow-x-auto">
+            {/* Desktop Table View (Desktop Only) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="text-label-sm font-label-sm text-secondary border-b border-outline-variant">
-                    <th className="p-sm">VENDOR</th>
-                    <th className="p-sm">ORDERS</th>
-                    <th className="p-sm">GROSS SALES</th>
-                    <th className="p-sm">FEE ({commissionSettings.globalRate}%)</th>
-                    <th className="p-sm">NET PAYOUT</th>
-                    <th className="p-sm">STATUS</th>
+                  <tr className="text-xs uppercase font-semibold text-secondary bg-surface-container-low border-b border-outline-variant/30">
+                    <th className="px-4 py-3">Vendor</th>
+                    <th className="px-4 py-3">Orders</th>
+                    <th className="px-4 py-3 text-right">Gross Sales</th>
+                    <th className="px-4 py-3 text-right">Fee ({commissionSettings.globalRate}%)</th>
+                    <th className="px-4 py-3 text-right">Net Payout</th>
+                    <th className="px-4 py-3 text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant">
-                  {payouts.map(p => (
-                    <tr key={p.id} className="hover:bg-surface-container-lowest transition-colors">
-                      <td className="p-sm flex items-center gap-xs">
-                        <div className="h-8 w-8 rounded-full bg-secondary-container flex items-center justify-center font-bold text-on-secondary-container text-xs">
-                          {p.vendorName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                <tbody className="divide-y divide-outline-variant/30 text-sm">
+                  {payouts.map((p) => (
+                    <tr key={p.id} className="hover:bg-surface-container-low/50 transition-colors">
+                      <td className="px-4 py-3 flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary text-xs">
+                          {p.vendorName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
                         </div>
-                        <span className="font-label-md">{p.vendorName}</span>
+                        <span className="font-semibold text-on-surface">{p.vendorName}</span>
                       </td>
-                      <td className="p-sm text-body-sm">{p.orderCount}</td>
-                      <td className="p-sm text-body-sm">${p.grossSales.toFixed(2)}</td>
-                      <td className="p-sm text-error text-body-sm">-${p.fee.toFixed(2)}</td>
-                      <td className="p-sm font-bold text-body-sm">${p.net.toFixed(2)}</td>
-                      <td className="p-sm">
-                        <span className={cn('px-2 py-0.5 rounded-full text-meta font-bold uppercase', p.status === 'pending' ? 'bg-warning-container text-on-warning-container' : 'bg-success-container text-on-success-container')}>{p.status}</span>
+                      <td className="px-4 py-3 text-secondary">{p.orderCount}</td>
+                      <td className="px-4 py-3 text-right font-mono">${p.grossSales.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right font-mono text-error">-${p.fee.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right font-mono font-bold text-on-surface">${p.net.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <span
+                          className={cn(
+                            'px-2 py-0.5 rounded-full text-xs font-bold uppercase',
+                            p.status === 'pending'
+                              ? 'bg-warning-container text-warning'
+                              : 'bg-success-container text-success'
+                          )}
+                        >
+                          {p.status}
+                        </span>
                       </td>
                     </tr>
                   ))}
                   {payouts.length === 0 && (
-                    <tr><td colSpan="6" className="p-lg text-center text-on-surface-variant">No payout data available.</td></tr>
+                    <tr>
+                      <td colSpan="6" className="p-8 text-center text-secondary">
+                        No payout data available.
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
             </div>
-          )}
+          </>
+        )}
 
           {activeTab === 'commissions' && (
             <div className="p-sm">
@@ -214,6 +298,5 @@ export default function AdminPayoutsCommissions() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }

@@ -13,13 +13,17 @@ export const CartProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem(CART_KEY);
       return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   });
   const [wishlist, setWishlist] = useState(() => {
     try {
       const saved = localStorage.getItem(WISHLIST_KEY);
       return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   });
   const [loading, setLoading] = useState(false);
   const { user } = useContext(AuthContext);
@@ -28,9 +32,10 @@ export const CartProvider = ({ children }) => {
 
   const prevUserRef = useRef(user);
 
-  // Reset cart/wishlist states and localStorage arrays on logout
+  // Reset cart/wishlist states on logout or account switch
   useEffect(() => {
-    if (prevUserRef.current && !user) {
+    const prev = prevUserRef.current;
+    if ((prev && !user) || (prev && user && prev.id !== user.id)) {
       setCart([]);
       setWishlist([]);
       localStorage.removeItem(CART_KEY);
@@ -39,69 +44,121 @@ export const CartProvider = ({ children }) => {
     prevUserRef.current = user;
   }, [user]);
 
-  // Sync cart from backend on login (mount / user change)
+  // Sync cart from backend on login
   useEffect(() => {
     if (!loggedIn) return;
     (async () => {
       try {
         const data = await apiClient('/cart');
-        if (data.items?.length > 0) {
-          setCart(data.items.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            vendor: item.vendor || 'Unknown Store',
-            vendorId: item.vendorId,
-            image: item.image,
-          })));
+        if (data && Array.isArray(data.items)) {
+          setCart(
+            data.items.map((item) => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              vendor: item.vendor || 'Unknown Store',
+              vendorId: item.vendorId,
+              image: item.image,
+            })),
+          );
         }
-      } catch { /* offline or unauthenticated — keep local cart */ }
+      } catch {
+        /* offline or unauthenticated — keep local cart */
+      }
       try {
         const wData = await apiClient('/wishlist');
-        if (wData.items?.length > 0) {
-          setWishlist(wData.items.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            image: item.image,
-            vendor: item.vendorName || item.vendor || 'Unknown Store',
-            vendorId: item.vendorId,
-          })));
+        if (wData && Array.isArray(wData.items)) {
+          setWishlist(
+            wData.items.map((item) => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              image: item.image,
+              vendor: item.vendorName || item.vendor || 'Unknown Store',
+              vendorId: item.vendorId,
+            })),
+          );
         }
-      } catch { /* keep local wishlist */ }
+      } catch {
+        /* keep local wishlist */
+      }
     })();
-  }, [loggedIn]);
+  }, [loggedIn, user?.id]);
 
-  // Persist cart/wishlist to localStorage as fallback
-  useEffect(() => { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }, [cart]);
-  useEffect(() => { localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist)); }, [wishlist]);
+  // Persist cart/wishlist to localStorage
+  useEffect(() => {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }, [cart]);
 
-  const addToCart = useCallback((product, quantity = 1) => {
-    setCart(prev => {
-      const exists = prev.find(item => item.id === product.id);
-      if (exists) return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item);
-      return [...prev, { id: product.id, name: product.name, price: product.price, quantity, vendor: product.vendor || product.vendorName || 'Unknown Store', vendorId: product.vendorId, image: product.image }];
-    });
-    if (loggedIn) {
-      apiClient('/cart/items', { method: 'POST', body: JSON.stringify({ productId: product.id, quantity }) }).catch(() => {});
-    }
-  }, [loggedIn]);
+  useEffect(() => {
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+  }, [wishlist]);
 
-  const removeFromCart = useCallback((id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-    if (loggedIn) {
-      apiClient(`/cart/items/${id}`, { method: 'DELETE' }).catch(() => {});
-    }
-  }, [loggedIn]);
+  const addToCart = useCallback(
+    (product, quantity = 1) => {
+      setCart((prev) => {
+        const exists = prev.find((item) => item.id === product.id);
+        if (exists) {
+          return prev.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + quantity }
+              : item,
+          );
+        }
+        return [
+          ...prev,
+          {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity,
+            vendor: product.vendor || product.vendorName || 'Unknown Store',
+            vendorId: product.vendorId,
+            image: product.image,
+          },
+        ];
+      });
+      if (loggedIn) {
+        apiClient('/cart/items', {
+          method: 'POST',
+          body: JSON.stringify({ productId: product.id, quantity }),
+        }).catch(() => {});
+      }
+    },
+    [loggedIn],
+  );
 
-  const updateQuantity = useCallback((id, quantity) => {
-    if (quantity <= 0) { removeFromCart(id); return; }
-    setCart(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
-    if (loggedIn) {
-      apiClient(`/cart/items/${id}`, { method: 'PATCH', body: JSON.stringify({ quantity }) }).catch(() => {});
-    }
-  }, [loggedIn, removeFromCart]);
+  const removeFromCart = useCallback(
+    (id) => {
+      setCart((prev) => prev.filter((item) => item.id !== id));
+      if (loggedIn) {
+        apiClient(`/cart/items/${id}`, { method: 'DELETE' }).catch(() => {});
+      }
+    },
+    [loggedIn],
+  );
+
+  const updateQuantity = useCallback(
+    (id, quantity) => {
+      if (quantity <= 0) {
+        removeFromCart(id);
+        return;
+      }
+      setCart((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, quantity } : item,
+        ),
+      );
+      if (loggedIn) {
+        apiClient(`/cart/items/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ quantity }),
+        }).catch(() => {});
+      }
+    },
+    [loggedIn, removeFromCart],
+  );
 
   const clearCart = useCallback(() => {
     setCart([]);
@@ -110,25 +167,38 @@ export const CartProvider = ({ children }) => {
     }
   }, [loggedIn]);
 
-  const toggleWishlist = useCallback((product) => {
-    const exists = wishlist.some(item => item.id === product.id);
-    if (exists) {
-      if (loggedIn) {
-        apiClient(`/wishlist/${product.id}`, { method: 'DELETE' }).catch(() => {});
-      }
-      setWishlist(prev => prev.filter(item => item.id !== product.id));
-    } else {
-      if (loggedIn) {
-        apiClient('/wishlist', { method: 'POST', body: JSON.stringify({ productId: product.id }) }).catch(() => {});
-      }
-      setWishlist(prev => [...prev, product]);
-    }
-  }, [loggedIn, wishlist]);
+  const toggleWishlist = useCallback(
+    (product) => {
+      setWishlist((prev) => {
+        const exists = prev.some((item) => item.id === product.id);
+        if (exists) {
+          if (loggedIn) {
+            apiClient(`/wishlist/${product.id}`, { method: 'DELETE' }).catch(
+              () => {},
+            );
+          }
+          return prev.filter((item) => item.id !== product.id);
+        } else {
+          if (loggedIn) {
+            apiClient('/wishlist', {
+              method: 'POST',
+              body: JSON.stringify({ productId: product.id }),
+            }).catch(() => {});
+          }
+          return [...prev, product];
+        }
+      });
+    },
+    [loggedIn],
+  );
 
   const checkoutAndCommit = async (buyerId, shippingDetails, paymentMethod) => {
     setLoading(true);
     try {
-      const items = cart.map(item => ({ id: item.id, quantity: item.quantity }));
+      const items = cart.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+      }));
       const data = await apiClient('/orders', {
         method: 'POST',
         body: JSON.stringify({ shippingDetails, paymentMethod, items }),
@@ -142,11 +212,29 @@ export const CartProvider = ({ children }) => {
   };
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartTotal = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
 
   return (
-    <CartContext.Provider value={{ cart, wishlist, loading, addToCart, removeFromCart, updateQuantity, clearCart, toggleWishlist, cartCount, cartTotal, checkoutAndCommit }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        wishlist,
+        loading,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        toggleWishlist,
+        cartCount,
+        cartTotal,
+        checkoutAndCommit,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
+
