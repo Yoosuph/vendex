@@ -1,8 +1,12 @@
-const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  (typeof window !== 'undefined' && window.location.hostname === 'localhost'
-    ? 'http://localhost:3001'
-    : 'https://vendex-api.onrender.com');
+const VITE_URL = import.meta.env.VITE_API_URL;
+const isLocalhost =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1');
+
+const API_BASE = isLocalhost
+  ? (VITE_URL || 'http://localhost:3001')
+  : (VITE_URL && !VITE_URL.includes('localhost') ? VITE_URL : 'https://vendex-api.onrender.com');
 
 const TOKEN_KEY = 'vendex_access_token';
 const REFRESH_KEY = 'vendex_refresh_token';
