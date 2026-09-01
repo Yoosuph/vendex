@@ -46,7 +46,7 @@ export default function OrderConfirmation() {
           <h1 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Thank you for your order!</h1>
           <p className="font-body-lg text-body-lg text-secondary mb-base">Your transaction was successful and your items are being prepared.</p>
           <div className="mt-md px-sm py-xs bg-surface-container-high rounded-full">
-            <span className="font-label-md text-label-md text-on-surface">Order ID: <span className="font-bold">#{order.id}</span></span>
+            <span className="font-label-md text-label-md text-on-surface">Order ID: <span className="font-bold">#{order.displayId || order.id}</span></span>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export default function OrderConfirmation() {
               <div className="h-px bg-outline-variant/30 my-sm"></div>
               <div className="flex justify-between font-headline-md text-headline-md">
                 <span className="text-on-surface">Total</span>
-                <span className="text-primary font-bold">${order.total ? order.total.toFixed(2) : (subtotal + shipping + tax).toFixed(2)}</span>
+                <span className="text-primary font-bold">${order.total !== undefined && order.total !== null ? Number(order.total).toFixed(2) : (subtotal + shipping + tax).toFixed(2)}</span>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from "@/shared/context/CartContext";
 import { AuthContext } from "@/shared/context/AuthContext";
@@ -6,6 +6,12 @@ import Button from '@/shared/components/Button';
 import useForm from '@/shared/hooks/useForm';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
+import { addressesKey, loadJson } from '@/features/buyer/utils';
+
+ function getDefaultAddress(userId) {
+   const list = loadJson(addressesKey(userId), []);
+   return list.find((a) => a.isDefault) || list[0] || null;
+ }
 
  export default function Checkout() {
  const { cart, cartTotal, checkoutAndCommit } = useContext(CartContext);
@@ -14,17 +20,7 @@ import { cn } from '@/utils/cn';
 
  const [loading, setLoading] = useState(false);
 
- if (cart.length === 0) {
-   return (
-     <main className="max-w-container-max mx-auto px-gutter py-xl">
-       <div className="text-center py-xl bg-white border border-outline-variant/30 rounded-2xl p-lg">
-         <span className="material-symbols-outlined text-[64px] text-secondary mb-md">shopping_cart</span>
-         <p className="font-body-lg text-body-lg text-secondary mb-lg">Your cart is empty. Add some items before checking out.</p>
-         <Button variant="primary" to="/" size="lg">Go Shopping</Button>
-       </div>
-     </main>
-   );
- }
+ const savedAddress = useMemo(() => getDefaultAddress(user?.id), [user?.id]);
 
  const shipping = 15.00;
  const tax = cartTotal * 0.08;
@@ -32,11 +28,11 @@ import { cn } from '@/utils/cn';
 
  const { values, errors, touched, handleChange, handleBlur, handleSubmit } = useForm({
    initialValues: {
-     firstName: user?.name?.split(' ')[0] || '',
-     lastName: user?.name?.split(' ').slice(1).join(' ') || '',
-     address: '',
-     city: '',
-     zip: '',
+     firstName: savedAddress?.firstName || user?.name?.split(' ')[0] || '',
+     lastName: savedAddress?.lastName || user?.name?.split(' ').slice(1).join(' ') || '',
+     address: savedAddress?.address || '',
+     city: savedAddress?.city || '',
+     zip: savedAddress?.zip || '',
      cardName: user?.name || '',
      cardNumber: '',
      expDate: '',
@@ -51,27 +47,53 @@ import { cn } from '@/utils/cn';
      if (!vals.zip.trim()) newErrors.zip = 'ZIP code is required';
      return newErrors;
    },
-   onSubmit: async (vals) => {
-     setLoading(true);
-     const order = checkoutAndCommit(
-       user?.id || 'u_buyer',
-       {
-         firstName: vals.firstName,
-         lastName: vals.lastName,
-         address: vals.address,
-         city: vals.city,
-         zip: vals.zip
-       },
-       { cardName: vals.cardName, cardNumber: vals.cardNumber }
-     );
-     navigate('/order-confirmation', { state: { order } });
-   },
+    onSubmit: async (vals) => {
+      setLoading(true);
+      try {
+        const order = await checkoutAndCommit(
+          user?.id || 'u_buyer',
+          {
+            firstName: vals.firstName,
+            lastName: vals.lastName,
+            address: vals.address,
+            city: vals.city,
+            zip: vals.zip
+          },
+          { cardName: vals.cardName, cardNumber: vals.cardNumber }
+        );
+        navigate('/order-confirmation', { state: { order } });
+      } catch (err) {
+        alert(err.message || 'Checkout failed. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    },
  });
+
+ if (cart.length === 0) {
+   return (
+     <main className="max-w-container-max mx-auto px-gutter py-xl">
+       <div className="text-center py-xl bg-white border border-outline-variant/30 rounded-2xl p-lg">
+         <span className="material-symbols-outlined text-[64px] text-secondary mb-md">shopping_cart</span>
+         <p className="font-body-lg text-body-lg text-secondary mb-lg">Your cart is empty. Add some items before checking out.</p>
+         <Button variant="primary" to="/" size="lg">Go Shopping</Button>
+       </div>
+     </main>
+   );
+ }
 
  return (
  <>
 <main className="max-w-container-max mx-auto px-gutter py-xl">
- <h1 className="font-headline-lg text-headline-lg text-on-surface mb-lg">Checkout</h1>
+ <div className="mb-lg">
+   <p className="buyer-eyebrow mb-2">Checkout</p>
+   <h1 className="font-headline-lg text-headline-lg text-on-surface">Complete your order</h1>
+   {savedAddress && (
+     <p className="buyer-mono text-[11px] text-on-surface-variant mt-2 tracking-wide">
+       Prefilling shipping from “{savedAddress.label || 'saved address'}”
+     </p>
+   )}
+ </div>
 
  <form className="grid grid-cols-1 lg:grid-cols-12 gap-xl" onSubmit={handleSubmit}>
  {/* Shipping and Payment Info */}

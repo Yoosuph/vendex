@@ -3,9 +3,9 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
-} from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
-import { UpdateVendorDto } from "./dto/vendor.dto.js";
+} from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
+import { UpdateVendorDto } from './dto/vendor.dto.js';
 
 @Injectable()
 export class VendorsService {
@@ -18,16 +18,16 @@ export class VendorsService {
   }) {
     const { status, search } = query;
 
-    const where: any = { role: "VENDOR" };
-    if (status && status !== "all") {
+    const where: any = { role: 'VENDOR' };
+    if (status && status !== 'all') {
       where.status = status.toUpperCase();
     }
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { vendorId: { contains: search, mode: "insensitive" } },
-        { storeName: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { vendorId: { contains: search, mode: 'insensitive' } },
+        { storeName: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -47,7 +47,7 @@ export class VendorsService {
         createdAt: true,
         _count: { select: { products: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return {
@@ -60,7 +60,7 @@ export class VendorsService {
 
   async findOne(vendorId: string) {
     const vendor = await this.prisma.user.findFirst({
-      where: { vendorId, role: "VENDOR" },
+      where: { vendorId, role: 'VENDOR' },
       select: {
         id: true,
         name: true,
@@ -75,7 +75,7 @@ export class VendorsService {
         _count: { select: { products: true } },
       },
     });
-    if (!vendor) throw new NotFoundException("Vendor not found");
+    if (!vendor) throw new NotFoundException('Vendor not found');
 
     return {
       ...vendor,
@@ -83,14 +83,17 @@ export class VendorsService {
     };
   }
 
-  async getVendorProducts(vendorId: string, query: { page?: number; limit?: number; sort?: string }) {
-    const { page = 1, limit = 20, sort = "newest" } = query;
+  async getVendorProducts(
+    vendorId: string,
+    query: { page?: number; limit?: number; sort?: string },
+  ) {
+    const { page = 1, limit = 20, sort = 'newest' } = query;
     const skip = (page - 1) * limit;
 
-    let orderBy: any = { createdAt: "desc" };
-    if (sort === "price_asc") orderBy = { price: "asc" };
-    else if (sort === "price_desc") orderBy = { price: "desc" };
-    else if (sort === "rating") orderBy = { rating: "desc" };
+    let orderBy: any = { createdAt: 'desc' };
+    if (sort === 'price_asc') orderBy = { price: 'asc' };
+    else if (sort === 'price_desc') orderBy = { price: 'desc' };
+    else if (sort === 'rating') orderBy = { rating: 'desc' };
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
@@ -110,10 +113,10 @@ export class VendorsService {
 
   async updateProfile(vendorId: string, userId: string, dto: UpdateVendorDto) {
     const vendor = await this.prisma.user.findFirst({
-      where: { vendorId, role: "VENDOR" },
+      where: { vendorId, role: 'VENDOR' },
     });
-    if (!vendor) throw new NotFoundException("Vendor not found");
-    if (vendor.id !== userId) throw new ForbiddenException("FORBIDDEN");
+    if (!vendor) throw new NotFoundException('Vendor not found');
+    if (vendor.id !== userId) throw new ForbiddenException('FORBIDDEN');
 
     return this.prisma.user.update({
       where: { id: vendor.id },
@@ -135,10 +138,10 @@ export class VendorsService {
     const vendor = await this.prisma.user.findUnique({
       where: { id: vendorUserId },
     });
-    if (!vendor) throw new NotFoundException("Vendor not found");
-    if (vendor.role !== "VENDOR") throw new BadRequestException("Not a vendor");
-    if (vendor.status === "APPROVED") {
-      throw new BadRequestException("Vendor already approved");
+    if (!vendor) throw new NotFoundException('Vendor not found');
+    if (vendor.role !== 'VENDOR') throw new BadRequestException('Not a vendor');
+    if (vendor.status === 'APPROVED') {
+      throw new BadRequestException('Vendor already approved');
     }
 
     const vendorId = `v_${Math.random().toString(36).substring(2, 10)}`;
@@ -146,82 +149,82 @@ export class VendorsService {
     const updated = await this.prisma.$transaction(async (tx) => {
       const u = await tx.user.update({
         where: { id: vendorUserId },
-        data: { status: "APPROVED", vendorId },
+        data: { status: 'APPROVED', vendorId },
       });
 
       await tx.auditLog.create({
         data: {
           adminId: adminUser.sub,
           adminName: adminUser.name || adminUser.email,
-          action: "APPROVE_VENDOR",
+          action: 'APPROVE_VENDOR',
           resource: `Vendor ${vendor.name} (${vendorId})`,
-          status: "Success",
+          status: 'Success',
         },
       });
 
       return u;
     });
 
-    return { message: "Vendor approved", vendorId: updated.vendorId };
+    return { message: 'Vendor approved', vendorId: updated.vendorId };
   }
 
   async suspend(vendorUserId: string, adminUser: any) {
     const vendor = await this.prisma.user.findUnique({
       where: { id: vendorUserId },
     });
-    if (!vendor) throw new NotFoundException("Vendor not found");
+    if (!vendor) throw new NotFoundException('Vendor not found');
 
     await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: vendorUserId },
-        data: { status: "SUSPENDED" },
+        data: { status: 'SUSPENDED' },
       });
 
       await tx.auditLog.create({
         data: {
           adminId: adminUser.sub,
           adminName: adminUser.name || adminUser.email,
-          action: "SUSPEND_USER",
+          action: 'SUSPEND_USER',
           resource: `Vendor ${vendor.name}`,
-          status: "Success",
+          status: 'Success',
         },
       });
     });
 
-    return { message: "Vendor suspended" };
+    return { message: 'Vendor suspended' };
   }
 
   async unsuspend(vendorUserId: string, adminUser: any) {
     const vendor = await this.prisma.user.findUnique({
       where: { id: vendorUserId },
     });
-    if (!vendor) throw new NotFoundException("Vendor not found");
+    if (!vendor) throw new NotFoundException('Vendor not found');
 
     await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: vendorUserId },
-        data: { status: "APPROVED" },
+        data: { status: 'APPROVED' },
       });
 
       await tx.auditLog.create({
         data: {
           adminId: adminUser.sub,
           adminName: adminUser.name || adminUser.email,
-          action: "UNSUSPEND_USER",
+          action: 'UNSUSPEND_USER',
           resource: `Vendor ${vendor.name}`,
-          status: "Success",
+          status: 'Success',
         },
       });
     });
 
-    return { message: "Vendor reinstated" };
+    return { message: 'Vendor reinstated' };
   }
 
   async getDashboard(vendorId: string) {
     const vendor = await this.prisma.user.findFirst({
-      where: { vendorId, role: "VENDOR" },
+      where: { vendorId, role: 'VENDOR' },
     });
-    if (!vendor) throw new NotFoundException("Vendor not found");
+    if (!vendor) throw new NotFoundException('Vendor not found');
 
     const [
       totalProducts,
@@ -248,7 +251,7 @@ export class VendorsService {
       this.prisma.order.findMany({
         where: { items: { some: { vendorId } } },
         take: 4,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         include: { items: true },
       }),
       this.prisma.review.aggregate({
@@ -258,7 +261,9 @@ export class VendorsService {
       }),
     ]);
 
-    const uniqueOrderIds = [...new Set(ordersWithVendorItems.map((i) => i.orderId))];
+    const uniqueOrderIds = [
+      ...new Set(ordersWithVendorItems.map((i) => i.orderId)),
+    ];
     const totalOrders = uniqueOrderIds.length;
     const totalRevenue = revenueAgg._sum.price ?? 0;
 

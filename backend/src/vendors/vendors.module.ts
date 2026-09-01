@@ -1,6 +1,6 @@
-import { Module } from "@nestjs/common";
-import { VendorsController } from "./vendors.controller.js";
-import { VendorsService } from "./vendors.service.js";
+import { Module } from '@nestjs/common';
+import { VendorsController } from './vendors.controller.js';
+import { VendorsService } from './vendors.service.js';
 
 @Module({
   controllers: [VendorsController],

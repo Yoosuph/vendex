@@ -78,5 +78,80 @@
 .shadow-card { box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06); }
 .shadow-card-hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); transition: box-shadow 0.3s ease; }
 .shadow-modal { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); }
+
+/* Buyer portal — editorial mono commerce (SSENSE / Mr Porter inspired) */
+.buyer-eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5b403e;
+}
+.buyer-mono {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.buyer-price {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.buyer-panel {
+  background: #ffffff;
+  border: 1px solid rgba(228, 189, 187, 0.55);
+  border-radius: 0.75rem;
+}
+.buyer-hairline {
+  border-color: rgba(228, 189, 187, 0.45);
+}
+.buyer-chip {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.65rem;
+  border-radius: 9999px;
+}
+.buyer-input {
+  width: 100%;
+  border: 1px solid rgba(228, 189, 187, 0.7);
+  background: #fafaf5;
+  border-radius: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #1a1c19;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.buyer-input:focus {
+  outline: none;
+  border-color: #97001b;
+  box-shadow: 0 0 0 3px rgba(151, 0, 27, 0.12);
+  background: #fff;
+}
+.buyer-label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #5b403e;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.dark .buyer-panel {
+  background: rgba(26, 28, 25, 0.72);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dark .buyer-input {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f1f1ec;
+}
 .shadow-nav { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); }
 .shadow-dropdown { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); }

@@ -1,8 +1,5 @@
-import {
-  Injectable,
-  ConflictException,
-} from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
+import { Injectable, ConflictException } from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
 
 @Injectable()
 export class WishlistService {
@@ -12,7 +9,7 @@ export class WishlistService {
     const items = await this.prisma.wishlistItem.findMany({
       where: { userId },
       include: { product: true },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return { items: items.map((i) => i.product) };
@@ -24,20 +21,20 @@ export class WishlistService {
     });
 
     if (existing) {
-      throw new ConflictException("ALREADY_IN_WISHLIST");
+      throw new ConflictException('ALREADY_IN_WISHLIST');
     }
 
     await this.prisma.wishlistItem.create({
       data: { userId, productId },
     });
 
-    return { message: "Added to wishlist" };
+    return { message: 'Added to wishlist' };
   }
 
   async removeItem(userId: string, productId: string) {
     await this.prisma.wishlistItem.deleteMany({
       where: { userId, productId },
     });
-    return { message: "Removed from wishlist" };
+    return { message: 'Removed from wishlist' };
   }
 }

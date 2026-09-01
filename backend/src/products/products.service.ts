@@ -2,9 +2,13 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-} from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
-import { CreateProductDto, UpdateProductDto, UpdateStockDto } from "./dto/product.dto.js";
+} from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateStockDto,
+} from './dto/product.dto.js';
 
 @Injectable()
 export class ProductsService {
@@ -38,24 +42,24 @@ export class ProductsService {
     const where: any = { isActive: true };
 
     if (ids) {
-      where.id = { in: ids.split(",") };
+      where.id = { in: ids.split(',') };
     }
     if (vendorId) {
       where.vendorId = vendorId;
     }
     if (q) {
       where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-        { brand: { contains: q, mode: "insensitive" } },
-        { vendorName: { contains: q, mode: "insensitive" } },
+        { name: { contains: q, mode: 'insensitive' } },
+        { description: { contains: q, mode: 'insensitive' } },
+        { brand: { contains: q, mode: 'insensitive' } },
+        { vendorName: { contains: q, mode: 'insensitive' } },
       ];
     }
     if (category) {
       where.categoryName = category;
     }
     if (brand) {
-      where.brand = { in: brand.split(",") };
+      where.brand = { in: brand.split(',') };
     }
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.price = {};
@@ -63,11 +67,11 @@ export class ProductsService {
       if (maxPrice !== undefined) where.price.lte = maxPrice;
     }
 
-    let orderBy: any = { createdAt: "desc" };
-    if (sort === "price_asc") orderBy = { price: "asc" };
-    else if (sort === "price_desc") orderBy = { price: "desc" };
-    else if (sort === "rating") orderBy = { rating: "desc" };
-    else if (sort === "trending") orderBy = { reviewsCount: "desc" };
+    let orderBy: any = { createdAt: 'desc' };
+    if (sort === 'price_asc') orderBy = { price: 'asc' };
+    else if (sort === 'price_desc') orderBy = { price: 'desc' };
+    else if (sort === 'rating') orderBy = { rating: 'desc' };
+    else if (sort === 'trending') orderBy = { reviewsCount: 'desc' };
 
     const skip = (page - 1) * limit;
 
@@ -84,7 +88,7 @@ export class ProductsService {
     const brands = await this.prisma.product.findMany({
       where: { isActive: true },
       select: { brand: true },
-      distinct: ["brand"],
+      distinct: ['brand'],
     });
 
     const priceAgg = await this.prisma.product.aggregate({
@@ -125,11 +129,13 @@ export class ProductsService {
       include: {
         reviews: {
           take: 10,
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
-    if (!product) return null;
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
     return product;
   }
 
@@ -137,7 +143,7 @@ export class ProductsService {
     const brands = await this.prisma.product.findMany({
       where: { isActive: true },
       select: { brand: true },
-      distinct: ["brand"],
+      distinct: ['brand'],
     });
     return { brands: brands.map((b) => b.brand).filter(Boolean) };
   }
@@ -156,20 +162,38 @@ export class ProductsService {
         ],
       },
       take: limit,
-      orderBy: { rating: "desc" },
+      orderBy: { rating: 'desc' },
     });
     return { products };
   }
 
   async create(dto: CreateProductDto, user: any) {
-    const vendorId = user.vendorId;
-    const vendorName = user.storeName || user.name;
+    let vendorId = user.vendorId;
+    let vendorName = user.storeName || user.name;
+
+    if (!vendorId && user.role === 'VENDOR') {
+      throw new ForbiddenException('Vendor account must be approved before adding products');
+    }
+
+    if (!vendorId && user.role === 'ADMIN') {
+      // Find or fallback to primary vendor
+      const primaryVendor = await this.prisma.user.findFirst({
+        where: { role: 'VENDOR', vendorId: { not: null } },
+      });
+      if (primaryVendor?.vendorId) {
+        vendorId = primaryVendor.vendorId;
+        vendorName = primaryVendor.storeName || primaryVendor.name;
+      } else {
+        vendorId = 'v_admin';
+        vendorName = 'Vendex Official';
+      }
+    }
 
     const category = await this.prisma.category.findUnique({
       where: { id: dto.categoryId },
     });
     if (!category) {
-      throw new Error("Category not found");
+      throw new NotFoundException('Category not found');
     }
 
     return this.prisma.product.create({
@@ -191,10 +215,10 @@ export class ProductsService {
 
   async update(id: string, dto: UpdateProductDto, user: any) {
     const product = await this.prisma.product.findUnique({ where: { id } });
-    if (!product) throw new Error("Product not found");
+    if (!product) throw new NotFoundException('Product not found');
 
-    if (user.role !== "ADMIN" && product.vendorId !== user.vendorId) {
-      throw new ForbiddenException("You can only edit your own products");
+    if (user.role !== 'ADMIN' && product.vendorId !== user.vendorId) {
+      throw new ForbiddenException('You can only edit your own products');
     }
 
     const data: any = { ...dto };
@@ -204,6 +228,8 @@ export class ProductsService {
       });
       if (category) {
         data.categoryName = category.name;
+      } else {
+        throw new NotFoundException('Category not found');
       }
     }
 
@@ -212,19 +238,27 @@ export class ProductsService {
 
   async remove(id: string, user: any) {
     const product = await this.prisma.product.findUnique({ where: { id } });
-    if (!product) throw new Error("Product not found");
+    if (!product) throw new NotFoundException('Product not found');
 
-    if (user.role !== "ADMIN" && product.vendorId !== user.vendorId) {
-      throw new ForbiddenException("You can only delete your own products");
+    if (user.role !== 'ADMIN' && product.vendorId !== user.vendorId) {
+      throw new ForbiddenException('You can only delete your own products');
     }
 
-    await this.prisma.product.delete({ where: { id } });
-    return { message: "Product deleted" };
+    // Soft delete to preserve order history and cart consistency
+    await this.prisma.product.update({
+      where: { id },
+      data: { isActive: false },
+    });
+    return { message: 'Product deleted' };
   }
 
-  async updateStock(id: string, dto: UpdateStockDto) {
+  async updateStock(id: string, dto: UpdateStockDto, user: any) {
     const product = await this.prisma.product.findUnique({ where: { id } });
-    if (!product) throw new Error("Product not found");
+    if (!product) throw new NotFoundException('Product not found');
+
+    if (user.role !== 'ADMIN' && product.vendorId !== user.vendorId) {
+      throw new ForbiddenException('You can only update stock for your own products');
+    }
 
     return this.prisma.product.update({
       where: { id },
@@ -232,3 +266,4 @@ export class ProductsService {
     });
   }
 }
+

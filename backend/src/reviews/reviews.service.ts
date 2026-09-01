@@ -3,9 +3,9 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
-} from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
-import { CreateReviewDto, UpdateReviewDto } from "./dto/review.dto.js";
+} from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
+import { CreateReviewDto, UpdateReviewDto } from './dto/review.dto.js';
 
 @Injectable()
 export class ReviewsService {
@@ -15,12 +15,12 @@ export class ReviewsService {
     productId: string,
     query: { page?: number; limit?: number; sort?: string },
   ) {
-    const { page = 1, limit = 20, sort = "newest" } = query;
+    const { page = 1, limit = 20, sort = 'newest' } = query;
     const skip = (page - 1) * limit;
 
-    let orderBy: any = { createdAt: "desc" };
-    if (sort === "highest") orderBy = { score: "desc" };
-    else if (sort === "lowest") orderBy = { score: "asc" };
+    let orderBy: any = { createdAt: 'desc' };
+    if (sort === 'highest') orderBy = { score: 'desc' };
+    else if (sort === 'lowest') orderBy = { score: 'asc' };
 
     const [reviews, total, ratingAgg, distribution] = await Promise.all([
       this.prisma.review.findMany({
@@ -35,13 +35,19 @@ export class ReviewsService {
         _avg: { score: true },
       }),
       this.prisma.review.groupBy({
-        by: ["score"],
+        by: ['score'],
         where: { productId },
         _count: true,
       }),
     ]);
 
-    const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    const ratingDistribution: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    };
     for (const d of distribution) {
       ratingDistribution[d.score] = d._count;
     }
@@ -54,21 +60,17 @@ export class ReviewsService {
     };
   }
 
-  async create(
-    productId: string,
-    userId: string,
-    dto: CreateReviewDto,
-  ) {
+  async create(productId: string, userId: string, dto: CreateReviewDto) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
     });
-    if (!product) throw new NotFoundException("Product not found");
+    if (!product) throw new NotFoundException('Product not found');
 
     const existing = await this.prisma.review.findUnique({
       where: { productId_userId: { productId, userId } },
     });
     if (existing) {
-      throw new BadRequestException("ALREADY_REVIEWED");
+      throw new BadRequestException('ALREADY_REVIEWED');
     }
 
     const review = await this.prisma.$transaction(async (tx) => {
@@ -99,9 +101,9 @@ export class ReviewsService {
       await tx.auditLog.create({
         data: {
           adminName: dto.reviewer,
-          action: "ADD_REVIEW",
+          action: 'ADD_REVIEW',
           resource: `Review on ${product.name}`,
-          status: "Success",
+          status: 'Success',
         },
       });
 
@@ -115,9 +117,9 @@ export class ReviewsService {
     const review = await this.prisma.review.findUnique({
       where: { id: reviewId },
     });
-    if (!review) throw new NotFoundException("Review not found");
+    if (!review) throw new NotFoundException('Review not found');
     if (review.userId !== userId) {
-      throw new ForbiddenException("You can only edit your own reviews");
+      throw new ForbiddenException('You can only edit your own reviews');
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -148,10 +150,10 @@ export class ReviewsService {
     const review = await this.prisma.review.findUnique({
       where: { id: reviewId },
     });
-    if (!review) throw new NotFoundException("Review not found");
+    if (!review) throw new NotFoundException('Review not found');
 
-    if (userRole !== "ADMIN" && review.userId !== userId) {
-      throw new ForbiddenException("You can only delete your own reviews");
+    if (userRole !== 'ADMIN' && review.userId !== userId) {
+      throw new ForbiddenException('You can only delete your own reviews');
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -173,14 +175,14 @@ export class ReviewsService {
 
       await tx.auditLog.create({
         data: {
-          adminName: "System",
-          action: "DELETE_REVIEW",
+          adminName: 'System',
+          action: 'DELETE_REVIEW',
           resource: `Review ${reviewId}`,
-          status: "Success",
+          status: 'Success',
         },
       });
 
-      return { message: "Review deleted" };
+      return { message: 'Review deleted' };
     });
   }
 
@@ -192,13 +194,7 @@ export class ReviewsService {
     minRating?: number;
     maxRating?: number;
   }) {
-    const {
-      page = 1,
-      limit = 20,
-      productId,
-      minRating,
-      maxRating,
-    } = query;
+    const { page = 1, limit = 20, productId, minRating, maxRating } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -212,7 +208,7 @@ export class ReviewsService {
     const [reviews, total] = await Promise.all([
       this.prisma.review.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
         include: { product: { select: { id: true, name: true } } },

@@ -3,9 +3,9 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
-} from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
-import { CreateOrderDto, UpdateOrderStatusDto } from "./dto/order.dto.js";
+} from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
+import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto.js';
 
 const CHECKOUT_CONFIG = {
   taxRate: 0.08,
@@ -18,7 +18,7 @@ export class OrdersService {
 
   async checkout(userId: string, dto: CreateOrderDto) {
     if (!dto.items || dto.items.length === 0) {
-      throw new BadRequestException("EMPTY_CART");
+      throw new BadRequestException('EMPTY_CART');
     }
 
     const productIds = dto.items.map((i) => i.id);
@@ -34,7 +34,7 @@ export class OrdersService {
       if (!product) {
         stockIssues.push({
           id: item.id,
-          name: "Unknown",
+          name: 'Unknown',
           available: 0,
           requested: item.quantity,
         });
@@ -50,7 +50,7 @@ export class OrdersService {
 
     if (stockIssues.length > 0) {
       throw new BadRequestException({
-        error: "STOCK_ERROR",
+        error: 'STOCK_ERROR',
         issues: stockIssues,
       });
     }
@@ -89,7 +89,7 @@ export class OrdersService {
           data: { stock: { decrement: item.quantity } },
         });
         if (updated.count === 0) {
-          throw new BadRequestException("STOCK_CONTENTION");
+          throw new BadRequestException('STOCK_CONTENTION');
         }
       }
 
@@ -97,7 +97,7 @@ export class OrdersService {
         data: {
           displayId,
           buyerId: userId,
-          status: "PROCESSING",
+          status: 'PROCESSING',
           total,
           subtotal,
           shippingCost: CHECKOUT_CONFIG.shippingFlat,
@@ -122,10 +122,10 @@ export class OrdersService {
 
       await tx.auditLog.create({
         data: {
-          adminName: "System",
-          action: "ORDER_PLACED",
+          adminName: 'System',
+          action: 'ORDER_PLACED',
           resource: `Order ${displayId}`,
-          status: "Success",
+          status: 'Success',
         },
       });
 
@@ -134,7 +134,7 @@ export class OrdersService {
 
     await this.prisma.cartItem.deleteMany({ where: { userId } });
 
-    return { order, message: "Order placed successfully" };
+    return { order, message: 'Order placed successfully' };
   }
 
   async findAll(
@@ -143,13 +143,13 @@ export class OrdersService {
     userVendorId: string | null,
     query: { status?: string; page?: number; limit?: number; sort?: string },
   ) {
-    const { status, page = 1, limit = 20, sort = "newest" } = query;
+    const { status, page = 1, limit = 20, sort = 'newest' } = query;
 
     const where: any = {};
 
-    if (userRole === "BUYER") {
+    if (userRole === 'BUYER') {
       where.buyerId = userId;
-    } else if (userRole === "VENDOR") {
+    } else if (userRole === 'VENDOR') {
       where.items = { some: { vendorId: userVendorId } };
     }
 
@@ -158,7 +158,9 @@ export class OrdersService {
     }
 
     const orderBy =
-      sort === "oldest" ? { createdAt: "asc" as const } : { createdAt: "desc" as const };
+      sort === 'oldest'
+        ? { createdAt: 'asc' as const }
+        : { createdAt: 'desc' as const };
     const skip = (page - 1) * limit;
 
     const [orders, total] = await Promise.all([
@@ -178,15 +180,24 @@ export class OrdersService {
     };
   }
 
-  async findOne(id: string, userId: string, userRole: string, userVendorId: string | null) {
+  async findOne(
+    id: string,
+    userId: string,
+    userRole: string,
+    userVendorId: string | null,
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: { items: true },
     });
-    if (!order) throw new NotFoundException("Order not found");
+    if (!order) throw new NotFoundException('Order not found');
 
-    if (userRole === "BUYER" && order.buyerId !== userId) {
-      throw new ForbiddenException("FORBIDDEN");
+    if (userRole === 'BUYER' && order.buyerId !== userId) {
+      throw new ForbiddenException('FORBIDDEN');
+    }
+
+    if (userRole === 'VENDOR' && (!userVendorId || !order.items.some((i) => i.vendorId === userVendorId))) {
+      throw new ForbiddenException('FORBIDDEN');
     }
 
     return order;
@@ -194,7 +205,7 @@ export class OrdersService {
 
   async updateStatus(id: string, dto: UpdateOrderStatusDto) {
     const order = await this.prisma.order.findUnique({ where: { id } });
-    if (!order) throw new NotFoundException("Order not found");
+    if (!order) throw new NotFoundException('Order not found');
 
     const updated = await this.prisma.order.update({
       where: { id },
@@ -204,10 +215,10 @@ export class OrdersService {
 
     await this.prisma.auditLog.create({
       data: {
-        adminName: "System",
-        action: "ORDER_STATUS_CHANGE",
+        adminName: 'System',
+        action: 'ORDER_STATUS_CHANGE',
         resource: `Order ${order.displayId} → ${dto.status}`,
-        status: "Success",
+        status: 'Success',
       },
     });
 

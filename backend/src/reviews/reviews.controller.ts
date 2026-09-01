@@ -10,23 +10,23 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-} from "@nestjs/common";
-import { ReviewsService } from "./reviews.service.js";
-import { CreateReviewDto, UpdateReviewDto } from "./dto/review.dto.js";
-import { CurrentUser } from "../common/decorators/current-user.decorator.js";
-import { Roles } from "../common/decorators/roles.decorator.js";
-import { JwtAuthGuard, RolesGuard } from "../common/guards/index.js";
+} from '@nestjs/common';
+import { ReviewsService } from './reviews.service.js';
+import { CreateReviewDto, UpdateReviewDto } from './dto/review.dto.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { JwtAuthGuard, RolesGuard } from '../common/guards/index.js';
 
 @Controller()
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Get("products/:productId/reviews")
+  @Get('products/:productId/reviews')
   findByProduct(
-    @Param("productId") productId: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("sort") sort?: string,
+    @Param('productId') productId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.reviewsService.findByProduct(productId, {
       page: page ? parseInt(page, 10) : 1,
@@ -36,11 +36,11 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("buyer")
-  @Post("products/:productId/reviews")
+  @Roles('buyer')
+  @Post('products/:productId/reviews')
   @HttpCode(HttpStatus.CREATED)
   create(
-    @Param("productId") productId: string,
+    @Param('productId') productId: string,
     @CurrentUser() user: any,
     @Body() dto: CreateReviewDto,
   ) {
@@ -48,10 +48,10 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch("reviews/:id")
+  @Patch('reviews/:id')
   @HttpCode(HttpStatus.OK)
   update(
-    @Param("id") id: string,
+    @Param('id') id: string,
     @CurrentUser() user: any,
     @Body() dto: UpdateReviewDto,
   ) {
@@ -59,8 +59,8 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete("reviews/:id")
-  remove(@Param("id") id: string, @CurrentUser() user: any) {
+  @Delete('reviews/:id')
+  remove(@Param('id') id: string, @CurrentUser() user: any) {
     return this.reviewsService.remove(id, user.sub, user.role);
   }
 }

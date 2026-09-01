@@ -26,6 +26,12 @@ const BuyerDashboardOverview = React.lazy(() => import("@/features/buyer/pages/B
 const MyOrders = React.lazy(() => import("@/features/buyer/pages/MyOrders"));
 const OrderDetail = React.lazy(() => import("@/features/buyer/pages/OrderDetail"));
 const Wishlist = React.lazy(() => import("@/features/buyer/pages/Wishlist"));
+const BuyerSettings = React.lazy(() => import("@/features/buyer/pages/BuyerSettings"));
+const BuyerAddresses = React.lazy(() => import("@/features/buyer/pages/BuyerAddresses"));
+const BuyerReviews = React.lazy(() => import("@/features/buyer/pages/BuyerReviews"));
+const BuyerDisputes = React.lazy(() => import("@/features/buyer/pages/BuyerDisputes"));
+const BuyerStores = React.lazy(() => import("@/features/buyer/pages/BuyerStores"));
+const BuyerWallet = React.lazy(() => import("@/features/buyer/pages/BuyerWallet"));
 
 const VendorOnboarding = React.lazy(() => import("@/features/vendor/pages/VendorOnboarding"));
 const ApplicationSubmitted = React.lazy(() => import("@/features/vendor/pages/ApplicationSubmitted"));
@@ -75,6 +81,12 @@ function AnimatedAppRoutes() {
         <Route path="/buyer/orders" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><MyOrders /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/buyer/order-detail/:id" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><OrderDetail /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
         <Route path="/buyer/wishlist" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><Wishlist /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/reviews" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerReviews /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/disputes" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerDisputes /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/addresses" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerAddresses /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/stores" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerStores /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/wallet" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerWallet /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
+        <Route path="/buyer/settings" element={<ErrorBoundary><RoleRoute allowedRoles={['buyer']}><BuyerLayout><AnimatedPage><Suspense fallback={PageFallback}><BuyerSettings /></Suspense></AnimatedPage></BuyerLayout></RoleRoute></ErrorBoundary>} />
 
         <Route path="/store/:vendorId" element={<ErrorBoundary><PublicLayout><AnimatedPage><Suspense fallback={PageFallback}><VendorStorefront /></Suspense></AnimatedPage></PublicLayout></ErrorBoundary>} />
 

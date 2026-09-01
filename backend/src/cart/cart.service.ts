@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
-import { AddCartItemDto, UpdateCartItemDto } from "./dto/cart.dto.js";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
+import { AddCartItemDto, UpdateCartItemDto } from './dto/cart.dto.js';
 
 @Injectable()
 export class CartService {
@@ -49,7 +49,7 @@ export class CartService {
     const product = await this.prisma.product.findUnique({
       where: { id: dto.productId },
     });
-    if (!product) throw new Error("Product not found");
+    if (!product) throw new Error('Product not found');
 
     const existing = await this.prisma.cartItem.findUnique({
       where: { userId_productId: { userId, productId: dto.productId } },
@@ -71,7 +71,7 @@ export class CartService {
     const item = await this.prisma.cartItem.findUnique({
       where: { userId_productId: { userId, productId } },
     });
-    if (!item) throw new Error("Cart item not found");
+    if (!item) throw new Error('Cart item not found');
 
     return this.prisma.cartItem.update({
       where: { id: item.id },
@@ -83,14 +83,14 @@ export class CartService {
     const item = await this.prisma.cartItem.findUnique({
       where: { userId_productId: { userId, productId } },
     });
-    if (!item) throw new Error("Cart item not found");
+    if (!item) throw new Error('Cart item not found');
 
     await this.prisma.cartItem.delete({ where: { id: item.id } });
-    return { message: "Item removed from cart" };
+    return { message: 'Item removed from cart' };
   }
 
   async clearCart(userId: string) {
     await this.prisma.cartItem.deleteMany({ where: { userId } });
-    return { message: "Cart cleared" };
+    return { message: 'Cart cleared' };
   }
 }

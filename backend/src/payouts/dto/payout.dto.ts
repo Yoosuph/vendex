@@ -1,4 +1,10 @@
-import { IsNumber, IsString, IsOptional, IsBoolean, Min } from "class-validator";
+import {
+  IsNumber,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  Min,
+} from 'class-validator';
 
 export class RequestPayoutDto {
   @IsNumber()

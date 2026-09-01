@@ -79,6 +79,19 @@ export default function SearchResults() {
 
   const isLoading = !products;
 
+  const getCategoryLink = (cat) => {
+    const nextParams = new URLSearchParams(params);
+    nextParams.set('category', cat);
+    return `/search?${nextParams.toString()}`;
+  };
+
+  const getClearCategoryLink = () => {
+    const nextParams = new URLSearchParams(params);
+    nextParams.delete('category');
+    const queryString = nextParams.toString();
+    return queryString ? `/search?${queryString}` : '/search';
+  };
+
   return (
     <>
       <main className="max-w-container-max mx-auto px-gutter py-lg flex flex-col md:flex-row gap-gutter">
@@ -106,7 +119,7 @@ export default function SearchResults() {
                 <li key={cat}>
                   <Link
                     className={cn('flex items-center justify-between font-body-sm text-body-sm transition-colors', categoryFilter === cat ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary')}
-                    to={`/search?category=${encodeURIComponent(cat)}`}
+                    to={getCategoryLink(cat)}
                   >
                     {cat}
                     <span className="material-symbols-outlined text-sm">chevron_right</span>
@@ -117,7 +130,7 @@ export default function SearchResults() {
                 <li>
                   <Link
                     className="flex items-center justify-between font-body-sm text-body-sm text-secondary hover:text-primary transition-colors"
-                    to="/search"
+                    to={getClearCategoryLink()}
                   >
                     Clear filter
                   </Link>
@@ -195,7 +208,7 @@ export default function SearchResults() {
               description="Try adjusting your search terms or filters."
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
               {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}

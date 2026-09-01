@@ -37,7 +37,7 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile, c
       <nav className="flex-1 flex flex-col gap-base overflow-y-auto overscroll-contain hide-scrollbar px-2">
         {sections.map((section) => (
           <div key={section.title} className="mb-4">
-            <p className="px-3 text-meta font-bold text-secondary uppercase tracking-widest mb-1">
+            <p className="px-3 buyer-eyebrow text-secondary mb-1">
               {section.title}
             </p>
             <div className="flex flex-col gap-0.5">
@@ -82,18 +82,26 @@ export default function Sidebar({ brandLabel, brandSubtitle, sections, mobile, c
       <div className="px-md mt-auto pt-md border-t border-outline-variant/30 flex flex-col gap-2">
         {user && (
           <div className="flex items-center gap-xs mb-1">
-            <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant shrink-0">
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-full h-full object-cover"
-              />
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant shrink-0 bg-surface-container flex items-center justify-center">
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="buyer-mono text-[10px] font-semibold text-on-surface">
+                  {(user.name || '?').slice(0, 2).toUpperCase()}
+                </span>
+              )}
             </div>
             <div className="min-w-0">
               <p className="font-label-sm text-label-sm text-on-surface font-bold truncate">
                 {user.name}
               </p>
-              <p className="font-meta text-meta text-secondary capitalize">{user.role}</p>
+              <p className="buyer-mono text-[10px] tracking-wider text-secondary uppercase">
+                {user.role}
+              </p>
             </div>
           </div>
         )}

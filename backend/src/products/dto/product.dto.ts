@@ -5,7 +5,7 @@ import {
   IsArray,
   Min,
   IsBoolean,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsString()

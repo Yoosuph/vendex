@@ -9,14 +9,14 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-} from "@nestjs/common";
-import { OrdersService } from "./orders.service.js";
-import { CreateOrderDto, UpdateOrderStatusDto } from "./dto/order.dto.js";
-import { CurrentUser } from "../common/decorators/current-user.decorator.js";
-import { Roles } from "../common/decorators/roles.decorator.js";
-import { JwtAuthGuard, RolesGuard } from "../common/guards/index.js";
+} from '@nestjs/common';
+import { OrdersService } from './orders.service.js';
+import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { JwtAuthGuard, RolesGuard } from '../common/guards/index.js';
 
-@Controller("orders")
+@Controller('orders')
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -30,10 +30,10 @@ export class OrdersController {
   @Get()
   findAll(
     @CurrentUser() user: any,
-    @Query("status") status?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("sort") sort?: string,
+    @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.ordersService.findAll(user.sub, user.role, user.vendorId, {
       status,
@@ -43,16 +43,16 @@ export class OrdersController {
     });
   }
 
-  @Get(":id")
-  findOne(@Param("id") id: string, @CurrentUser() user: any) {
+  @Get(':id')
+  findOne(@Param('id') id: string, @CurrentUser() user: any) {
     return this.ordersService.findOne(id, user.sub, user.role, user.vendorId);
   }
 
   @UseGuards(RolesGuard)
-  @Roles("admin")
-  @Patch(":id/status")
+  @Roles('admin')
+  @Patch(':id/status')
   @HttpCode(HttpStatus.OK)
-  updateStatus(@Param("id") id: string, @Body() dto: UpdateOrderStatusDto) {
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, dto);
   }
 }

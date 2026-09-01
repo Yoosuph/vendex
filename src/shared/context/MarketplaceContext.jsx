@@ -1,68 +1,173 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { apiClient } from '@/shared/api/client';
+import { AuthContext } from '@/shared/context/AuthContext';
 
 export const MarketplaceContext = createContext();
 
+const ORDER_STATUS_MAP = {
+  PROCESSING: 'Processing',
+  SHIPPED: 'Shipped',
+  IN_TRANSIT: 'In Transit',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
+  REFUNDED: 'Refunded',
+  PENDING: 'Pending',
+};
+
+const VENDOR_STATUS_MAP = {
+  APPROVED: 'approved',
+  SUSPENDED: 'suspended',
+  PENDING: 'pending',
+};
+
+const DISPUTE_STATUS_MAP = {
+  OPEN: 'Open',
+  UNDER_REVIEW: 'Under Review',
+  RESOLVED: 'Resolved',
+  DISMISSED: 'Dismissed',
+};
+
+function normalizeOrder(order) {
+  const dbId = order.id;
+  const displayId = order.displayId || order.id;
+  return {
+    ...order,
+    dbId,
+    id: displayId,
+    displayId,
+    status: ORDER_STATUS_MAP[order.status] || order.status,
+    date: order.createdAt,
+  };
+}
+
+function normalizeVendor(v) {
+  return {
+    ...v,
+    role: 'vendor',
+    status: VENDOR_STATUS_MAP[v.status] || v.status,
+  };
+}
+
+function normalizeBuyer(b) {
+  return {
+    ...b,
+    role: 'buyer',
+  };
+}
+
+function normalizeProduct(p) {
+  return {
+    ...p,
+    vendor: p.vendorName || p.vendor || 'Unknown Store',
+    category: p.categoryName || p.category || '',
+    brand: p.brand || '',
+    reviews: p.reviews || [],
+    image: p.image || p.images?.[0] || null,
+  };
+}
+
+function normalizeDispute(d) {
+  return {
+    ...d,
+    status: DISPUTE_STATUS_MAP[d.status] || d.status,
+  };
+}
+
 export const MarketplaceProvider = ({ children }) => {
-  const [products, setProducts] = useState(null);
-  const [disputes, setDisputes] = useState(null);
-  const [auditLogs, setAuditLogs] = useState(null);
-  const [orders, setOrders] = useState(null);
-  const [users, setUsers] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [disputes, setDisputes] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.role === 'admin';
 
   const loadFromDb = useCallback(async () => {
     setLoading(true);
+
+    // Public / auth-agnostic — always safe
     try {
-      const prodRes = await apiClient('/products?limit=100');
-      setProducts(prodRes.products || []);
+      const prodRes = await apiClient('/products?limit=200');
+      setProducts((prodRes.products || []).map(normalizeProduct));
     } catch {
       setProducts([]);
     }
 
     try {
       const orderRes = await apiClient('/orders?limit=100');
-      setOrders(orderRes.orders || []);
+      setOrders((orderRes.orders || []).map(normalizeOrder));
     } catch {
       setOrders([]);
     }
 
     try {
       const disputeRes = await apiClient('/disputes?limit=100');
-      setDisputes(disputeRes.disputes || []);
+      setDisputes((disputeRes.disputes || []).map(normalizeDispute));
     } catch {
       setDisputes([]);
     }
 
-    try {
-      const vendorRes = await apiClient('/admin/vendors');
-      const buyerRes = await apiClient('/admin/buyers');
-      setUsers([
-        ...(vendorRes.vendors || []).map(v => ({ ...v, role: 'vendor' })),
-        ...(buyerRes.buyers || []).map(b => ({ ...b, role: 'buyer' })),
-      ]);
-    } catch {
-      setUsers([]);
-    }
+    // Admin-only endpoints — skip entirely for non-admins to avoid 401 noise
+    if (isAdmin) {
+      try {
+        const vendorRes = await apiClient('/admin/vendors');
+        const buyerRes = await apiClient('/admin/buyers');
+        setUsers([
+          ...(vendorRes.vendors || []).map(normalizeVendor),
+          ...(buyerRes.buyers || []).map(normalizeBuyer),
+        ]);
+      } catch {
+        setUsers([]);
+      }
 
-    try {
-      const auditRes = await apiClient('/admin/audit-logs?limit=100');
-      setAuditLogs(auditRes.logs || auditRes.auditLogs || []);
-    } catch {
+      try {
+        const auditRes = await apiClient('/admin/audit-logs?limit=100');
+        setAuditLogs(auditRes.logs || auditRes.auditLogs || []);
+      } catch {
+        setAuditLogs([]);
+      }
+    } else {
+      setUsers([]);
       setAuditLogs([]);
     }
 
     setLoading(false);
-  }, []);
+  }, [isAdmin]);
 
-  useEffect(() => { loadFromDb(); }, [loadFromDb]);
+  // Reload catalog + role-scoped data when auth changes
+  useEffect(() => {
+    loadFromDb();
+  }, [loadFromDb, user?.id]);
 
   const reloadFromDb = loadFromDb;
 
   const addProduct = async (product, author) => {
+    // Resolve category name to categoryId if needed
+    let categoryId = product.categoryId;
+    if (!categoryId && product.category) {
+      try {
+        const catRes = await apiClient('/categories');
+        const cats = catRes.categories || [];
+        const match = cats.find(c => c.name.toLowerCase() === (product.category || '').toLowerCase());
+        categoryId = match?.id;
+      } catch { /* fall through — backend will validate */ }
+    }
+
+    const dto = {
+      name: product.name,
+      categoryId: categoryId || product.category,
+      brand: product.brand,
+      price: product.price,
+      stock: product.stock,
+      description: product.description,
+      image: product.image,
+      images: product.images,
+    };
+
     const data = await apiClient('/products', {
       method: 'POST',
-      body: JSON.stringify(product),
+      body: JSON.stringify(dto),
     });
     await reloadFromDb();
     return data;
@@ -82,9 +187,23 @@ export const MarketplaceProvider = ({ children }) => {
   };
 
   const updateProduct = async (productId, updates, author) => {
+    // Resolve category name to categoryId if needed
+    const dto = { ...updates };
+    if (dto.category && !dto.categoryId) {
+      try {
+        const catRes = await apiClient('/categories');
+        const cats = catRes.categories || [];
+        const match = cats.find(c => c.name.toLowerCase() === dto.category.toLowerCase());
+        if (match) { dto.categoryId = match.id; delete dto.category; }
+      } catch { /* fall through */ }
+    }
+    // Strip frontend-only fields
+    delete dto.vendor;
+    delete dto.vendorId;
+
     await apiClient(`/products/${productId}`, {
       method: 'PATCH',
-      body: JSON.stringify(updates),
+      body: JSON.stringify(dto),
     });
     await reloadFromDb();
   };
@@ -116,7 +235,6 @@ export const MarketplaceProvider = ({ children }) => {
   };
 
   const logAdminAction = async (adminName, action, resource) => {
-    // Backend logs admin actions automatically on mutations
     console.log(`[Audit] ${adminName}: ${action} — ${resource}`);
   };
 

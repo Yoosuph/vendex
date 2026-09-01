@@ -7,41 +7,41 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-} from "@nestjs/common";
-import { AdminService } from "./admin.service.js";
-import { Roles } from "../common/decorators/roles.decorator.js";
-import { JwtAuthGuard, RolesGuard } from "../common/guards/index.js";
+} from '@nestjs/common';
+import { AdminService } from './admin.service.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { JwtAuthGuard, RolesGuard } from '../common/guards/index.js';
 
-@Controller("admin")
+@Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles("admin")
+@Roles('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Get("stats")
+  @Get('stats')
   getStats() {
     return this.adminService.getStats();
   }
 
-  @Get("vendors")
+  @Get('vendors')
   getVendors(
-    @Query("search") search?: string,
-    @Query("status") status?: string,
+    @Query('search') search?: string,
+    @Query('status') status?: string,
   ) {
     return this.adminService.getVendors({ search, status });
   }
 
-  @Get("buyers")
-  getBuyers(@Query("search") search?: string) {
+  @Get('buyers')
+  getBuyers(@Query('search') search?: string) {
     return this.adminService.getBuyers({ search });
   }
 
-  @Get("products")
+  @Get('products')
   getProducts(
-    @Query("search") search?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("sort") sort?: string,
+    @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.adminService.getProducts({
       search,
@@ -51,11 +51,11 @@ export class AdminController {
     });
   }
 
-  @Get("orders")
+  @Get('orders')
   getOrders(
-    @Query("status") status?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
+    @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     return this.adminService.getOrders({
       status,
@@ -64,11 +64,11 @@ export class AdminController {
     });
   }
 
-  @Get("disputes")
+  @Get('disputes')
   getDisputes(
-    @Query("status") status?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
+    @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     return this.adminService.getDisputes({
       status,
@@ -77,13 +77,13 @@ export class AdminController {
     });
   }
 
-  @Get("reviews")
+  @Get('reviews')
   getReviews(
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("productId") productId?: string,
-    @Query("minRating") minRating?: string,
-    @Query("maxRating") maxRating?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('productId') productId?: string,
+    @Query('minRating') minRating?: string,
+    @Query('maxRating') maxRating?: string,
   ) {
     return this.adminService.getReviews({
       page: page ? parseInt(page, 10) : 1,
@@ -94,19 +94,19 @@ export class AdminController {
     });
   }
 
-  @Delete("reviews/:reviewId")
+  @Delete('reviews/:reviewId')
   @HttpCode(HttpStatus.OK)
-  deleteReview(@Param("reviewId") reviewId: string) {
+  deleteReview(@Param('reviewId') reviewId: string) {
     return this.adminService.deleteReview(reviewId);
   }
 
-  @Get("audit-logs")
+  @Get('audit-logs')
   getAuditLogs(
-    @Query("search") search?: string,
-    @Query("action") action?: string,
-    @Query("sort") sort?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
+    @Query('search') search?: string,
+    @Query('action') action?: string,
+    @Query('sort') sort?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     return this.adminService.getAuditLogs({
       search,

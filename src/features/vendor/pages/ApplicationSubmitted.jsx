@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { AuthContext } from '@/shared/context/AuthContext';
 import Button from '@/shared/components/Button';
 
 export default function ApplicationSubmitted() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center px-gutter py-xl">
@@ -31,7 +33,7 @@ export default function ApplicationSubmitted() {
 
             <h1 className="font-headline-lg text-headline-lg text-on-surface mb-sm">Application submitted!</h1>
             <p className="font-body-md text-body-md text-on-surface-variant mb-lg max-w-sm mx-auto">
-              Your store is now under review. We'll notify you at <span className="font-medium text-on-surface">{JSON.parse(localStorage.getItem('vendex_user') || '{}').email || 'your email'}</span> once approved.
+              Your store is now under review. We'll notify you at <span className="font-medium text-on-surface">{user?.email || 'your email'}</span> once approved.
             </p>
 
             {/* Timeline */}

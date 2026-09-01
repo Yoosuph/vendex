@@ -13,21 +13,30 @@ const sections = [
     items: [
       { name: 'My Orders', path: '/buyer/orders', icon: 'shopping_bag' },
       { name: 'Wishlist', path: '/buyer/wishlist', icon: 'favorite' },
+      { name: 'Reviews', path: '/buyer/reviews', icon: 'rate_review' },
+      { name: 'Disputes', path: '/buyer/disputes', icon: 'gavel' },
     ],
   },
   {
     title: 'Account',
     items: [
+      { name: 'Addresses', path: '/buyer/addresses', icon: 'location_on' },
+      { name: 'Followed Stores', path: '/buyer/stores', icon: 'store' },
+      { name: 'Wallet & Credits', path: '/buyer/wallet', icon: 'account_balance_wallet' },
+      { name: 'Settings', path: '/buyer/settings', icon: 'settings' },
       { name: 'Become a Vendor', path: '/vendor/onboarding', icon: 'storefront' },
-      { name: 'Followed Stores', path: '#', icon: 'store', disabled: true },
-      { name: 'Reviews', path: '#', icon: 'rate_review', disabled: true },
-      { name: 'Wallet & Credits', path: '#', icon: 'account_balance_wallet', disabled: true },
-      { name: 'Addresses', path: '#', icon: 'location_on', disabled: true },
-      { name: 'Settings', path: '#', icon: 'settings', disabled: true },
     ],
   },
 ];
 
-export default function BuyerSidebar({ mobile }) {
-  return <Sidebar brandLabel="Vendex" brandSubtitle="Buyer Portal" sections={sections} mobile={mobile} />;
+export default function BuyerSidebar({ mobile, closeDrawer }) {
+  return (
+    <Sidebar
+      brandLabel="Vendex"
+      brandSubtitle="Buyer Portal"
+      sections={sections}
+      mobile={mobile}
+      closeDrawer={closeDrawer}
+    />
+  );
 }

@@ -27,5 +27,15 @@ export { ToastContext, ToastProvider, useToast } from './context/ToastContext';
 // Hooks
 export { default as useForm } from './hooks/useForm';
 
-// DB
-export { mockDb } from './db/mockDb';
+// API
+export { apiClient, setToken, getToken, clearToken } from './api/client';
+export * as authApi from './api/auth';
+export * as productsApi from './api/products';
+export * as ordersApi from './api/orders';
+export * as cartApi from './api/cartApi';
+export * as wishlistApi from './api/wishlistApi';
+export * as usersApi from './api/users';
+export * as disputesApi from './api/disputes';
+export * as auditApi from './api/audit';
+export * as reviewsApi from './api/reviews';
+export * as vendorsApi from './api/vendors';

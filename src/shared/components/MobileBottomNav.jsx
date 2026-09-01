@@ -5,11 +5,11 @@ import { cn } from '@/utils/cn';
 export default function MobileBottomNav({ role }) {
   const tabs = {
     buyer: [
-      { name: 'Home', path: '/', icon: 'home' },
-      { name: 'Explore', path: '/search', icon: 'search' },
+      { name: 'Home', path: '/buyer', icon: 'dashboard' },
       { name: 'Orders', path: '/buyer/orders', icon: 'shopping_bag' },
-      { name: 'Cart', path: '/cart', icon: 'shopping_cart' },
-      { name: 'Profile', path: '/buyer', icon: 'account_circle' }
+      { name: 'Saved', path: '/buyer/wishlist', icon: 'favorite' },
+      { name: 'Shop', path: '/search', icon: 'search' },
+      { name: 'Account', path: '/buyer/settings', icon: 'account_circle' },
     ],
     vendor: [
       { name: 'Home', path: '/', icon: 'home' },

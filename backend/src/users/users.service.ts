@@ -2,11 +2,11 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
-} from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
-import { UpdateProfileDto } from "./dto/update-profile.dto.js";
-import { ChangePasswordDto } from "./dto/change-password.dto.js";
-import bcrypt from "bcryptjs";
+} from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -34,13 +34,13 @@ export class UsersService {
         createdAt: true,
       },
     });
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException('User not found');
 
     return this.prisma.user.update({
       where: { id: userId },
@@ -67,10 +67,10 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException('User not found');
 
     const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
-    if (!valid) throw new UnauthorizedException("WRONG_PASSWORD");
+    if (!valid) throw new UnauthorizedException('WRONG_PASSWORD');
 
     const hash = await bcrypt.hash(dto.newPassword, 12);
     await this.prisma.user.update({
@@ -78,7 +78,7 @@ export class UsersService {
       data: { passwordHash: hash },
     });
 
-    return { message: "Password updated" };
+    return { message: 'Password updated' };
   }
 
   async getPublicProfile(id: string) {
@@ -97,7 +97,7 @@ export class UsersService {
         createdAt: true,
       },
     });
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
 }

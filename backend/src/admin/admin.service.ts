@@ -1,8 +1,5 @@
-import {
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../common/prisma/prisma.service.js";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service.js';
 
 @Injectable()
 export class AdminService {
@@ -20,12 +17,12 @@ export class AdminService {
       this.prisma.order.count(),
       this.prisma.product.count(),
       this.prisma.user.groupBy({
-        by: ["status"],
-        where: { role: "VENDOR" },
+        by: ['status'],
+        where: { role: 'VENDOR' },
         _count: true,
       }),
       this.prisma.order.groupBy({
-        by: ["status"],
+        by: ['status'],
         _count: true,
       }),
     ]);
@@ -46,12 +43,12 @@ export class AdminService {
 
     const totalVendors = vendorsByStatus.reduce((acc, s) => acc + s._count, 0);
     const totalBuyers = await this.prisma.user.count({
-      where: { role: "BUYER" },
+      where: { role: 'BUYER' },
     });
 
     const recentOrders = await this.prisma.order.findMany({
       take: 5,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: { items: true },
     });
 
@@ -72,16 +69,16 @@ export class AdminService {
   async getVendors(query: { search?: string; status?: string }) {
     const { search, status } = query;
 
-    const where: any = { role: "VENDOR" };
-    if (status && status !== "all") {
+    const where: any = { role: 'VENDOR' };
+    if (status && status !== 'all') {
       where.status = status.toUpperCase();
     }
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { vendorId: { contains: search, mode: "insensitive" } },
-        { storeName: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { vendorId: { contains: search, mode: 'insensitive' } },
+        { storeName: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -97,7 +94,7 @@ export class AdminService {
         createdAt: true,
         _count: { select: { products: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return {
@@ -111,11 +108,11 @@ export class AdminService {
   async getBuyers(query: { search?: string }) {
     const { search } = query;
 
-    const where: any = { role: "BUYER" };
+    const where: any = { role: 'BUYER' };
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -128,11 +125,11 @@ export class AdminService {
         createdAt: true,
         _count: { select: { orders: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     const buyerStats = await this.prisma.order.groupBy({
-      by: ["buyerId"],
+      by: ['buyerId'],
       _sum: { total: true },
     });
     const spendMap = new Map(
@@ -162,22 +159,22 @@ export class AdminService {
     limit?: number;
     sort?: string;
   }) {
-    const { search, page = 1, limit = 20, sort = "newest" } = query;
+    const { search, page = 1, limit = 20, sort = 'newest' } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { categoryName: { contains: search, mode: "insensitive" } },
-        { vendorName: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { categoryName: { contains: search, mode: 'insensitive' } },
+        { vendorName: { contains: search, mode: 'insensitive' } },
       ];
     }
 
-    let orderBy: any = { createdAt: "desc" };
-    if (sort === "price_asc") orderBy = { price: "asc" };
-    else if (sort === "price_desc") orderBy = { price: "desc" };
-    else if (sort === "rating") orderBy = { rating: "desc" };
+    let orderBy: any = { createdAt: 'desc' };
+    if (sort === 'price_asc') orderBy = { price: 'asc' };
+    else if (sort === 'price_desc') orderBy = { price: 'desc' };
+    else if (sort === 'rating') orderBy = { rating: 'desc' };
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({ where, orderBy, skip, take: limit }),
@@ -205,7 +202,7 @@ export class AdminService {
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
         include: { items: true },
@@ -219,21 +216,17 @@ export class AdminService {
     };
   }
 
-  async getDisputes(query: {
-    status?: string;
-    page?: number;
-    limit?: number;
-  }) {
+  async getDisputes(query: { status?: string; page?: number; limit?: number }) {
     const { status, page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    if (status) where.status = status.toUpperCase().replace(" ", "_");
+    if (status) where.status = status.toUpperCase().replace(' ', '_');
 
     const [disputes, total] = await Promise.all([
       this.prisma.dispute.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
@@ -267,7 +260,7 @@ export class AdminService {
     const [reviews, total] = await Promise.all([
       this.prisma.review.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
         include: { product: { select: { id: true, name: true } } },
@@ -285,7 +278,7 @@ export class AdminService {
     const review = await this.prisma.review.findUnique({
       where: { id: reviewId },
     });
-    if (!review) throw new NotFoundException("Review not found");
+    if (!review) throw new NotFoundException('Review not found');
 
     return this.prisma.$transaction(async (tx) => {
       await tx.review.delete({ where: { id: reviewId } });
@@ -306,14 +299,14 @@ export class AdminService {
 
       await tx.auditLog.create({
         data: {
-          adminName: "System",
-          action: "DELETE_REVIEW",
+          adminName: 'System',
+          action: 'DELETE_REVIEW',
           resource: `Review ${reviewId}`,
-          status: "Success",
+          status: 'Success',
         },
       });
 
-      return { message: "Review deleted" };
+      return { message: 'Review deleted' };
     });
   }
 
@@ -324,23 +317,22 @@ export class AdminService {
     page?: number;
     limit?: number;
   }) {
-    const { search, action, sort = "desc", page = 1, limit = 20 } = query;
+    const { search, action, sort = 'desc', page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
     if (action) where.action = action;
     if (search) {
       where.OR = [
-        { adminName: { contains: search, mode: "insensitive" } },
-        { action: { contains: search, mode: "insensitive" } },
-        { resource: { contains: search, mode: "insensitive" } },
+        { adminName: { contains: search, mode: 'insensitive' } },
+        { resource: { contains: search, mode: 'insensitive' } },
       ];
     }
 
     const orderBy =
-      sort === "asc"
-        ? { timestamp: "asc" as const }
-        : { timestamp: "desc" as const };
+      sort === 'asc'
+        ? { timestamp: 'asc' as const }
+        : { timestamp: 'desc' as const };
 
     const [logs, total] = await Promise.all([
       this.prisma.auditLog.findMany({ where, orderBy, skip, take: limit }),

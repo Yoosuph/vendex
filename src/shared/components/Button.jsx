@@ -72,7 +72,10 @@ export default function Button({
   }, [success, successDuration]);
 
   const handleClick = useCallback((e) => {
-    if (isDisabled) return;
+    if (isDisabled) {
+      e.preventDefault();
+      return;
+    }
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -171,8 +174,42 @@ export default function Button({
     </>
   );
 
-  if (to) return <Link to={to} className={classes}>{content}</Link>;
-  if (href) return <a href={href} className={classes}>{content}</a>;
+  if (to) {
+    return (
+      <Link to={to} className={classes} onClick={handleClick} {...props}>
+        {ripple && (
+          <span
+            className="absolute rounded-full bg-white/30 pointer-events-none animate-ping"
+            style={{
+              left: ripple.x - 10,
+              top: ripple.y - 10,
+              width: 20,
+              height: 20,
+            }}
+          />
+        )}
+        {content}
+      </Link>
+    );
+  }
+  if (href) {
+    return (
+      <a href={href} className={classes} onClick={handleClick} {...props}>
+        {ripple && (
+          <span
+            className="absolute rounded-full bg-white/30 pointer-events-none animate-ping"
+            style={{
+              left: ripple.x - 10,
+              top: ripple.y - 10,
+              width: 20,
+              height: 20,
+            }}
+          />
+        )}
+        {content}
+      </a>
+    );
+  }
 
   return (
     <motion.button

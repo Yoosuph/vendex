@@ -9,14 +9,14 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-} from "@nestjs/common";
-import { DisputesService } from "./disputes.service.js";
-import { CreateDisputeDto, ResolveDisputeDto } from "./dto/dispute.dto.js";
-import { CurrentUser } from "../common/decorators/current-user.decorator.js";
-import { Roles } from "../common/decorators/roles.decorator.js";
-import { JwtAuthGuard, RolesGuard } from "../common/guards/index.js";
+} from '@nestjs/common';
+import { DisputesService } from './disputes.service.js';
+import { CreateDisputeDto, ResolveDisputeDto } from './dto/dispute.dto.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { JwtAuthGuard, RolesGuard } from '../common/guards/index.js';
 
-@Controller("disputes")
+@Controller('disputes')
 @UseGuards(JwtAuthGuard)
 export class DisputesController {
   constructor(private readonly disputesService: DisputesService) {}
@@ -24,9 +24,9 @@ export class DisputesController {
   @Get()
   findAll(
     @CurrentUser() user: any,
-    @Query("status") status?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
+    @Query('status') status?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
     return this.disputesService.findAll(user.sub, user.role, user.vendorId, {
       status,
@@ -35,13 +35,13 @@ export class DisputesController {
     });
   }
 
-  @Get(":id")
-  findOne(@Param("id") id: string) {
+  @Get(':id')
+  findOne(@Param('id') id: string) {
     return this.disputesService.findOne(id);
   }
 
   @UseGuards(RolesGuard)
-  @Roles("buyer")
+  @Roles('buyer')
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@CurrentUser() user: any, @Body() dto: CreateDisputeDto) {
@@ -49,11 +49,11 @@ export class DisputesController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles("admin")
-  @Patch(":id/resolve")
+  @Roles('admin')
+  @Patch(':id/resolve')
   @HttpCode(HttpStatus.OK)
   resolve(
-    @Param("id") id: string,
+    @Param('id') id: string,
     @Body() dto: ResolveDisputeDto,
     @CurrentUser() user: any,
   ) {

@@ -17,5 +17,8 @@ export const RoleRoute = ({ children, allowedRoles }) => {
   if (user.role === 'vendor' && (user.status === 'suspended' || user.status === 'pending')) {
     return <Navigate to="/" replace />;
   }
+  if (user.role === 'buyer' && user.status === 'suspended') {
+    return <Navigate to="/" replace />;
+  }
   return children;
 };

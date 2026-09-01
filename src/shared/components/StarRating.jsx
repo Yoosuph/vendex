@@ -37,12 +37,16 @@ export default function StarRating({
     let icon;
     let colorClass;
 
+    let isFilled = false;
+
     if (type === 'full') {
       icon = 'star';
       colorClass = 'text-warning';
+      isFilled = true;
     } else if (type === 'half') {
       icon = 'star_half';
       colorClass = 'text-warning';
+      isFilled = true;
     } else {
       icon = 'star';
       colorClass = 'text-on-surface/20';
@@ -51,7 +55,7 @@ export default function StarRating({
     stars.push(
       <span
         key={i}
-        className={cn('material-symbols-outlined text-xl', colorClass, interactive && 'cursor-pointer transition-transform hover:scale-110')}
+        className={cn('material-symbols-outlined text-xl', colorClass, isFilled && 'icon-filled', interactive && 'cursor-pointer transition-transform hover:scale-110')}
         onClick={() => handleClick(i)}
         onMouseEnter={() => handleMouseEnter(i)}
         onMouseLeave={handleMouseLeave}
